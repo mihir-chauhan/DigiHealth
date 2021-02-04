@@ -32,6 +32,7 @@ dependencies:
   firebase_core: ^0.4.4+3
   auto_size_text: ^2.1.0
   flutter_spinkit: ^4.1.2+1
+  vertical_card_pager: ^1.4.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - DigiHealthBanner.png
+    - images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
