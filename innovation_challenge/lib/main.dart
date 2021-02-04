@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:innovation_challenge/homePage.dart';
-import 'package:innovation_challenge/signUpPage.dart';
+import 'package:DigiHealth/homePage.dart';
+import 'package:DigiHealth/signUpPage.dart';
 import 'welcomePage.dart';
 import 'provider_widget.dart';
-import 'package:innovation_challenge/services/auth_service.dart';
+import 'package:DigiHealth/services/auth_service.dart';
 
 
 void main() => runApp(MyApp());
@@ -51,5 +51,6 @@ class HomeController extends StatelessWidget {
           return CupertinoActivityIndicator();
       },
     );
+
   }
 }

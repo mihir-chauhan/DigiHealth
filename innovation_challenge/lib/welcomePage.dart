@@ -43,7 +43,7 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 28, color: primaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w200)
                   ),
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/signUp');
+                    Navigator.pushNamed(context, '/signUp');
                   },
                 ),
                 SizedBox(height: _height * 0.01),
@@ -53,7 +53,7 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 25, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200),
                   ),
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/signIn');
+                    Navigator.pushNamed(context, '/signIn');
                   },
                 )
               ],

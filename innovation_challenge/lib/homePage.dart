@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:innovation_challenge/provider_widget.dart';
-import 'package:innovation_challenge/services/auth_service.dart';
+import 'package:DigiHealth/provider_widget.dart';
+import 'package:DigiHealth/services/auth_service.dart';
 
 class HomePage extends StatelessWidget {
   final primaryColor = const Color(0xFF75A2EA);

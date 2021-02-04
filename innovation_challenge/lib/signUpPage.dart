@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:innovation_challenge/main.dart';
+import 'package:DigiHealth/main.dart';
 import 'services/auth_service.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'provider_widget.dart';
@@ -85,12 +85,24 @@ class _SignUpPageState extends State<SignUpPage> {
         if (authFormType == AuthFormType.signIn) {
           String uid = await auth.signInWithEmailAndPassword(_email, _password);
           print("Signed In with ID $uid");
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigator.of(context).pushReplacementNamed('/home');
+          Navigator.pushAndRemoveUntil(
+            context,
+            CupertinoPageRoute(builder: (context) => HomeController()),
+                (Route<dynamic> route) => false,
+          );
+
+          Navigator.pushNamed(context, '/home');
         } else {
           String uid = await auth.createUserWithEmailAndPassword(
               _email, _password, _name);
           print("Signed Up with New ID $uid");
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigator.of(context).pushReplacementNamed('/home');
+          Navigator.pushAndRemoveUntil(
+            context,
+            CupertinoPageRoute(builder: (context) => HomeController()),
+                (Route<dynamic> route) => false,
+          );
         }
       } catch (e) {
         print("Form Submit Error (signUpPage.dart): $e");
