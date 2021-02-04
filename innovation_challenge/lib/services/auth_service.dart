@@ -35,5 +35,31 @@ class AuthService {
   signOut() {
     return _firebaseAuth.signOut();
   }
+}
 
+class EmailValidator {
+  static String validate(String value) {
+    if (value?.isEmpty ?? true) {
+      return "Email can't be empty";
+    }
+    return null;
+  }
+}
+
+class NameValidator {
+  static String validate(String value) {
+    if (value?.isEmpty ?? true) {
+      return "Name can't be empty";
+    }
+    return null;
+  }
+}
+
+class PasswordValidator {
+  static String validate(String value) {
+    if (value?.isEmpty ?? true) {
+      return "Password can't be empty";
+    }
+    return null;
+  }
 }

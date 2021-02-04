@@ -1,10 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:innovation_challenge/main.dart';
 import 'services/auth_service.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'provider_widget.dart';
 
+bool error = false;
+
+
 final primaryColor = const Color(0xFF75A2EA);
+final accentColor = const Color(0xFFFFFFFF);
 var secondaryColor = const Color(0xFFFFFFFF);
 var hintColor = const Color(0xFF808080);
 
@@ -41,23 +47,56 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  void submit() async {
+  bool validate() {
     final form = formKey.currentState;
     form.save();
 
-    try {
-      final auth = Provider.of(context).auth;
-      if(authFormType == AuthFormType.signIn) {
-        String uid = await auth.signInWithEmailAndPassword(_email, _password);
-        print("Signed In with ID $uid");
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        String uid = await auth.createUserWithEmailAndPassword(_email, _password, _name);
-        print("Signed Up with New ID $uid");
-        Navigator.of(context).pushReplacementNamed('/home');
+    if (EmailValidator.validate(_email) == null &&
+        PasswordValidator.validate(_password) == null) {
+      if (authFormType == AuthFormType.signUp) {
+        if (NameValidator.validate(_name) == null) {
+          error = false;
+          return true;
+        }
+        error = true;
+        return false;
       }
-    } catch (e) {
-      print("Form Submit Error (signUpPage.dart): $e");
+      error = false;
+      return true;
+    }
+    error = true;
+    return false;
+  }
+
+  void submit() async {
+    if (validate() && !error) {
+      Navigator.of(context, rootNavigator: true).push(
+        new CupertinoPageRoute(
+          builder: (context) => loadingScreen(),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      try {
+        final auth = Provider
+            .of(context)
+            .auth;
+        if (authFormType == AuthFormType.signIn) {
+          String uid = await auth.signInWithEmailAndPassword(_email, _password);
+          print("Signed In with ID $uid");
+          Navigator.of(context).pushReplacementNamed('/home');
+        } else {
+          String uid = await auth.createUserWithEmailAndPassword(
+              _email, _password, _name);
+          print("Signed Up with New ID $uid");
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      } catch (e) {
+        print("Form Submit Error (signUpPage.dart): $e");
+      }
+    } else {
+
     }
   }
 
@@ -146,7 +185,7 @@ class _SignUpPageState extends State<SignUpPage> {
         obscureText: true,
         decoration: BoxDecoration(
             color: secondaryColor, borderRadius: BorderRadius.circular(9))));
-    textFields.add(SizedBox(height: 20));
+    textFields.add(SizedBox(height: 80));
     return textFields;
   }
 
@@ -187,5 +226,35 @@ class _SignUpPageState extends State<SignUpPage> {
         },
       )
     ];
+  }
+}
+
+class loadingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: primaryColor,
+      child: Align(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SpinKitFoldingCube(
+                color: accentColor,
+                size: 100,
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              Text(
+                "Loading",
+                style: TextStyle(color: accentColor, fontSize: 20),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -21,41 +21,39 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(
-                  height: _height * 0.1,
+                  height: _height * 0.05,
                 ),
-                Text("Welcome",
+                Text("Welcome to",
                     style: TextStyle(fontSize: 48, color: Colors.white)),
-                SizedBox(
-                  height: _height * 0.1,
+                SizedBox(height: _height * 0.05),
+                Image.asset(
+                  'assets/DigiHealthBanner.png',
                 ),
+                SizedBox(height: _height * 0.05),
                 AutoSizeText("Your first step to a healthier life",
                     maxLines: 2,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 40, color: Colors.white)),
-                SizedBox(
-                  height: _height * 0.15,
-                ),
+                SizedBox(height: _height * 0.15),
                 CupertinoButton(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(30)),
-                  child: Text("Get Started",
-                        style: TextStyle(
-                            color: primaryColor,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w300),
+                  child: Text(
+                    "Get Started",
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w300),
                   ),
                   onPressed: () {
                     Navigator.of(context).pushReplacementNamed('/signUp');
                   },
                 ),
-                SizedBox(
-                  height: _height * 0.05,
-                ),
+                SizedBox(height: _height * 0.025),
                 CupertinoButton(
-                  child: Text("Sign In",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25),
+                  child: Text(
+                    "Sign In",
+                    style: TextStyle(color: Colors.white, fontSize: 25),
                   ),
                   onPressed: () {
                     Navigator.of(context).pushReplacementNamed('/signIn');
