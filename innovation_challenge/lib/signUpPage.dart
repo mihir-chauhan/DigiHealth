@@ -118,7 +118,9 @@ class _SignUpPageState extends State<SignUpPage> {
     final _height = MediaQuery.of(context).size.height;
 
     return CupertinoPageScaffold(
-      child: Container(
+      child: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        child: Container(
         color: primaryColor,
         height: _height,
         width: _width,
@@ -139,6 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
