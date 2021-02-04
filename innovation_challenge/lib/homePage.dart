@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
                     size: 35,
                   ),
                 ),
-                largeTitle: Text("Home", style: TextStyle(color: Colors.white)),
+                largeTitle: Text("Home", style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
                 trailing: GestureDetector(
                   onTap: () {
                   },

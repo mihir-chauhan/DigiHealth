@@ -24,7 +24,7 @@ class WelcomePage extends StatelessWidget {
                   height: _height * 0.05,
                 ),
                 Text("Welcome to",
-                    style: TextStyle(fontSize: 48, color: Colors.white)),
+                    style: TextStyle(fontSize: 48, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
                 SizedBox(height: _height * 0.05),
                 Image.asset(
                   'assets/DigiHealthBanner.png',
@@ -33,27 +33,24 @@ class WelcomePage extends StatelessWidget {
                 AutoSizeText("Your first step to a healthier life",
                     maxLines: 2,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 40, color: Colors.white)),
-                SizedBox(height: _height * 0.15),
+                    style: TextStyle(fontSize: 40, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
+                SizedBox(height: _height * 0.1),
                 CupertinoButton(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Text(
                     "Get Started",
-                    style: TextStyle(
-                        color: primaryColor,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w300),
+                    style: TextStyle(fontSize: 28, color: primaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w200)
                   ),
                   onPressed: () {
                     Navigator.of(context).pushReplacementNamed('/signUp');
                   },
                 ),
-                SizedBox(height: _height * 0.025),
+                SizedBox(height: _height * 0.01),
                 CupertinoButton(
                   child: Text(
                     "Sign In",
-                    style: TextStyle(color: Colors.white, fontSize: 25),
+                    style: TextStyle(fontSize: 25, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200),
                   ),
                   onPressed: () {
                     Navigator.of(context).pushReplacementNamed('/signIn');

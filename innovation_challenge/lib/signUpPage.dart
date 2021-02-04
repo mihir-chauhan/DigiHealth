@@ -142,7 +142,7 @@ class _SignUpPageState extends State<SignUpPage> {
       _headerText,
       maxLines: 1,
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 35, color: Colors.white),
+      style: TextStyle(fontSize: 35, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200),
     );
   }
 
@@ -152,7 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
     //if we're in the sign up state add name
     if (authFormType == AuthFormType.signUp) {
       textFields.add(CupertinoTextField(
-        style: TextStyle(fontSize: 22, color: Colors.black87),
+        style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
         onChanged: (String value) => _name = value,
         placeholder: "Name",
         placeholderStyle: TextStyle(color: hintColor),
@@ -166,7 +166,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     // add email & password
     textFields.add(CupertinoTextField(
-      style: TextStyle(fontSize: 22, color: Colors.black87),
+      style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
       onChanged: (String value) => _email = value,
       placeholder: "Email",
       placeholderStyle: TextStyle(color: hintColor),
@@ -177,7 +177,7 @@ class _SignUpPageState extends State<SignUpPage> {
     ));
     textFields.add(SizedBox(height: 20));
     textFields.add(CupertinoTextField(
-        style: TextStyle(fontSize: 22, color: Colors.black87),
+        style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
         onChanged: (value) => _password = value,
         cursorColor: Colors.black87,
         placeholder: "Password",
@@ -202,6 +202,8 @@ class _SignUpPageState extends State<SignUpPage> {
       _submitButtonText = "Sign Up";
     }
 
+    final _height = MediaQuery.of(context).size.height;
+
     return [
       Container(
         width: MediaQuery.of(context).size.width * 0.7,
@@ -210,16 +212,16 @@ class _SignUpPageState extends State<SignUpPage> {
           borderRadius: BorderRadius.all(Radius.circular(30)),
           child: Text(
             _submitButtonText,
-            style: TextStyle(
-                color: primaryColor, fontSize: 28, fontWeight: FontWeight.w300),
+            style: TextStyle(fontSize: 28, color: primaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
           ),
           onPressed: submit,
         ),
       ),
+      SizedBox(height: _height * 0.025),
       CupertinoButton(
         child: Text(
           _switchButton,
-          style: TextStyle(color: Colors.white, fontSize: 25),
+          style: TextStyle(fontSize: 25, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
         ),
         onPressed: () {
           switchFormState(_newFormState);
@@ -249,7 +251,7 @@ class loadingScreen extends StatelessWidget {
               ),
               Text(
                 "Loading",
-                style: TextStyle(color: accentColor, fontSize: 20),
+                style: TextStyle(fontSize: 20, color: accentColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
               )
             ],
           ),
