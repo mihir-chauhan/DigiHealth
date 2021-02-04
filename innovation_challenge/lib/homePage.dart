@@ -21,54 +21,46 @@ class _HomePageState extends State<HomePage> {
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
 
   final List<String> titles = [
-    "Catalina",
-    "El Capitan",
-    "High Sirera",
-    "Mojave",
-    "Sierra",
-    "Yosemite",
+    "Outdoor",
+    "Indoor",
+    "Meditation",
+    "Yoga",
+    "Music",
   ];
 
   final List<Widget> images = [
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/catalina.png",
+        "images/outdoor.jpg",
         fit: BoxFit.cover,
       ),
     ),
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/el_capitan.png",
+        "images/indoor.jpg",
         fit: BoxFit.cover,
       ),
     ),
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/high_sierra.png",
+        "images/meditation.jpg",
         fit: BoxFit.cover,
       ),
     ),
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/mojave.png",
+        "images/yoga.jpg",
         fit: BoxFit.cover,
       ),
     ),
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/sierra.png",
-        fit: BoxFit.cover,
-      ),
-    ),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Image.asset(
-        "images/yosemite.png",
+        "images/music.jpg",
         fit: BoxFit.cover,
       ),
     ),
@@ -86,7 +78,6 @@ class _HomePageState extends State<HomePage> {
             ],
             onTap: (i) {
               if (i == 0) {
-                print(0);
                 setState(() {
                   homeIcon = Icon(Icons.home, color: Colors.white);
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
@@ -95,7 +86,6 @@ class _HomePageState extends State<HomePage> {
                       Icon(Icons.person_outline_rounded, color: Colors.white);
                 });
               } else if (i == 1) {
-                print(1);
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
                   chatIcon = Icon(Icons.chat, color: Colors.white);
@@ -103,7 +93,6 @@ class _HomePageState extends State<HomePage> {
                       Icon(Icons.person_outline_rounded, color: Colors.white);
                 });
               } else {
-                print(2);
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
