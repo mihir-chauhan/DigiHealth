@@ -1,8 +1,6 @@
-import 'package:animated_drawer/views/animated_drawer.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/provider_widget.dart';
@@ -26,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
 
   String messageToSend = "";
-  final ScrollController _scrollController = ScrollController();
+  final List<MessageWidget> _messageList = [];
 
   final List<String> titles = [
     "Outdoor",
@@ -84,7 +82,7 @@ class _HomePageState extends State<HomePage> {
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: profileIcon),
             ],
-            onTap: (i) {
+            onTap: (i) async {
               if (i == 0) {
                 setState(() {
                   homeIcon = Icon(Icons.home, color: Colors.white);
@@ -100,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
                 });
+                await populateChatListView("Mental Health");
               } else {
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
@@ -179,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                       onSelectedItem: (index) {
                         // optional
                       },
-                      initialPage: 0,
+                      initialPage: 2,
                       // optional
                       align: ALIGN.CENTER // optional
                       ),
@@ -246,30 +245,75 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget generateChatListView() {
-    final List<MessageWidget> _messageList = [
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
-    ];
+  sendChatMessage(String message, String chatRoom) async {
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final databaseReference = Firestore.instance;
+    await databaseReference
+        .collection("Chat")
+        .document("Chat Rooms")
+        .collection(chatRoom)
+        .add({
+      "message": message,
+      "sentBy": user.displayName,
+      "created": Timestamp.now()
+    }).then((value) {
+      setState(() {
+        _messageList.add(
+            createMessageWidget(message, OwnerType.sender, user.displayName));
+      });
+    });
+  }
 
+
+  populateChatListView(String chatRoom) async {
+    bool needsToPopulateFromScratch = true;
+    final FirebaseUser user = await Provider.of(context).auth.firebaseAuth.currentUser();
+
+    String message;
+
+    final databaseReference = Firestore.instance;
+    await databaseReference
+        .collection("Chat")
+        .document("Chat Rooms")
+        .collection(chatRoom)
+        .orderBy('created', descending: false)
+        .snapshots()
+        .listen((data) {
+      if(needsToPopulateFromScratch) {
+        //prepare previous messages as entering chat view
+        _messageList.clear();
+        for (int i = 0; i < data.documents.length; i++) {
+          data.documents.elementAt(i).data.forEach((key, value) {
+            if(key.toString().contains("message")) {
+              message = value.toString();
+            } else if(key.toString().contains("sentBy")) {
+              setState(() {
+                _messageList.add(createMessageWidget(message, value.toString().endsWith(user.displayName.toString()) ? OwnerType.sender : OwnerType.receiver, value.toString()));
+              });
+            }
+          });
+        }
+        needsToPopulateFromScratch = false;
+      } else {
+        //got message while in chat
+        data.documents.last.data.forEach((key, value) {
+          if(key.toString().contains("message")) {
+            message = value.toString();
+          } else if(key.toString().contains("sentBy") && !value.toString().endsWith(user.displayName.toString())) {
+            setState(() {
+              _messageList.add(createMessageWidget(message, OwnerType.receiver, value.toString()));
+            });
+          }
+        });
+      }
+
+    }).asFuture();
+  }
+
+  Widget generateChatListView() {
+    final ScrollController _scrollController = ScrollController();
+    final TextEditingController _controller = new TextEditingController();
     return Container(
       child: Column(
         children: [
@@ -277,8 +321,7 @@ class _HomePageState extends State<HomePage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ChatList(
-                  children: _messageList,
-                  scrollController: _scrollController),
+                  children: _messageList, scrollController: _scrollController),
             ),
           ),
           Padding(
@@ -291,6 +334,7 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                       children: [
                         CupertinoTextField(
+                          controller: _controller,
                           style: TextStyle(
                               fontSize: 22,
                               color: Colors.black87,
@@ -298,7 +342,6 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.w300),
                           onChanged: (String value) {
                             messageToSend = value;
-                            print("value $messageToSend");
                           },
                           placeholder: "Message",
                           placeholderStyle: TextStyle(color: hintColor),
@@ -316,18 +359,9 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                _scrollController.position.maxScrollExtent;
-                                final databaseReference = Firestore.instance;
-                                await databaseReference
-                                    .collection("Chat")
-                                    .document("Chat Rooms")
-                                    .collection("Mental Health")
-                                    .add({
-                                  "message": messageToSend,
-                                  "sentBy": "Mihir",
-                                }).then((value) {
-                                  print("DONE");
-                                });
+                                _controller.clear();
+                                await sendChatMessage(
+                                    messageToSend, "Mental Health");
                               },
                               child: Icon(
                                 Icons.send_rounded,
