@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
 
+  final TextEditingController _controller = new TextEditingController();
   String messageToSend = "";
   final List<MessageWidget> _messageList = [];
 
@@ -257,18 +258,12 @@ class _HomePageState extends State<HomePage> {
       "message": message,
       "sentBy": user.displayName,
       "created": Timestamp.now()
-    }).then((value) {
-      setState(() {
-        _messageList.add(
-            createMessageWidget(message, OwnerType.sender, user.displayName));
-      });
     });
   }
 
-
   populateChatListView(String chatRoom) async {
-    bool needsToPopulateFromScratch = true;
-    final FirebaseUser user = await Provider.of(context).auth.firebaseAuth.currentUser();
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
 
     String message;
 
@@ -280,40 +275,30 @@ class _HomePageState extends State<HomePage> {
         .orderBy('created', descending: false)
         .snapshots()
         .listen((data) {
-      if(needsToPopulateFromScratch) {
-        //prepare previous messages as entering chat view
-        _messageList.clear();
-        for (int i = 0; i < data.documents.length; i++) {
-          data.documents.elementAt(i).data.forEach((key, value) {
-            if(key.toString().contains("message")) {
-              message = value.toString();
-            } else if(key.toString().contains("sentBy")) {
-              setState(() {
-                _messageList.add(createMessageWidget(message, value.toString().endsWith(user.displayName.toString()) ? OwnerType.sender : OwnerType.receiver, value.toString()));
-              });
-            }
-          });
-        }
-        needsToPopulateFromScratch = false;
-      } else {
-        //got message while in chat
-        data.documents.last.data.forEach((key, value) {
-          if(key.toString().contains("message")) {
+      _messageList.clear();
+      for (int i = 0; i < data.documents.length; i++) {
+        data.documents.elementAt(i).data.forEach((key, value) {
+          if (key.toString().contains("message")) {
             message = value.toString();
-          } else if(key.toString().contains("sentBy") && !value.toString().endsWith(user.displayName.toString())) {
+          } else if (key.toString().contains("sentBy")) {
             setState(() {
-              _messageList.add(createMessageWidget(message, OwnerType.receiver, value.toString()));
+              _messageList.add(createMessageWidget(
+                  message,
+                  value.toString().endsWith(user.displayName.toString())
+                      ? OwnerType.sender
+                      : OwnerType.receiver,
+                  value.toString()));
             });
           }
         });
       }
-
     }).asFuture();
   }
 
+
+
   Widget generateChatListView() {
     final ScrollController _scrollController = ScrollController();
-    final TextEditingController _controller = new TextEditingController();
     return Container(
       child: Column(
         children: [
