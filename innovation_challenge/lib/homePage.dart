@@ -1,4 +1,8 @@
+import 'package:animated_drawer/views/animated_drawer.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat_list/chat_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/provider_widget.dart';
@@ -16,9 +20,13 @@ class _HomePageState extends State<HomePage> {
   var hintColor = const Color(0xFF808080);
 
   final secondaryColor = const Color(0xFF5c7fb8);
+  final quaternaryColor = const Color(0xFF395075);
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
+
+  String messageToSend = "";
+  final ScrollController _scrollController = ScrollController();
 
   final List<String> titles = [
     "Outdoor",
@@ -184,9 +192,8 @@ class _HomePageState extends State<HomePage> {
     } else if (i == 1) {
       return Scaffold(
         backgroundColor: primaryColor,
-        body: SafeArea(
-          child: Text("Chat"),
-        ),
+        resizeToAvoidBottomPadding: false,
+        body: SafeArea(child: generateChatListView()),
       );
     } else {
       final _width = MediaQuery.of(context).size.width;
@@ -194,42 +201,158 @@ class _HomePageState extends State<HomePage> {
       return Scaffold(
         backgroundColor: primaryColor,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Text("Personal Stats",
-                    style: TextStyle(fontSize: 48, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Container(
-                  width: _width,
-                  height: _height * 0.0015,
-                  color: secondaryColor,
-                ),
-
-                SizedBox(
-                  height: _height * 0.1,
-                ),
-                Text("Your Rank",
-                    style: TextStyle(fontSize: 48, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Container(
-                  width: _width,
-                  height: _height * 0.0015,
-                  color: secondaryColor,
-                )
-              ],
-            ),
-          )
-        ),
+            child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              SizedBox(
+                height: _height * 0.01,
+              ),
+              Text("Personal Stats",
+                  style: TextStyle(
+                      fontSize: 48,
+                      color: Colors.white,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w200)),
+              SizedBox(
+                height: _height * 0.01,
+              ),
+              Container(
+                width: _width,
+                height: _height * 0.0015,
+                color: secondaryColor,
+              ),
+              SizedBox(
+                height: _height * 0.1,
+              ),
+              Text("Your Rank",
+                  style: TextStyle(
+                      fontSize: 48,
+                      color: Colors.white,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w200)),
+              SizedBox(
+                height: _height * 0.01,
+              ),
+              Container(
+                width: _width,
+                height: _height * 0.0015,
+                color: secondaryColor,
+              )
+            ],
+          ),
+        )),
       );
     }
+  }
+
+  Widget generateChatListView() {
+    final List<MessageWidget> _messageList = [
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+      createMessageWidget("Hello", OwnerType.receiver, "Bill Jobs"),
+    ];
+
+    return Container(
+      child: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ChatList(
+                  children: _messageList,
+                  scrollController: _scrollController),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Container(
+                color: primaryColor,
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: Column(
+                      children: [
+                        CupertinoTextField(
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.black87,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w300),
+                          onChanged: (String value) {
+                            messageToSend = value;
+                            print("value $messageToSend");
+                          },
+                          placeholder: "Message",
+                          placeholderStyle: TextStyle(color: hintColor),
+                          cursorColor: Colors.black87,
+                          keyboardType: TextInputType.name,
+                          decoration: BoxDecoration(
+                              color: tertiaryColor,
+                              borderRadius: BorderRadius.circular(9)),
+                        ),
+                      ],
+                    )),
+                    Container(
+                        width: 50,
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                _scrollController.position.maxScrollExtent;
+                                final databaseReference = Firestore.instance;
+                                await databaseReference
+                                    .collection("Chat")
+                                    .document("Chat Rooms")
+                                    .collection("Mental Health")
+                                    .add({
+                                  "message": messageToSend,
+                                  "sentBy": "Mihir",
+                                }).then((value) {
+                                  print("DONE");
+                                });
+                              },
+                              child: Icon(
+                                Icons.send_rounded,
+                                color: CupertinoColors.white,
+                                size: 35,
+                              ),
+                            )
+                          ],
+                        ))
+                  ],
+                )),
+          ),
+          SizedBox(height: 15)
+        ],
+      ),
+    );
+  }
+
+  MessageWidget createMessageWidget(
+      String text, OwnerType ownerType, String ownerName) {
+    return MessageWidget(
+        content: text,
+        fontSize: 18.0,
+        fontFamily: 'Nunito',
+        ownerType: ownerType,
+        ownerName: ownerName);
   }
 }
