@@ -36,6 +36,7 @@ dependencies:
   profanity_filter: ^1.0.4
   chat_list: ^1.0.1
   animated_drawer: ^0.0.4
+  giffy_dialog: ^1.8.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,7 @@ flutter:
   assets:
     - DigiHealthBanner.png
     - images/
+    - welcome.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

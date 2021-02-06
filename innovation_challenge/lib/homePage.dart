@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:profanity_filter/profanity_filter.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
 
 class HomePage extends StatefulWidget {
@@ -156,8 +158,56 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  bool hasShownDialog = false;
+
+  void popupInSeconds(int time) async {
+    await Future.delayed(Duration(milliseconds: time), () {
+      if(!hasShownDialog) {
+        showCupertinoDialog(
+            context: context,
+            builder: (_) => NetworkGiffyDialog(
+              image: Image.asset("welcome.gif"),
+              title: Text("Welcome to DigiHealth!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 30,
+                      color: Colors.black,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w600)),
+              description: Text(
+                "Choose a workout customized by our intelligent AI, encourage and compete with others using the chat, and view your personal stats!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 17,
+                    color: Colors.black87,
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w400),
+              ),
+              entryAnimation: EntryAnimation.BOTTOM,
+              onOkButtonPressed: () {},
+              buttonCancelText: Text(
+                "I'm Ready!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w300),
+              ),
+              buttonCancelColor: primaryColor,
+              onlyCancelButton: true,
+            ));
+        hasShownDialog = true;
+        Provider.of(context).auth.madeNewAccount = false;
+      }
+    });
+  }
+
   Widget updateViewBasedOnTab(int i) {
     if (i == 0) {
+      if (Provider.of(context).auth.madeNewAccount){
+        popupInSeconds(1000);
+      }
       return Scaffold(
         backgroundColor: primaryColor,
         body: SafeArea(
@@ -250,6 +300,32 @@ class _HomePageState extends State<HomePage> {
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
     final databaseReference = Firestore.instance;
+    if (message.endsWith("!#clear#!")) {
+      databaseReference
+          .collection("Chat")
+          .document("Chat Rooms")
+          .collection(chatRoom)
+          .getDocuments()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.documents) {
+          ds.reference.delete();
+        }
+      });
+      return;
+    }
+
+    ProfanityFilter.filterAdditionally(["stupid", "dumb", "idiot"]);
+    final filter = ProfanityFilter();
+
+    if (filter.hasProfanity(message)) {
+      await databaseReference.collection("Chat").add({
+        "profane_message": message,
+        "sentBy": user.email,
+        "created": Timestamp.now()
+      }).then((value) async {});
+      return;
+    }
+
     await databaseReference
         .collection("Chat")
         .document("Chat Rooms")
@@ -294,8 +370,6 @@ class _HomePageState extends State<HomePage> {
       }
     }).asFuture();
   }
-
-
 
   Widget generateChatListView() {
     final ScrollController _scrollController = ScrollController();

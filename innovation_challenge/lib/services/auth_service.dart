@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+  bool madeNewAccount = false;
+
   Stream<String> get onAuthStateChanged => firebaseAuth.onAuthStateChanged.map(
         (FirebaseUser user) => user?.uid,
   );
@@ -20,12 +22,16 @@ class AuthService {
     userUpdateInfo.displayName = name;
     await currentUser.updateProfile(userUpdateInfo);
     await currentUser.reload();
+
+    madeNewAccount = true;
+
     return currentUser.uid;
   }
 
   // Email & Password Sign In
   Future<String> signInWithEmailAndPassword(
       String email, String password) async {
+    madeNewAccount = false;
     return (await firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password))
         .uid;
