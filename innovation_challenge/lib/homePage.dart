@@ -25,6 +25,10 @@ class _HomePageState extends State<HomePage> {
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
 
+  IconData topLeftAppBarIcon = Icons.menu_rounded;
+
+  String currentChatName = "Mental Health";
+
   final TextEditingController _controller = new TextEditingController();
   String messageToSend = "";
   final List<MessageWidget> _messageList = [];
@@ -93,6 +97,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
+                  topLeftAppBarIcon = Icons.menu_rounded;
                 });
               } else if (i == 1) {
                 setState(() {
@@ -100,14 +105,16 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat, color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
+                  topLeftAppBarIcon = Icons.mark_chat_unread;
                 });
-                await populateChatListView("Mental Health");
+                await populateChatListView(currentChatName);
               } else {
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
                       color: Colors.white);
                   profileIcon = Icon(Icons.person, color: Colors.white);
+                  topLeftAppBarIcon = Icons.exit_to_app_rounded;
                 });
               }
             }),
@@ -121,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(
                             color: Colors.white, fontFamily: 'Nunito'))
                     : i == 1
-                        ? Text("Chat",
+                        ? Text("Chat: $currentChatName",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito'))
                         : Text("Profile",
@@ -131,18 +138,60 @@ class _HomePageState extends State<HomePage> {
                 leading: GestureDetector(
                   onTap: () async {
                     debugPrint('Menu Tapped');
-                    try {
-                      AuthService auth = Provider.of(context).auth;
-                      await auth.signOut();
-                      print("Signed Out!");
-                    } catch (e) {
-                      print(e);
+                    if(i == 0) {
+                      //do nothing yet
+                    } else if (i == 1) {
+                      showCupertinoModalPopup(context: context, builder: (context) {
+                        return CupertinoActionSheet(
+                          actions: [
+                            CupertinoActionSheetAction(
+                              child: Text("Mental Health",
+                                  style: TextStyle(
+                                      color: primaryColor, fontFamily: 'Nunito')),
+                              onPressed: () async {
+                                currentChatName = "Mental Health";
+                                Navigator.pop(context);
+                                await populateChatListView(currentChatName);
+                              },
+                            ),
+                            CupertinoActionSheetAction(
+                              child: Text("Exercise",
+                                  style: TextStyle(
+                                      color: primaryColor, fontFamily: 'Nunito')),
+                              onPressed: () async {
+                                currentChatName = "Exercise";
+                                Navigator.pop(context);
+                                await populateChatListView(currentChatName);
+                              },
+                            ),
+                            CupertinoActionSheetAction(
+                              child: Text("Other",
+                                  style: TextStyle(
+                                      color: primaryColor, fontFamily: 'Nunito')),
+                              onPressed: () async {
+                                currentChatName = "Other";
+                                Navigator.pop(context);
+                                await populateChatListView(currentChatName);
+                              },
+
+                            )
+                          ],
+                        );
+                      });
+                    } else {
+                      try {
+                        AuthService auth = Provider.of(context).auth;
+                        await auth.signOut();
+                        print("Signed Out!");
+                      } catch (e) {
+                        print(e);
+                      }
                     }
                   },
                   child: Icon(
-                    Icons.exit_to_app_rounded,
+                    topLeftAppBarIcon,
                     color: CupertinoColors.white,
-                    size: 35,
+                    size: 30,
                   ),
                 ),
                 trailing: GestureDetector(
@@ -420,7 +469,7 @@ class _HomePageState extends State<HomePage> {
                               onTap: () async {
                                 _controller.clear();
                                 await sendChatMessage(
-                                    messageToSend, "Mental Health");
+                                    messageToSend, currentChatName);
                               },
                               child: Icon(
                                 Icons.send_rounded,
