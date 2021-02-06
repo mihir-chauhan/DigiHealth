@@ -37,6 +37,7 @@ dependencies:
   chat_list: ^1.0.1
   animated_drawer: ^0.0.4
   giffy_dialog: ^1.8.0
+  draw_graph: ^0.0.2
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +71,7 @@ flutter:
     - DigiHealthBanner.png
     - images/
     - welcome.gif
+    - rank.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
