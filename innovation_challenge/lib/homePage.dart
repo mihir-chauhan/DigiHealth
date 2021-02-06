@@ -1,5 +1,7 @@
 import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:draw_graph/draw_graph.dart';
+import 'package:draw_graph/models/feature.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,11 +29,24 @@ class _HomePageState extends State<HomePage> {
 
   IconData topLeftAppBarIcon = Icons.menu_rounded;
 
-  String currentChatName = "Mental Health";
+  String currentChatName = "Exercise";
 
   final TextEditingController _controller = new TextEditingController();
   String messageToSend = "";
   final List<MessageWidget> _messageList = [];
+
+  final List<Feature> features = [
+    Feature(
+      title: "Yoga",
+      color: Colors.blue,
+      data: [0.2, 0.8, 0.4, 0.7, 0.6],
+    ),
+    Feature(
+      title: "Exercise",
+      color: Colors.pink,
+      data: [1, 0.8, 0.6, 0.7, 0.3],
+    )
+  ];
 
   final List<String> titles = [
     "Outdoor",
@@ -128,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(
                             color: Colors.white, fontFamily: 'Nunito'))
                     : i == 1
-                        ? Text("Chat: $currentChatName",
+                        ? Text("$currentChatName Channel",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito'))
                         : Text("Profile",
@@ -138,46 +153,54 @@ class _HomePageState extends State<HomePage> {
                 leading: GestureDetector(
                   onTap: () async {
                     debugPrint('Menu Tapped');
-                    if(i == 0) {
+                    if (i == 0) {
                       //do nothing yet
                     } else if (i == 1) {
-                      showCupertinoModalPopup(context: context, builder: (context) {
-                        return CupertinoActionSheet(
-                          actions: [
-                            CupertinoActionSheetAction(
-                              child: Text("Mental Health",
+                      showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoActionSheet(
+                              title: Text("Channels",
                                   style: TextStyle(
-                                      color: primaryColor, fontFamily: 'Nunito')),
-                              onPressed: () async {
-                                currentChatName = "Mental Health";
-                                Navigator.pop(context);
-                                await populateChatListView(currentChatName);
-                              },
-                            ),
-                            CupertinoActionSheetAction(
-                              child: Text("Exercise",
-                                  style: TextStyle(
-                                      color: primaryColor, fontFamily: 'Nunito')),
-                              onPressed: () async {
-                                currentChatName = "Exercise";
-                                Navigator.pop(context);
-                                await populateChatListView(currentChatName);
-                              },
-                            ),
-                            CupertinoActionSheetAction(
-                              child: Text("Other",
-                                  style: TextStyle(
-                                      color: primaryColor, fontFamily: 'Nunito')),
-                              onPressed: () async {
-                                currentChatName = "Other";
-                                Navigator.pop(context);
-                                await populateChatListView(currentChatName);
-                              },
-
-                            )
-                          ],
-                        );
-                      });
+                                      color: Colors.black87,
+                                      fontFamily: 'Nunito')),
+                              actions: [
+                                CupertinoActionSheetAction(
+                                  child: Text("Exercise",
+                                      style: TextStyle(
+                                          color: primaryColor,
+                                          fontFamily: 'Nunito')),
+                                  onPressed: () async {
+                                    currentChatName = "Exercise";
+                                    Navigator.pop(context);
+                                    await populateChatListView(currentChatName);
+                                  },
+                                ),
+                                CupertinoActionSheetAction(
+                                  child: Text("Mental Health",
+                                      style: TextStyle(
+                                          color: primaryColor,
+                                          fontFamily: 'Nunito')),
+                                  onPressed: () async {
+                                    currentChatName = "Mental Health";
+                                    Navigator.pop(context);
+                                    await populateChatListView(currentChatName);
+                                  },
+                                ),
+                                CupertinoActionSheetAction(
+                                  child: Text("Other",
+                                      style: TextStyle(
+                                          color: primaryColor,
+                                          fontFamily: 'Nunito')),
+                                  onPressed: () async {
+                                    currentChatName = "Other";
+                                    Navigator.pop(context);
+                                    await populateChatListView(currentChatName);
+                                  },
+                                )
+                              ],
+                            );
+                          });
                     } else {
                       try {
                         AuthService auth = Provider.of(context).auth;
@@ -211,41 +234,41 @@ class _HomePageState extends State<HomePage> {
 
   void popupInSeconds(int time) async {
     await Future.delayed(Duration(milliseconds: time), () {
-      if(!hasShownDialog) {
+      if (!hasShownDialog) {
         showCupertinoDialog(
             context: context,
             builder: (_) => NetworkGiffyDialog(
-              image: Image.asset("welcome.gif"),
-              title: Text("Welcome to DigiHealth!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.black,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w600)),
-              description: Text(
-                "Choose a workout customized by our intelligent AI, encourage and compete with others using the chat, and view your personal stats!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 17,
-                    color: Colors.black87,
-                    fontFamily: 'Nunito',
-                    fontWeight: FontWeight.w400),
-              ),
-              entryAnimation: EntryAnimation.BOTTOM,
-              onOkButtonPressed: () {},
-              buttonCancelText: Text(
-                "I'm Ready!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white,
-                    fontFamily: 'Nunito',
-                    fontWeight: FontWeight.w300),
-              ),
-              buttonCancelColor: primaryColor,
-              onlyCancelButton: true,
-            ));
+                  image: Image.asset("welcome.gif"),
+                  title: Text("Welcome!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 17,
+                          color: Colors.black,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w600)),
+                  description: Text(
+                    "Choose a workout customized by our intelligent AI, encourage and compete with others using the chat, and view your personal stats!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black87,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400),
+                  ),
+                  entryAnimation: EntryAnimation.BOTTOM,
+                  onOkButtonPressed: () {},
+                  buttonCancelText: Text(
+                    "I'm Ready!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w300),
+                  ),
+                  buttonCancelColor: primaryColor,
+                  onlyCancelButton: true,
+                ));
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }
@@ -254,7 +277,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget updateViewBasedOnTab(int i) {
     if (i == 0) {
-      if (Provider.of(context).auth.madeNewAccount){
+      if (Provider.of(context).auth.madeNewAccount) {
         popupInSeconds(1000);
       }
       return Scaffold(
@@ -299,48 +322,79 @@ class _HomePageState extends State<HomePage> {
       final _height = MediaQuery.of(context).size.height;
       return Scaffold(
         backgroundColor: primaryColor,
-        body: SafeArea(
-            child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              SizedBox(
-                height: _height * 0.01,
-              ),
-              Text("Personal Stats",
-                  style: TextStyle(
-                      fontSize: 48,
-                      color: Colors.white,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w200)),
-              SizedBox(
-                height: _height * 0.01,
-              ),
-              Container(
-                width: _width,
-                height: _height * 0.0015,
-                color: secondaryColor,
-              ),
-              SizedBox(
-                height: _height * 0.1,
-              ),
-              Text("Your Rank",
-                  style: TextStyle(
-                      fontSize: 48,
-                      color: Colors.white,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w200)),
-              SizedBox(
-                height: _height * 0.01,
-              ),
-              Container(
-                width: _width,
-                height: _height * 0.0015,
-                color: secondaryColor,
-              )
-            ],
-          ),
-        )),
+        body: SingleChildScrollView(
+          child: SafeArea(
+              child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: _height * 0.01,
+                ),
+                Text("My Stats",
+                    style: TextStyle(
+                        fontSize: 48,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w200)),
+                SizedBox(
+                  height: _height * 0.01,
+                ),
+                Container(
+                  width: _width,
+                  height: _height * 0.001,
+                  color: secondaryColor,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                    decoration: BoxDecoration(
+                        color: secondaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LineGraph(
+                        features: features,
+                        size: Size(320, 300),
+                        labelX: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20'],
+                        labelY: ['20', '40', '60', '80', '100'],
+                        showDescription: true,
+                        graphColor: Colors.white60,
+                      ),
+                    )),
+                SizedBox(
+                  height: _height * 0.1,
+                ),
+                Text("My Rank",
+                    style: TextStyle(
+                        fontSize: 48,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w200)),
+                Container(
+                  width: _width,
+                  height: _height * 0.001,
+                  color: secondaryColor,
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Image.asset("rank.png"),
+                SizedBox(
+                  height: 10,
+                ),
+                Text("Ranking: 1st Place",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w200)),
+              ],
+            ),
+          )),
+        ),
       );
     }
   }
