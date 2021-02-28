@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
+  Icon leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
 
   IconData topLeftAppBarIcon = Icons.menu_rounded;
 
@@ -103,6 +104,7 @@ class _HomePageState extends State<HomePage> {
               BottomNavigationBarItem(icon: homeIcon),
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: profileIcon),
+              BottomNavigationBarItem(icon: leaderboardIcon),
             ],
             onTap: (i) async {
               if (i == 0) {
@@ -112,6 +114,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.menu_rounded;
                 });
               } else if (i == 1) {
@@ -120,18 +123,29 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat, color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.mark_chat_unread;
                 });
                 await populateChatListView(currentChatName);
-              } else {
+              } else if (i == 2 ) {
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
                       color: Colors.white);
                   profileIcon = Icon(Icons.person, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.exit_to_app_rounded;
                 });
-              }
+              } else {
+                setState(() {
+                  homeIcon = Icon(Icons.home_outlined, color: Colors.white);
+                  chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
+                  profileIcon =
+                      Icon(Icons.person_outline_rounded, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_rounded, color: Colors.white);
+                  topLeftAppBarIcon = Icons.menu_rounded;
+                });
+              };
             }),
         tabBuilder: (context, i) {
           return CupertinoPageScaffold(
@@ -146,7 +160,11 @@ class _HomePageState extends State<HomePage> {
                         ? Text("$currentChatName Channel",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito'))
-                        : Text("Profile",
+                        : i == 2
+                            ? Text("Profile",
+                            style: TextStyle(
+                                color: Colors.white, fontFamily: 'Nunito'))
+                        : Text("Diet Planner",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito')),
                 backgroundColor: secondaryColor,
@@ -317,7 +335,7 @@ class _HomePageState extends State<HomePage> {
         resizeToAvoidBottomPadding: false,
         body: SafeArea(child: generateChatListView()),
       );
-    } else {
+    } else if (i == 2) {
       final _width = MediaQuery.of(context).size.width;
       final _height = MediaQuery.of(context).size.height;
       return Scaffold(
@@ -395,6 +413,11 @@ class _HomePageState extends State<HomePage> {
             ),
           )),
         ),
+      );
+    } else {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        //add stuff for leaderboard
       );
     }
   }
