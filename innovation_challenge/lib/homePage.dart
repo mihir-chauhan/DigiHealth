@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
-  Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+  Icon leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
 
   IconData topLeftAppBarIcon = Icons.menu_rounded;
 
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.menu_rounded;
                 });
               } else if (i == 1) {
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat, color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.mark_chat_unread;
                 });
                 await populateChatListView(currentChatName);
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
                       color: Colors.white);
                   profileIcon = Icon(Icons.person, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.exit_to_app_rounded;
                 });
               } else {
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.leaderboard, color: Colors.white);
+                  leaderboardIcon = Icon(Icons.fastfood_rounded, color: Colors.white);
                   topLeftAppBarIcon = Icons.menu_rounded;
                 });
               };
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                             ? Text("Profile",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito'))
-                        : Text("Leaderboard",
+                        : Text("Diet Planner",
                             style: TextStyle(
                                 color: Colors.white, fontFamily: 'Nunito')),
                 backgroundColor: secondaryColor,
