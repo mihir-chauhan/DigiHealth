@@ -1,3 +1,4 @@
+import 'package:DigiHealth/exercisePage.dart';
 import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draw_graph/draw_graph.dart';
@@ -53,7 +54,6 @@ class _HomePageState extends State<HomePage> {
     "Outdoor",
     "Indoor",
     "Meditation",
-    "Yoga",
     "Music",
   ];
 
@@ -76,13 +76,6 @@ class _HomePageState extends State<HomePage> {
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
         "images/meditation.jpg",
-        fit: BoxFit.cover,
-      ),
-    ),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Image.asset(
-        "images/yoga.jpg",
         fit: BoxFit.cover,
       ),
     ),
@@ -317,9 +310,10 @@ class _HomePageState extends State<HomePage> {
                         // optional
                       },
                       onSelectedItem: (index) {
-                        // optional
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => ExercisePage(exerciseType: titles[index])));
+
                       },
-                      initialPage: 2,
+                      initialPage: 0,
                       // optional
                       align: ALIGN.CENTER // optional
                       ),
