@@ -1,3 +1,4 @@
+import 'package:DigiHealth/exercisePage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/homePage.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
             '/signUp': (BuildContext context) => SignUpPage(authFormType: AuthFormType.signUp),
             '/signIn': (BuildContext context) => SignUpPage(authFormType: AuthFormType.signIn),
             '/home': (BuildContext context) => HomeController(),
+            '/exercise': (BuildContext context) => ExercisePage(),
           }),
     );
   }

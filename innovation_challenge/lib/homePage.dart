@@ -1,3 +1,4 @@
+import 'package:DigiHealth/exercisePage.dart';
 import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draw_graph/draw_graph.dart';
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
-  Icon leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
+  Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
 
   IconData topLeftAppBarIcon = Icons.menu_rounded;
 
@@ -50,11 +51,8 @@ class _HomePageState extends State<HomePage> {
   ];
 
   final List<String> titles = [
-    "Outdoor",
-    "Indoor",
-    "Meditation",
-    "Yoga",
-    "Music",
+    "DigiFit",
+    "DigiDiet",
   ];
 
   final List<Widget> images = [
@@ -68,28 +66,7 @@ class _HomePageState extends State<HomePage> {
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/indoor.jpg",
-        fit: BoxFit.cover,
-      ),
-    ),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Image.asset(
-        "images/meditation.jpg",
-        fit: BoxFit.cover,
-      ),
-    ),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Image.asset(
-        "images/yoga.jpg",
-        fit: BoxFit.cover,
-      ),
-    ),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20.0),
-      child: Image.asset(
-        "images/music.jpg",
+        "images/dietplanner2.png",
         fit: BoxFit.cover,
       ),
     ),
@@ -103,8 +80,8 @@ class _HomePageState extends State<HomePage> {
             items: [
               BottomNavigationBarItem(icon: homeIcon),
               BottomNavigationBarItem(icon: chatIcon),
-              BottomNavigationBarItem(icon: profileIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
+              BottomNavigationBarItem(icon: profileIcon),
             ],
             onTap: (i) async {
               if (i == 0) {
@@ -114,7 +91,8 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
+                  leaderboardIcon =
+                      Icon(Icons.leaderboard_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.menu_rounded;
                 });
               } else if (i == 1) {
@@ -123,127 +101,127 @@ class _HomePageState extends State<HomePage> {
                   chatIcon = Icon(Icons.chat, color: Colors.white);
                   profileIcon =
                       Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
-                  topLeftAppBarIcon = Icons.mark_chat_unread;
+                  leaderboardIcon =
+                      Icon(Icons.leaderboard_outlined, color: Colors.white);
+                  topLeftAppBarIcon = Icons.mark_chat_unread_outlined;
                 });
                 await populateChatListView(currentChatName);
-              } else if (i == 2 ) {
+              } else if (i == 2) {
+                setState(() {
+                  homeIcon = Icon(Icons.home_outlined, color: Colors.white);
+                  chatIcon = Icon(Icons.chat_bubble_outline_rounded,
+                      color: Colors.white);
+                  profileIcon =
+                      Icon(Icons.person_outline_rounded, color: Colors.white);
+                  leaderboardIcon =
+                      Icon(Icons.leaderboard, color: Colors.white);
+                  topLeftAppBarIcon = Icons.center_focus_strong_rounded;
+                });
+              } else {
                 setState(() {
                   homeIcon = Icon(Icons.home_outlined, color: Colors.white);
                   chatIcon = Icon(Icons.chat_bubble_outline_rounded,
                       color: Colors.white);
                   profileIcon = Icon(Icons.person, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.fastfood_outlined, color: Colors.white);
+                  leaderboardIcon =
+                      Icon(Icons.leaderboard_outlined, color: Colors.white);
                   topLeftAppBarIcon = Icons.exit_to_app_rounded;
                 });
-              } else {
-                setState(() {
-                  homeIcon = Icon(Icons.home_outlined, color: Colors.white);
-                  chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
-                  profileIcon =
-                      Icon(Icons.person_outline_rounded, color: Colors.white);
-                  leaderboardIcon = Icon(Icons.fastfood_rounded, color: Colors.white);
-                  topLeftAppBarIcon = Icons.menu_rounded;
-                });
-              };
+              }
             }),
         tabBuilder: (context, i) {
           return CupertinoPageScaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: secondaryColor,
               navigationBar: CupertinoNavigationBar(
-                middle: i == 0
-                    ? Text("Home",
-                        style: TextStyle(
-                            color: Colors.white, fontFamily: 'Nunito'))
-                    : i == 1
-                        ? Text("$currentChatName Channel",
-                            style: TextStyle(
-                                color: Colors.white, fontFamily: 'Nunito'))
-                        : i == 2
-                            ? Text("Profile",
-                            style: TextStyle(
-                                color: Colors.white, fontFamily: 'Nunito'))
-                        : Text("Diet Planner",
-                            style: TextStyle(
-                                color: Colors.white, fontFamily: 'Nunito')),
-                backgroundColor: secondaryColor,
-                leading: GestureDetector(
-                  onTap: () async {
-                    debugPrint('Menu Tapped');
-                    if (i == 0) {
-                      //do nothing yet
-                    } else if (i == 1) {
-                      showCupertinoModalPopup(
-                          context: context,
-                          builder: (context) {
-                            return CupertinoActionSheet(
-                              title: Text("Channels",
+                  middle: i == 0
+                      ? Text("Home",
+                          style: TextStyle(
+                              color: Colors.white, fontFamily: 'Nunito'))
+                      : i == 1
+                          ? Text("$currentChatName Channel",
+                              style: TextStyle(
+                                  color: Colors.white, fontFamily: 'Nunito'))
+                          : i == 2
+                              ? Text("Leaderboard",
                                   style: TextStyle(
-                                      color: Colors.black87,
+                                      color: Colors.white,
+                                      fontFamily: 'Nunito'))
+                              : Text("Profile",
+                                  style: TextStyle(
+                                      color: Colors.white,
                                       fontFamily: 'Nunito')),
-                              actions: [
-                                CupertinoActionSheetAction(
-                                  child: Text("Exercise",
-                                      style: TextStyle(
-                                          color: primaryColor,
-                                          fontFamily: 'Nunito')),
-                                  onPressed: () async {
-                                    currentChatName = "Exercise";
-                                    Navigator.pop(context);
-                                    await populateChatListView(currentChatName);
-                                  },
-                                ),
-                                CupertinoActionSheetAction(
-                                  child: Text("Mental Health",
-                                      style: TextStyle(
-                                          color: primaryColor,
-                                          fontFamily: 'Nunito')),
-                                  onPressed: () async {
-                                    currentChatName = "Mental Health";
-                                    Navigator.pop(context);
-                                    await populateChatListView(currentChatName);
-                                  },
-                                ),
-                                CupertinoActionSheetAction(
-                                  child: Text("Other",
-                                      style: TextStyle(
-                                          color: primaryColor,
-                                          fontFamily: 'Nunito')),
-                                  onPressed: () async {
-                                    currentChatName = "Other";
-                                    Navigator.pop(context);
-                                    await populateChatListView(currentChatName);
-                                  },
-                                )
-                              ],
-                            );
-                          });
-                    } else {
-                      try {
-                        AuthService auth = Provider.of(context).auth;
-                        await auth.signOut();
-                        print("Signed Out!");
-                      } catch (e) {
-                        print(e);
+                  backgroundColor: secondaryColor,
+                  leading: GestureDetector(
+                    onTap: () async {
+                      debugPrint('Menu Tapped');
+                      if (i == 0) {
+                        //do nothing yet
+                      } else if (i == 1) {
+                        showCupertinoModalPopup(
+                            context: context,
+                            builder: (context) {
+                              return CupertinoActionSheet(
+                                title: Text("Channels",
+                                    style: TextStyle(
+                                        color: Colors.black87,
+                                        fontFamily: 'Nunito')),
+                                actions: [
+                                  CupertinoActionSheetAction(
+                                    child: Text("Exercise",
+                                        style: TextStyle(
+                                            color: primaryColor,
+                                            fontFamily: 'Nunito')),
+                                    onPressed: () async {
+                                      currentChatName = "Exercise";
+                                      Navigator.pop(context);
+                                      await populateChatListView(
+                                          currentChatName);
+                                    },
+                                  ),
+                                  CupertinoActionSheetAction(
+                                    child: Text("Mental Health",
+                                        style: TextStyle(
+                                            color: primaryColor,
+                                            fontFamily: 'Nunito')),
+                                    onPressed: () async {
+                                      currentChatName = "Mental Health";
+                                      Navigator.pop(context);
+                                      await populateChatListView(
+                                          currentChatName);
+                                    },
+                                  ),
+                                  CupertinoActionSheetAction(
+                                    child: Text("Other",
+                                        style: TextStyle(
+                                            color: primaryColor,
+                                            fontFamily: 'Nunito')),
+                                    onPressed: () async {
+                                      currentChatName = "Other";
+                                      Navigator.pop(context);
+                                      await populateChatListView(
+                                          currentChatName);
+                                    },
+                                  )
+                                ],
+                              );
+                            });
+                      } else if (i == 2) {
+                        try {
+                          AuthService auth = Provider.of(context).auth;
+                          await auth.signOut();
+                          print("Signed Out!");
+                        } catch (e) {
+                          print(e);
+                        }
                       }
-                    }
-                  },
-                  child: Icon(
-                    topLeftAppBarIcon,
-                    color: CupertinoColors.white,
-                    size: 30,
-                  ),
-                ),
-                trailing: GestureDetector(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.settings,
-                    color: CupertinoColors.white,
-                    size: 30,
-                  ),
-                ),
-              ),
+                    },
+                    child: Icon(
+                      topLeftAppBarIcon,
+                      color: CupertinoColors.white,
+                      size: 30,
+                    ),
+                  )),
               child: updateViewBasedOnTab(i));
         });
   }
@@ -265,7 +243,7 @@ class _HomePageState extends State<HomePage> {
                           fontFamily: 'Nunito',
                           fontWeight: FontWeight.w600)),
                   description: Text(
-                    "Choose a workout customized by our intelligent AI, encourage and compete with others using the chat, and view your personal stats!",
+                    "Choose a workout customized by our intelligent AI, get healthy diet recommendations from our AI-based diet recommendation engine, encourage and compete with others using the chat, and view your personal stats!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
@@ -317,9 +295,13 @@ class _HomePageState extends State<HomePage> {
                         // optional
                       },
                       onSelectedItem: (index) {
-                        // optional
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) =>
+                                    ExercisePage(exerciseType: titles[index])));
                       },
-                      initialPage: 2,
+                      initialPage: 0,
                       // optional
                       align: ALIGN.CENTER // optional
                       ),
@@ -336,6 +318,11 @@ class _HomePageState extends State<HomePage> {
         body: SafeArea(child: generateChatListView()),
       );
     } else if (i == 2) {
+      return CupertinoPageScaffold (
+        backgroundColor: primaryColor,
+
+      );
+    } else {
       final _width = MediaQuery.of(context).size.width;
       final _height = MediaQuery.of(context).size.height;
       return Scaffold(
@@ -343,81 +330,82 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: SafeArea(
               child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: _height * 0.01,
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: _height * 0.01,
+                    ),
+                    Text("My Stats",
+                        style: TextStyle(
+                            fontSize: 48,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200)),
+                    SizedBox(
+                      height: _height * 0.01,
+                    ),
+                    Container(
+                      width: _width,
+                      height: _height * 0.001,
+                      color: secondaryColor,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                            color: secondaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(10))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: LineGraph(
+                            features: features,
+                            size: Size(320, 300),
+                            labelX: [
+                              'Day 1',
+                              'Day 5',
+                              'Day 10',
+                              'Day 15',
+                              'Day 20'
+                            ],
+                            labelY: ['20', '40', '60', '80', '100'],
+                            showDescription: true,
+                            graphColor: Colors.white60,
+                          ),
+                        )),
+                    SizedBox(
+                      height: _height * 0.1,
+                    ),
+                    Text("My Rank",
+                        style: TextStyle(
+                            fontSize: 48,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200)),
+                    Container(
+                      width: _width,
+                      height: _height * 0.001,
+                      color: secondaryColor,
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Image.asset("rank.png"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("Ranking: 1st Place",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200)),
+                  ],
                 ),
-                Text("My Stats",
-                    style: TextStyle(
-                        fontSize: 48,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200)),
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Container(
-                  width: _width,
-                  height: _height * 0.001,
-                  color: secondaryColor,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                    decoration: BoxDecoration(
-                        color: secondaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: LineGraph(
-                        features: features,
-                        size: Size(320, 300),
-                        labelX: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20'],
-                        labelY: ['20', '40', '60', '80', '100'],
-                        showDescription: true,
-                        graphColor: Colors.white60,
-                      ),
-                    )),
-                SizedBox(
-                  height: _height * 0.1,
-                ),
-                Text("My Rank",
-                    style: TextStyle(
-                        fontSize: 48,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200)),
-                Container(
-                  width: _width,
-                  height: _height * 0.001,
-                  color: secondaryColor,
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Image.asset("rank.png"),
-                SizedBox(
-                  height: 10,
-                ),
-                Text("Ranking: 1st Place",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200)),
-              ],
-            ),
-          )),
+              )),
         ),
-      );
-    } else {
-      return Scaffold(
-        backgroundColor: primaryColor,
-        //add stuff for leaderboard
       );
     }
   }
