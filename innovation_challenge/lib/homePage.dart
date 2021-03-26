@@ -1,4 +1,5 @@
 import 'package:DigiHealth/exercisePage.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draw_graph/draw_graph.dart';
@@ -11,6 +12,7 @@ import 'package:DigiHealth/services/auth_service.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
+import 'package:vs_scrollbar/vs_scrollbar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -59,7 +61,7 @@ class _HomePageState extends State<HomePage> {
     ClipRRect(
       borderRadius: BorderRadius.circular(20.0),
       child: Image.asset(
-        "images/outdoor.jpg",
+        "images/digifit.jpg",
         fit: BoxFit.cover,
       ),
     ),
@@ -136,21 +138,21 @@ class _HomePageState extends State<HomePage> {
               navigationBar: CupertinoNavigationBar(
                   middle: i == 0
                       ? Text("Home",
-                          style: TextStyle(
-                              color: Colors.white, fontFamily: 'Nunito'))
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: 'Nunito'))
                       : i == 1
-                          ? Text("$currentChatName Channel",
-                              style: TextStyle(
-                                  color: Colors.white, fontFamily: 'Nunito'))
-                          : i == 2
-                              ? Text("Leaderboard",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'Nunito'))
-                              : Text("Profile",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'Nunito')),
+                      ? Text("$currentChatName Channel",
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: 'Nunito'))
+                      : i == 2
+                      ? Text("Leaderboard",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito'))
+                      : Text("Profile",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito')),
                   backgroundColor: secondaryColor,
                   leading: GestureDetector(
                     onTap: () async {
@@ -207,8 +209,12 @@ class _HomePageState extends State<HomePage> {
                               );
                             });
                       } else if (i == 2) {
+                        //nothing yet
+                      } else if (i == 3) {
                         try {
-                          AuthService auth = Provider.of(context).auth;
+                          AuthService auth = Provider
+                              .of(context)
+                              .auth;
                           await auth.signOut();
                           print("Signed Out!");
                         } catch (e) {
@@ -233,7 +239,8 @@ class _HomePageState extends State<HomePage> {
       if (!hasShownDialog) {
         showCupertinoDialog(
             context: context,
-            builder: (_) => NetworkGiffyDialog(
+            builder: (_) =>
+                NetworkGiffyDialog(
                   image: Image.asset("welcome.gif"),
                   title: Text("Welcome!",
                       textAlign: TextAlign.center,
@@ -266,14 +273,20 @@ class _HomePageState extends State<HomePage> {
                   onlyCancelButton: true,
                 ));
         hasShownDialog = true;
-        Provider.of(context).auth.madeNewAccount = false;
+        Provider
+            .of(context)
+            .auth
+            .madeNewAccount = false;
       }
     });
   }
 
   Widget updateViewBasedOnTab(int i) {
     if (i == 0) {
-      if (Provider.of(context).auth.madeNewAccount) {
+      if (Provider
+          .of(context)
+          .auth
+          .madeNewAccount) {
         popupInSeconds(1000);
       }
       return Scaffold(
@@ -284,27 +297,27 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: Container(
                   child: VerticalCardPager(
-                      titles: titles,
-                      // required
-                      images: images,
-                      // required
-                      textStyle: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                    titles: titles,
+                    // required
+                    images: images,
+                    // required
+                    textStyle: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                    // optional
+                    onPageChanged: (page) {
                       // optional
-                      onPageChanged: (page) {
-                        // optional
-                      },
-                      onSelectedItem: (index) {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) =>
-                                    ExercisePage(exerciseType: titles[index])));
-                      },
-                      initialPage: 0,
-                      // optional
-                      align: ALIGN.CENTER // optional
-                      ),
+                    },
+                    onSelectedItem: (index) {
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  ExercisePage(exerciseType: titles[index])));
+                    },
+                    initialPage: 0,
+                    // optional
+                    align: ALIGN.CENTER, // optional
+                  ),
                 ),
               ),
             ],
@@ -318,13 +331,84 @@ class _HomePageState extends State<HomePage> {
         body: SafeArea(child: generateChatListView()),
       );
     } else if (i == 2) {
-      return CupertinoPageScaffold (
-        backgroundColor: primaryColor,
-
-      );
+      ScrollController _scrollController = ScrollController();
+      Future.delayed(Duration(milliseconds: 1000), () {
+        _scrollController.animateTo(1000,
+            duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
+      });
+      return CupertinoPageScaffold(
+          backgroundColor: primaryColor,
+          child: VsScrollbar(
+            controller: _scrollController,
+            scrollDirection: Axis.vertical,
+            // @REQUIRED
+            allowDrag: false,
+            color: quaternaryColor,
+            // sets color of vsScrollBar
+            child: ListView.builder(
+              controller: _scrollController,
+              shrinkWrap: false,
+              physics: BouncingScrollPhysics(),
+              itemCount: 51,
+              scrollDirection: Axis.vertical,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: secondaryColor,
+                  ),
+                  height: 50,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
+                  margin:
+                  EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 0),
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Row(
+                      children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              height: 40.0,
+                              width: 40.0,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                      'images/outdoor.jpg'),
+                                  fit: BoxFit.fill,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                            )
+                        ),
+                        SizedBox(width: 10,),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: AutoSizeText('User',
+                                maxLines: 1,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontSize: 100))
+                        ),
+                      ],
+                    )
+                  ),
+                );
+              },
+            ),
+          ));
     } else {
-      final _width = MediaQuery.of(context).size.width;
-      final _height = MediaQuery.of(context).size.height;
+      final _width = MediaQuery
+          .of(context)
+          .size
+          .width;
+      final _height = MediaQuery
+          .of(context)
+          .size
+          .height;
       return Scaffold(
         backgroundColor: primaryColor,
         body: SingleChildScrollView(
@@ -356,7 +440,8 @@ class _HomePageState extends State<HomePage> {
                     Container(
                         decoration: BoxDecoration(
                             color: secondaryColor,
-                            borderRadius: BorderRadius.all(Radius.circular(10))),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(10))),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: LineGraph(
@@ -412,7 +497,11 @@ class _HomePageState extends State<HomePage> {
 
   sendChatMessage(String message, String chatRoom) async {
     final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
+    await Provider
+        .of(context)
+        .auth
+        .firebaseAuth
+        .currentUser();
     final databaseReference = Firestore.instance;
     if (message.endsWith("!#clear#!")) {
       databaseReference
@@ -453,7 +542,11 @@ class _HomePageState extends State<HomePage> {
 
   populateChatListView(String chatRoom) async {
     final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
+    await Provider
+        .of(context)
+        .auth
+        .firebaseAuth
+        .currentUser();
 
     String message;
 
@@ -467,7 +560,10 @@ class _HomePageState extends State<HomePage> {
         .listen((data) {
       _messageList.clear();
       for (int i = 0; i < data.documents.length; i++) {
-        data.documents.elementAt(i).data.forEach((key, value) {
+        data.documents
+            .elementAt(i)
+            .data
+            .forEach((key, value) {
           if (key.toString().contains("message")) {
             message = value.toString();
           } else if (key.toString().contains("sentBy")) {
@@ -505,27 +601,27 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                         child: Column(
-                      children: [
-                        CupertinoTextField(
-                          controller: _controller,
-                          style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.black87,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w300),
-                          onChanged: (String value) {
-                            messageToSend = value;
-                          },
-                          placeholder: "Message",
-                          placeholderStyle: TextStyle(color: hintColor),
-                          cursorColor: Colors.black87,
-                          keyboardType: TextInputType.name,
-                          decoration: BoxDecoration(
-                              color: tertiaryColor,
-                              borderRadius: BorderRadius.circular(9)),
-                        ),
-                      ],
-                    )),
+                          children: [
+                            CupertinoTextField(
+                              controller: _controller,
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.black87,
+                                  fontFamily: 'Nunito',
+                                  fontWeight: FontWeight.w300),
+                              onChanged: (String value) {
+                                messageToSend = value;
+                              },
+                              placeholder: "Message",
+                              placeholderStyle: TextStyle(color: hintColor),
+                              cursorColor: Colors.black87,
+                              keyboardType: TextInputType.name,
+                              decoration: BoxDecoration(
+                                  color: tertiaryColor,
+                                  borderRadius: BorderRadius.circular(9)),
+                            ),
+                          ],
+                        )),
                     Container(
                         width: 50,
                         child: Column(
@@ -553,8 +649,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  MessageWidget createMessageWidget(
-      String text, OwnerType ownerType, String ownerName) {
+  MessageWidget createMessageWidget(String text, OwnerType ownerType,
+      String ownerName) {
     return MessageWidget(
         content: text,
         fontSize: 18.0,

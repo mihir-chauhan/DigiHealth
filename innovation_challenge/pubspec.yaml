@@ -39,7 +39,7 @@ dependencies:
   giffy_dialog: ^1.8.0
   draw_graph: ^0.0.2
   flutter_launcher_icons: ^0.7.5
-
+  vs_scrollbar: ^0.1.2
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"
