@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:DigiHealth/exercisePage.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat_list/chat_list.dart';
@@ -331,12 +333,13 @@ class _HomePageState extends State<HomePage> {
         body: SafeArea(child: generateChatListView()),
       );
     } else if (i == 2) {
-      ScrollController _scrollController = ScrollController();
+      ScrollController _scrollController = new ScrollController();
       Future.delayed(Duration(milliseconds: 1000), () {
         _scrollController.animateTo(1000,
             duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
       });
       return CupertinoPageScaffold(
+        key: ObjectKey(Random().nextInt(100)),
           backgroundColor: primaryColor,
           child: VsScrollbar(
             controller: _scrollController,
@@ -363,7 +366,7 @@ class _HomePageState extends State<HomePage> {
                       .size
                       .width,
                   margin:
-                  EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 0),
+                  EdgeInsets.only(left: 15, right: 15, top: 7.5, bottom: 7.5),
                   child: Padding(
                     padding: EdgeInsets.all(5),
                     child: Row(
@@ -386,7 +389,7 @@ class _HomePageState extends State<HomePage> {
                         SizedBox(width: 10,),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: AutoSizeText('User',
+                            child: AutoSizeText('User ' + (index + 1).toString(),
                                 maxLines: 1,
                                 style: TextStyle(
                                     color: Colors.white,
