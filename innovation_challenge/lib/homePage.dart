@@ -501,6 +501,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   sendChatMessage(String message, String chatRoom) async {
+    messageToSend = "";
     final FirebaseUser user =
     await Provider
         .of(context)
@@ -623,7 +624,8 @@ class _HomePageState extends State<HomePage> {
                               keyboardType: TextInputType.name,
                               decoration: BoxDecoration(
                                   color: tertiaryColor,
-                                  borderRadius: BorderRadius.circular(9)),
+                                  borderRadius: BorderRadius.circular(9),
+                              ),
                             ),
                           ],
                         )),
@@ -634,8 +636,10 @@ class _HomePageState extends State<HomePage> {
                             GestureDetector(
                               onTap: () async {
                                 _controller.clear();
-                                await sendChatMessage(
-                                    messageToSend, currentChatName);
+                                if(messageToSend.isNotEmpty) {
+                                  await sendChatMessage(
+                                      messageToSend, currentChatName);
+                                }
                               },
                               child: Icon(
                                 Icons.send_rounded,
