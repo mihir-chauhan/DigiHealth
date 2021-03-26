@@ -335,8 +335,10 @@ class _HomePageState extends State<HomePage> {
     } else if (i == 2) {
       ScrollController _scrollController = new ScrollController();
       Future.delayed(Duration(milliseconds: 1000), () {
-        _scrollController.animateTo(1000,
-            duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
+        if(_scrollController.offset == 0) {
+          _scrollController.animateTo(1000,
+              duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
+        }
       });
       return CupertinoPageScaffold(
         key: ObjectKey(Random().nextInt(100)),
