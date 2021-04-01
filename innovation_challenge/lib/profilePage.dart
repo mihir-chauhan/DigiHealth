@@ -4,6 +4,7 @@ import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:DigiHealth/appPrefs.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,12 +12,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final primaryColor = const Color(0xFF75A2EA);
-  var tertiaryColor = const Color(0xFFFFFFFF);
-  var hintColor = const Color(0xFF808080);
-  final secondaryColor = const Color(0xFF5c7fb8);
-  final quaternaryColor = const Color(0xFF395075);
-
   final List<Feature> features = [
     Feature(
       title: "Yoga",

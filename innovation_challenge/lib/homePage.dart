@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
+import 'package:DigiHealth/appPrefs.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,11 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final primaryColor = const Color(0xFF75A2EA);
-  var tertiaryColor = const Color(0xFFFFFFFF);
-  var hintColor = const Color(0xFF808080);
-  final secondaryColor = const Color(0xFF5c7fb8);
-  final quaternaryColor = const Color(0xFF395075);
 
   final List<String> titles = [
     "DigiFit",

@@ -5,15 +5,9 @@ import 'package:DigiHealth/main.dart';
 import 'services/auth_service.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'provider_widget.dart';
+import 'package:DigiHealth/appPrefs.dart';
 
 bool error = false;
-
-
-final primaryColor = const Color(0xFF75A2EA);
-final accentColor = const Color(0xFFFFFFFF);
-var secondaryColor = const Color(0xFFFFFFFF);
-var hintColor = const Color(0xFF808080);
-
 enum AuthFormType { signIn, signUp }
 
 class SignUpPage extends StatefulWidget {
@@ -174,7 +168,7 @@ class _SignUpPageState extends State<SignUpPage> {
         cursorColor: Colors.black87,
         keyboardType: TextInputType.name,
         decoration: BoxDecoration(
-            color: secondaryColor, borderRadius: BorderRadius.circular(9)),
+            color: tertiaryColor, borderRadius: BorderRadius.circular(9)),
       ));
       textFields.add(SizedBox(height: 20));
     }
@@ -188,7 +182,7 @@ class _SignUpPageState extends State<SignUpPage> {
       cursorColor: Colors.black87,
       keyboardType: TextInputType.emailAddress,
       decoration: BoxDecoration(
-          color: secondaryColor, borderRadius: BorderRadius.circular(9)),
+          color: tertiaryColor, borderRadius: BorderRadius.circular(9)),
     ));
     textFields.add(SizedBox(height: 20));
     textFields.add(CupertinoTextField(
@@ -199,7 +193,7 @@ class _SignUpPageState extends State<SignUpPage> {
         placeholderStyle: TextStyle(color: hintColor),
         obscureText: true,
         decoration: BoxDecoration(
-            color: secondaryColor, borderRadius: BorderRadius.circular(9))));
+            color: tertiaryColor, borderRadius: BorderRadius.circular(9))));
     textFields.add(SizedBox(height: 80));
     return textFields;
   }
@@ -258,7 +252,7 @@ class LoadingScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SpinKitFoldingCube(
-                color: accentColor,
+                color: tertiaryColor,
                 size: 100,
               ),
               SizedBox(
@@ -266,7 +260,7 @@ class LoadingScreen extends StatelessWidget {
               ),
               Text(
                 "Loading",
-                style: TextStyle(fontSize: 20, color: accentColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+                style: TextStyle(fontSize: 20, color: tertiaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
               )
             ],
           ),

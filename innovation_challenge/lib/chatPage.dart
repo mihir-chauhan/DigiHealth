@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:profanity_filter/profanity_filter.dart';
+import 'package:DigiHealth/appPrefs.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -12,11 +13,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final primaryColor = const Color(0xFF75A2EA);
-  var tertiaryColor = const Color(0xFFFFFFFF);
-  var hintColor = const Color(0xFF808080);
-  final secondaryColor = const Color(0xFF5c7fb8);
-  final quaternaryColor = const Color(0xFF395075);
 
   String currentChatName = "Exercise";
 

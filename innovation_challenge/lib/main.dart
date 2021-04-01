@@ -7,7 +7,6 @@ import 'welcomePage.dart';
 import 'provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:DigiHealth/appPrefs.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +11,6 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class _LeaderboardPageState extends State<LeaderboardPage> {
-  final primaryColor = const Color(0xFF75A2EA);
-  var tertiaryColor = const Color(0xFFFFFFFF);
-  var hintColor = const Color(0xFF808080);
-  final secondaryColor = const Color(0xFF5c7fb8);
-  final quaternaryColor = const Color(0xFF395075);
   ScrollController _scrollController = new ScrollController();
 
   @override

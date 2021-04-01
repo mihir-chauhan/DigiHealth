@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:DigiHealth/appPrefs.dart';
 
 class ExercisePage extends StatelessWidget {
   final String exerciseType;
   ExercisePage({Key key, @required this.exerciseType}) : super(key: key);
-
-  final primaryColor = const Color(0xFF75A2EA);
-  final tertiaryColor = const Color(0xFFFFFFFF);
-  final hintColor = const Color(0xFF808080);
-  final secondaryColor = const Color(0xFF5c7fb8);
-  final quaternaryColor = const Color(0xFF395075);
 
   @override
   Widget build(BuildContext context) {
