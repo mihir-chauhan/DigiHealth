@@ -1,7 +1,7 @@
 import 'package:DigiHealth/exercisePage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:DigiHealth/homePageController.dart';
+import 'package:DigiHealth/mainPageController.dart';
 import 'package:DigiHealth/signUpPage.dart';
 import 'welcomePage.dart';
 import 'provider_widget.dart';

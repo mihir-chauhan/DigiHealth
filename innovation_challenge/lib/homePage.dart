@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
 
-class MainHomePage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _MainHomePageState createState() => _MainHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _MainHomePageState extends State<MainHomePage> {
+class _HomePageState extends State<HomePage> {
   final primaryColor = const Color(0xFF75A2EA);
   var tertiaryColor = const Color(0xFFFFFFFF);
   var hintColor = const Color(0xFF808080);

@@ -1,16 +1,16 @@
 import 'package:DigiHealth/chatPage.dart';
+import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';
 import 'package:DigiHealth/profilePage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:DigiHealth/homePage.dart';
 
-class HomePage extends StatefulWidget {
+class MainPageController extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _MainPageControllerState createState() => _MainPageControllerState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _MainPageControllerState extends State<MainPageController> {
   final primaryColor = const Color(0xFF75A2EA);
   var tertiaryColor = const Color(0xFFFFFFFF);
   var hintColor = const Color(0xFF808080);
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
             }),
         tabBuilder: (context, i) {
           if (i == 0) {
-            return MainHomePage();
+            return HomePage();
           } else if (i == 1) {
             return ChatPage();
           } else if (i == 2) {
