@@ -38,10 +38,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               onTap: () async {
-                debugPrint('Menu Tapped');
+
               },
               child: Icon(
-                Icons.menu_rounded,
+                Icons.center_focus_strong_rounded,
                 color: CupertinoColors.white,
                 size: 30,
               ),

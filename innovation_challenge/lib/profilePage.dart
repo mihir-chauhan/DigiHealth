@@ -1,3 +1,5 @@
+import 'package:DigiHealth/provider_widget.dart';
+import 'package:DigiHealth/services/auth_service.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,10 +44,18 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               onTap: () async {
-                debugPrint('Menu Tapped');
+                try {
+                  AuthService auth = Provider
+                      .of(context)
+                      .auth;
+                  await auth.signOut();
+                  print("Signed Out!");
+                } catch (e) {
+                  print(e);
+                }
               },
               child: Icon(
-                Icons.menu_rounded,
+                Icons.exit_to_app_rounded,
                 color: CupertinoColors.white,
                 size: 30,
               ),

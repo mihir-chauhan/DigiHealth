@@ -41,9 +41,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of(context).auth.madeNewAccount) {
+    // if (Provider.of(context).auth.madeNewAccount) {
       popupInSeconds(1000);
-    }
+    // }
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               onTap: () async {
-                debugPrint('Menu Tapped');
+
               },
               child: Icon(
                 Icons.menu_rounded,
@@ -104,7 +104,9 @@ class _HomePageState extends State<HomePage> {
       if (!hasShownDialog) {
         showCupertinoDialog(
             context: context,
-            builder: (_) => NetworkGiffyDialog(
+            builder: (_) => Container(
+              child: Expanded(
+                child: NetworkGiffyDialog(
                   image: Image.asset("welcome.gif"),
                   title: Text("Welcome!",
                       textAlign: TextAlign.center,
@@ -135,7 +137,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                   buttonCancelColor: primaryColor,
                   onlyCancelButton: true,
-                ));
+                )
+              ),
+            ));
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }

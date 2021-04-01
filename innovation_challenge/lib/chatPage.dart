@@ -37,7 +37,6 @@ class _ChatPageState extends State<ChatPage> {
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               onTap: () async {
-                debugPrint('Menu Tapped');
                 showCupertinoModalPopup(
                     context: context,
                     builder: (context) {
@@ -88,7 +87,7 @@ class _ChatPageState extends State<ChatPage> {
                     });
               },
               child: Icon(
-                Icons.menu_rounded,
+                Icons.mark_chat_unread_outlined,
                 color: CupertinoColors.white,
                 size: 30,
               ),
