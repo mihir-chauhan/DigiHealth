@@ -48,7 +48,7 @@ class HomeController extends StatelessWidget {
       builder: (context, AsyncSnapshot<String> snapshot) {
           if(snapshot.connectionState == ConnectionState.active) {
             final bool signedIn = snapshot.hasData;
-            return signedIn ? HomePage() : WelcomePage();
+            return signedIn ? MainPageController() : WelcomePage();
           }
           return CupertinoActivityIndicator();
       },

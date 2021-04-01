@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                       images: images,
                       // required
                       textStyle: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Colors.white, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),
                       // optional
                       onPageChanged: (page) {
                         // optional
