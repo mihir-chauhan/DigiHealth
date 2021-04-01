@@ -72,7 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (validate() && !error) {
       Navigator.of(context, rootNavigator: true).push(
         new CupertinoPageRoute(
-          builder: (context) => loadingScreen(),
+          builder: (context) => LoadingScreen(),
         ),
       );
 
@@ -246,7 +246,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-class loadingScreen extends StatelessWidget {
+class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
