@@ -13,6 +13,7 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class _LeaderboardPageState extends State<LeaderboardPage> {
+  int i = 50;
   SparseList leaderboardName = SparseList<String>();
   SparseList leaderboardPoints = SparseList<int>();
   setupLeaderboardRankings() async {
@@ -83,6 +84,14 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     }
   }
 
+  int numberOfUsers() {
+    if (leaderboardName.length < 51) {
+      return leaderboardName.length;
+    } else {
+      return i;
+    }
+  }
+
   ScrollController _scrollController = new ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -124,7 +133,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             controller: _scrollController,
             shrinkWrap: false,
             physics: BouncingScrollPhysics(),
-            itemCount: leaderboardName.length,
+            itemCount: numberOfUsers(),
             scrollDirection: Axis.vertical,
             itemBuilder: (BuildContext context, int index) {
               return Container(
