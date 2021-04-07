@@ -1,5 +1,6 @@
 import 'package:DigiHealth/exercisePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
@@ -37,9 +38,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // if (Provider.of(context).auth.madeNewAccount) {
-      popupInSeconds(1000);
-    // }
+    if (Provider.of(context).auth.madeNewAccount) {
+        popupInSeconds(1000);
+    }
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
@@ -142,3 +143,4 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
+
