@@ -216,7 +216,7 @@ class _ChatPageState extends State<ChatPage> {
                               cursorColor: Colors.black87,
                               keyboardType: TextInputType.name,
                               decoration: BoxDecoration(
-                                color: tertiaryColor,
+                                color: textColor,
                                 borderRadius: BorderRadius.circular(9),
                               ),
                             ),

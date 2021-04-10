@@ -168,7 +168,7 @@ class _SignUpPageState extends State<SignUpPage> {
         cursorColor: Colors.black87,
         keyboardType: TextInputType.name,
         decoration: BoxDecoration(
-            color: tertiaryColor, borderRadius: BorderRadius.circular(9)),
+            color: textColor, borderRadius: BorderRadius.circular(9)),
       ));
       textFields.add(SizedBox(height: 20));
     }
@@ -182,7 +182,7 @@ class _SignUpPageState extends State<SignUpPage> {
       cursorColor: Colors.black87,
       keyboardType: TextInputType.emailAddress,
       decoration: BoxDecoration(
-          color: tertiaryColor, borderRadius: BorderRadius.circular(9)),
+          color: textColor, borderRadius: BorderRadius.circular(9)),
     ));
     textFields.add(SizedBox(height: 20));
     textFields.add(CupertinoTextField(
@@ -193,7 +193,7 @@ class _SignUpPageState extends State<SignUpPage> {
         placeholderStyle: TextStyle(color: hintColor),
         obscureText: true,
         decoration: BoxDecoration(
-            color: tertiaryColor, borderRadius: BorderRadius.circular(9))));
+            color: textColor, borderRadius: BorderRadius.circular(9))));
     textFields.add(SizedBox(height: 80));
     return textFields;
   }
@@ -252,7 +252,7 @@ class LoadingScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SpinKitFoldingCube(
-                color: tertiaryColor,
+                color: textColor,
                 size: 100,
               ),
               SizedBox(
@@ -260,7 +260,7 @@ class LoadingScreen extends StatelessWidget {
               ),
               Text(
                 "Loading",
-                style: TextStyle(fontSize: 20, color: tertiaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+                style: TextStyle(fontSize: 20, color: textColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
               )
             ],
           ),

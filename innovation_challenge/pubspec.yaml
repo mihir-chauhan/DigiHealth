@@ -40,6 +40,7 @@ dependencies:
   draw_graph: ^0.0.2
   flutter_launcher_icons: ^0.7.5
   vs_scrollbar: ^0.1.2
+  ko_swipe_card: ^1.0.0
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"
@@ -81,6 +82,10 @@ flutter:
     - welcome.gif
     - rank.png
     - DigiHealthLogo.png
+    - outdoorrun.gif
+    - cycling.gif
+    - treadmill.gif
+    - indoorjog.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

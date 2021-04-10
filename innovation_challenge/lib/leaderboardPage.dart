@@ -136,7 +136,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               scrollDirection: Axis.vertical,
               // @REQUIRED
               allowDrag: false,
-              color: quaternaryColor,
+              color: tertiaryColor,
               // sets color of vsScrollBar
               child: ListView.builder(
                 controller: _scrollController,
