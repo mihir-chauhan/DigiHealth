@@ -33,6 +33,8 @@ class _ProfilePageState extends State<ProfilePage> {
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
+            transitionBetweenRoutes: false,
+            heroTag: "profilePage",
             middle: Text("Profile",
                 style: TextStyle(
                     color: Colors.white, fontFamily: 'Nunito')),

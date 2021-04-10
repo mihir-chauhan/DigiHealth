@@ -27,6 +27,8 @@ class _ChatPageState extends State<ChatPage> {
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
+            transitionBetweenRoutes: false,
+            heroTag: "chatPage",
             middle: Text("$currentChatName Channel",
                 style: TextStyle(
                     color: Colors.white, fontFamily: 'Nunito')),

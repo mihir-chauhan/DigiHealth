@@ -1,4 +1,4 @@
-import 'package:DigiHealth/exercisePage.dart';
+import 'package:DigiHealth/dynamicAiPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/mainPageController.dart';
@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
             '/signUp': (BuildContext context) => SignUpPage(authFormType: AuthFormType.signUp),
             '/signIn': (BuildContext context) => SignUpPage(authFormType: AuthFormType.signIn),
             '/home': (BuildContext context) => HomeController(),
-            '/exercise': (BuildContext context) => ExercisePage(),
+            '/digifit': (BuildContext context) => DynamicAIPage("DigiFit"),
+            '/digidiet': (BuildContext context) => DynamicAIPage("DigiDiet"),
           }),
     );
   }

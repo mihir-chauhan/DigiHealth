@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 
-class ExercisePage extends StatelessWidget {
-  final String exerciseType;
-  ExercisePage({Key key, @required this.exerciseType}) : super(key: key);
+class DynamicAIPage extends StatelessWidget {
+  final String viewTitleText;
+  DynamicAIPage(this.viewTitleText);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,9 @@ class ExercisePage extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       backgroundColor: secondaryColor,
       navigationBar: CupertinoNavigationBar(
-        middle: Text(exerciseType,
+        transitionBetweenRoutes: false,
+        heroTag: "DynamicAIPage",
+        middle: Text(viewTitleText,
             style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
         backgroundColor: secondaryColor,
         leading: GestureDetector(
@@ -26,7 +28,10 @@ class ExercisePage extends StatelessWidget {
           ),
         ),
       ),
-      child: Text("Hi"),
+      child: Container(
+
+        child: Text("Hi"),
+      ),
     );
   }
 }

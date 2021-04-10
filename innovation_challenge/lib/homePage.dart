@@ -1,6 +1,4 @@
-import 'package:DigiHealth/exercisePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
@@ -45,6 +43,8 @@ class _HomePageState extends State<HomePage> {
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
+            transitionBetweenRoutes: false,
+            heroTag: "homePage",
             middle: Text("Home",
                 style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
             backgroundColor: secondaryColor,
@@ -77,11 +77,11 @@ class _HomePageState extends State<HomePage> {
                         // optional
                       },
                       onSelectedItem: (index) {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) =>
-                                    ExercisePage(exerciseType: titles[index])));
+                        if(index == 0) {
+                          Navigator.pushNamed(context, '/digifit');
+                        } else {
+                          Navigator.pushNamed(context, '/digidiet');
+                        }
                       },
                       initialPage: 0,
                       // optional

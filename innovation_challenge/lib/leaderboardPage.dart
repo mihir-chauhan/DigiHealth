@@ -13,10 +13,13 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class _LeaderboardPageState extends State<LeaderboardPage> {
+  static var leaderboardName;
+
   int i = 50;
-  SparseList leaderboardName = SparseList<String>();
   SparseList leaderboardPoints = SparseList<int>();
+
   setupLeaderboardRankings() async {
+    leaderboardName = ValueNotifier<List<String>>(new List<String>());
     Firestore.instance
         //setsup arraylist
         .collection('User Data')
@@ -24,8 +27,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        leaderboardName.add(doc['Name']);
+        leaderboardName.value.add(doc['Name']);
         leaderboardPoints.add(doc['points']);
+        leaderboardName.notifyListeners();
       });
     });
   }
@@ -33,7 +37,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   AutoSizeText populateLeaderboardWithName(int index) {
     //get from array at index(passed in)
     return AutoSizeText(
-      leaderboardName[index].toString(),
+      leaderboardName.value[index].toString(),
       maxLines: 1,
       style:
           TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
@@ -85,29 +89,31 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   int numberOfUsers() {
-    if (leaderboardName.length < 51) {
-      return leaderboardName.length;
+    if (leaderboardName.value.length < 51) {
+      return leaderboardName.value.length;
     } else {
       return i;
     }
   }
 
   ScrollController _scrollController = new ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 1000), () {
-      if (_scrollController.offset == 0) {
-        _scrollController.animateTo(1000,
-            duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
-      }
-    });
+    // Future.delayed(Duration(milliseconds: 1000), () {
+    //   if (_scrollController.offset == 0) {
+    //     _scrollController.animateTo(1000,
+    //         duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
+    //   }
+    // });
 
     setupLeaderboardRankings();
-
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: secondaryColor,
       navigationBar: CupertinoNavigationBar(
+          transitionBetweenRoutes: false,
+          heroTag: "leaderboardPage",
           middle: Text("Leaderboard",
               style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
           backgroundColor: secondaryColor,
@@ -119,68 +125,72 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               size: 30,
             ),
           )),
-      child: CupertinoPageScaffold(
-        key: ObjectKey(Random().nextInt(100)),
-        backgroundColor: primaryColor,
-        child: VsScrollbar(
-          controller: _scrollController,
-          scrollDirection: Axis.vertical,
-          // @REQUIRED
-          allowDrag: false,
-          color: quaternaryColor,
-          // sets color of vsScrollBar
-          child: ListView.builder(
-            controller: _scrollController,
-            shrinkWrap: false,
-            physics: BouncingScrollPhysics(),
-            itemCount: numberOfUsers(),
-            scrollDirection: Axis.vertical,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: secondaryColor,
-                ),
-                height: 50,
-                width: MediaQuery.of(context).size.width,
-                margin:
-                    EdgeInsets.only(left: 15, right: 15, top: 7.5, bottom: 7.5),
-                child: Padding(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          height: 40.0,
-                          width: 40.0,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: classifyRank(index),
-                              fit: BoxFit.fill,
+      child: ValueListenableBuilder(
+        valueListenable: leaderboardName,
+        builder: (context, value, widget) {
+          return CupertinoPageScaffold(
+            key: ObjectKey(Random().nextInt(100)),
+            backgroundColor: primaryColor,
+            child: VsScrollbar(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              // @REQUIRED
+              allowDrag: false,
+              color: quaternaryColor,
+              // sets color of vsScrollBar
+              child: ListView.builder(
+                controller: _scrollController,
+                shrinkWrap: false,
+                physics: BouncingScrollPhysics(),
+                itemCount: value.length,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: secondaryColor,
+                      ),
+                      height: 50,
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.only(
+                          left: 15, right: 15, top: 7.5, bottom: 7.5),
+                      child: Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                height: 40.0,
+                                width: 40.0,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: classifyRank(index),
+                                    fit: BoxFit.fill,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                             ),
-                            shape: BoxShape.circle,
-                          ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: populateLeaderboardWithName(index),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: populateLeaderboardWithPoints(index),
+                            ),
+                          ],
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: populateLeaderboardWithName(index),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: populateLeaderboardWithPoints(index),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+                      ));
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
