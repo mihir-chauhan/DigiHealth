@@ -46,10 +46,18 @@ class _MainPageControllerState extends State<MainPageController> {
 
   void updateTabBarController(int i) {
     setState(() {
-      homeIcon = (i == 0) ? Icon(Icons.home, color: Colors.white) : Icon(Icons.home_outlined, color: Colors.white);
-      chatIcon = (i == 1) ? Icon(Icons.chat, color: Colors.white) : Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
-      leaderboardIcon = (i == 2) ? Icon(Icons.leaderboard, color: Colors.white) : Icon(Icons.leaderboard_outlined, color: Colors.white);
-      profileIcon = (i == 3) ? Icon(Icons.person, color: Colors.white) : Icon(Icons.person_outline_rounded, color: Colors.white);
+      homeIcon = (i == 0)
+          ? Icon(Icons.home, color: Colors.white)
+          : Icon(Icons.home_outlined, color: Colors.white);
+      chatIcon = (i == 1)
+          ? Icon(Icons.chat, color: Colors.white)
+          : Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
+      leaderboardIcon = (i == 2)
+          ? Icon(Icons.leaderboard, color: Colors.white)
+          : Icon(Icons.leaderboard_outlined, color: Colors.white);
+      profileIcon = (i == 3)
+          ? Icon(Icons.person, color: Colors.white)
+          : Icon(Icons.person_outline_rounded, color: Colors.white);
     });
   }
 }

@@ -158,30 +158,33 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                         padding: EdgeInsets.all(5),
                         child: Row(
                           children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                height: 40.0,
-                                width: 40.0,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: classifyRank(index),
-                                    fit: BoxFit.fill,
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Align(
+                                    child: Container(
+                                      height: 40.0,
+                                      width: 40.0,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: classifyRank(index),
+                                          fit: BoxFit.fill,
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
-                                  shape: BoxShape.circle,
-                                ),
+                                  Align(
+                                    child: populateLeaderboardWithName(index),
+                                  ),
+                                ],
                               ),
                             ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: populateLeaderboardWithName(index),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: populateLeaderboardWithPoints(index),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25),
+                              child: Align(
+                                child: populateLeaderboardWithPoints(index),
+                              ),
                             ),
                           ],
                         ),
