@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 
-class DynamicAIPage extends StatelessWidget {
-  final String viewTitleText;
-  DynamicAIPage(this.viewTitleText);
+class DigiFitPage extends StatelessWidget {
+  DigiFitPage();
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +12,8 @@ class DynamicAIPage extends StatelessWidget {
       backgroundColor: secondaryColor,
       navigationBar: CupertinoNavigationBar(
         transitionBetweenRoutes: false,
-        heroTag: "DynamicAIPage",
-        middle: Text(viewTitleText,
+        heroTag: "digifitPage",
+        middle: Text("DigiFit",
             style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
         backgroundColor: secondaryColor,
         leading: GestureDetector(
