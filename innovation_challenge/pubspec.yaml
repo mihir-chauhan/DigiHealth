@@ -43,6 +43,7 @@ dependencies:
   ko_swipe_card: ^1.0.0
   category_picker: ^1.0.1
   date_picker_timeline: ^1.2.1
+  grouped_buttons: ^1.0.4
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"
@@ -88,6 +89,7 @@ flutter:
     - cycling.gif
     - treadmill.gif
     - indoorjog.gif
+    - diet.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

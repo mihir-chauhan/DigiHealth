@@ -4,6 +4,8 @@ class AuthService {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   bool madeNewAccount = false;
+  bool showDigiDietQuestionnaire = false;
+  bool showDigiFitQuestionnaire = false;
 
   Stream<String> get onAuthStateChanged => firebaseAuth.onAuthStateChanged.map(
         (FirebaseUser user) => user?.uid,
@@ -24,7 +26,8 @@ class AuthService {
     await currentUser.reload();
 
     madeNewAccount = true;
-
+    showDigiDietQuestionnaire = true;
+    showDigiFitQuestionnaire = false;
     return currentUser.uid;
   }
 
@@ -32,6 +35,8 @@ class AuthService {
   Future<String> signInWithEmailAndPassword(
       String email, String password) async {
     madeNewAccount = false;
+    showDigiDietQuestionnaire = false;
+    showDigiFitQuestionnaire = false;
     return (await firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password))
         .uid;
