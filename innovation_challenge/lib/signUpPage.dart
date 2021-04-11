@@ -78,7 +78,6 @@ class _SignUpPageState extends State<SignUpPage> {
             .auth;
         if (authFormType == AuthFormType.signIn) {
           String uid = await auth.signInWithEmailAndPassword(_email, _password);
-          print("Signed In with ID $uid");
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
             context,
@@ -90,7 +89,6 @@ class _SignUpPageState extends State<SignUpPage> {
         } else {
           String uid = await auth.createUserWithEmailAndPassword(
               _email, _password, _name);
-          print("Signed Up with New ID $uid");
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
             context,

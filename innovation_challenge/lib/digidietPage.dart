@@ -1,4 +1,6 @@
 import 'package:DigiHealth/digidiet_questionnaire.dart';
+import 'package:DigiHealth/provider_widget.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -17,12 +19,20 @@ class _DigiDietPageState extends State<DigiDietPage> {
   var _height;
   var _width;
 
+  List<String> mediterraneanDiet = ["Spinach & Goat Cheese Egg Muffins", "Farro, Eggplant, & White Bean Bowl", "Mediterranean Quinoa Bowl", "Chard Breakfast Skillet", "Mediterranean Chicken Wrap", "Balsamic Chicken Skillet", "Sheet Pan Egg Tacos", "Tuna Salad Sandwich", "Chickpea Vegetable Coconut Curry", "Savory Spanish Oatmeal", "Chicken Pita with Fresh Herbs", "Kale Salad with Crispy Chickpeas", "Spinach-Curry Crepes", "Salmon Niçoise Salad", "Sweet Potato Noodles with Almond Sauce", "Mediterranean Lentil Salad", "Greek Wedge Salad", "Panzanella Salad", "Breakfast Migas", "Bowl of Roasted Chickpeas", "Cauliflower Steaks with Lemon-Herb Sauce", "Mediterranean Lentil Salad", "Greek Wedge Salad", "Panzanella Salad"];
   String mealPlannerDay = "Today";
+  int dayofweek = 0;
 
   @override
   Widget build(BuildContext context) {
     _height = MediaQuery.of(context).size.height;
     _width = MediaQuery.of(context).size.width;
+    if(Provider.of(context).auth.showDigiFitQuestionnaire) {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(builder: (context) => DigiDietQuestionnairePage())
+      );
+    }
     return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
             backgroundColor: secondaryColor,
@@ -95,9 +105,12 @@ class _DigiDietPageState extends State<DigiDietPage> {
                       var now = DateTime.now();
                       if (now.day == date.day) {
                         mealPlannerDay = "Today";
+                        dayofweek = 0;
                       } else if (now.day + 1 == date.day) {
                         mealPlannerDay = "Tomorrow";
+                        dayofweek = 1;
                       } else {
+                        dayofweek = date.day - now.day;
                         mealPlannerDay = nameOfDayFromWeekday(date.weekday) +
                             ", " +
                             nameOfMonthFromMonthNumber(date.month) +
@@ -136,7 +149,20 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontSize: 30,
                               color: Colors.white,
                               fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3], maxLines: 2, style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w200)),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
@@ -147,7 +173,20 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontSize: 30,
                               color: Colors.white,
                               fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3 + 1], maxLines: 2, style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w200)),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
@@ -158,7 +197,20 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontSize: 30,
                               color: Colors.white,
                               fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3 + 2], maxLines: 2, style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w200)),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -185,10 +237,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
   }
 
   String nameOfMonthFromMonthNumber(int month) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) => DigiDietQuestionnairePage())
-    );
     month--;
     return (month == 0
         ? "January"

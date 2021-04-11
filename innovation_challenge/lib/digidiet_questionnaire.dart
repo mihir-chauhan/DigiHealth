@@ -1,4 +1,7 @@
+import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -17,8 +20,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
   int question4Selection = -1;
   int question5Selection = -1;
   bool hideResult = true;
-  bool hideLoading = true;
-  String dietName = "a";
+  String dietName = "Mediterranean Diet";
   var _height;
 
   @override
@@ -46,8 +48,16 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                   question3Selection != -1 &&
                   question4Selection != -1 &&
                   question5Selection != -1) {
+                final FirebaseUser user =
+                    await Provider.of(context).auth.firebaseAuth.currentUser();
+                final databaseReference = Firestore.instance;
+
                 dietName = dietRecommendationFromAnswers();
-                print(dietName);
+                await databaseReference
+                    .collection("User Data")
+                    .document(user.email).updateData({
+                  "dietPlan": dietName
+                });
                 setState(() {
                   hideResult = false;
                 });
@@ -311,19 +321,19 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                                   fontFamily: 'Nunito')),
                           SizedBox(height: _height * 0.02),
                           Align(
-                            alignment: Alignment.bottomCenter,
+                              alignment: Alignment.bottomCenter,
                               child: CupertinoButton(
-                            color: primaryColor,
-                            child: Text('Start Eating!',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'Nunito',
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.w300)),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          )),
+                                color: primaryColor,
+                                child: Text('Start Eating!',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 25.0,
+                                        fontWeight: FontWeight.w300)),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              )),
                         ],
                       ),
                     ),

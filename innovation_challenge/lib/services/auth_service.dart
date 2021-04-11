@@ -4,7 +4,7 @@ class AuthService {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   bool madeNewAccount = false;
-  bool showDigiDietQuestionnaire = false;
+  bool showDigiDietQuestionnaire = true;
   bool showDigiFitQuestionnaire = false;
 
   Stream<String> get onAuthStateChanged => firebaseAuth.onAuthStateChanged.map(

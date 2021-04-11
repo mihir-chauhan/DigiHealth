@@ -46,7 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       .of(context)
                       .auth;
                   await auth.signOut();
-                  print("Signed Out!");
                 } catch (e) {
                   print(e);
                 }

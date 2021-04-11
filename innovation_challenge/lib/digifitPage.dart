@@ -19,7 +19,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: secondaryColor,
+      backgroundColor: primaryColor,
       navigationBar: CupertinoNavigationBar(
         transitionBetweenRoutes: false,
         heroTag: "digifitPage",
@@ -113,7 +113,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
 class SecondRoute extends StatefulWidget {
   final String exerciseName;
+
   const SecondRoute(this.exerciseName);
+
   @override
   _SecondRouteState createState() => _SecondRouteState();
 }
@@ -126,6 +128,13 @@ class _SecondRouteState extends State<SecondRoute> {
   int minutesTwoMarker = 0;
   bool isRunningStopWatch = true;
   bool stopStopWatch = false;
+
+  bool startButtonEnabled = true;
+  bool stopButtonEnabled = false;
+  bool resetButtonEnabled = false;
+
+  int counterForCaloriesTenSecond = 0;
+
   caloriesCounter() {
     if (widget.exerciseName == 'Treadmill') {
       calorieCounter = (((calorieCounter + 1.6) * 100).round()) / 100;
@@ -142,6 +151,12 @@ class _SecondRouteState extends State<SecondRoute> {
     await Future.delayed(Duration(seconds: 1), () {
       if (isRunningStopWatch == true) {
         popupInSeconds();
+        if(counterForCaloriesTenSecond < 10) {
+          counterForCaloriesTenSecond++;
+        } else {
+          counterForCaloriesTenSecond = 0;
+          caloriesCounter();
+        }
         setState(() {
           if (minutesTwoMarker == 5 &&
               minutesMarker == 9 &&
@@ -166,28 +181,6 @@ class _SecondRouteState extends State<SecondRoute> {
           } else if (secondsMarker < 9) {
             secondsMarker++;
           }
-        });
-      } else if (stopStopWatch == true && isRunningStopWatch == false) {
-        setState(() {
-          secondsMarker = 0;
-          secondsTwoMarker = 0;
-          minutesTwoMarker = 0;
-          minutesMarker = 0;
-        });
-      }
-    });
-  }
-
-  void popupInTenSeconds() async {
-    await Future.delayed(Duration(seconds: 10), () {
-      if (isRunningStopWatch == true) {
-        popupInTenSeconds();
-        setState(() {
-          caloriesCounter();
-        });
-      } else if (stopStopWatch == true && isRunningStopWatch == false) {
-        setState(() {
-          caloriesCounter();
         });
       }
     });
@@ -253,13 +246,18 @@ class _SecondRouteState extends State<SecondRoute> {
                       fontFamily: 'Nunito',
                       fontSize: 30.0,
                       fontWeight: FontWeight.bold)),
-              onPressed: () {
-                setState(() {
-                  isRunningStopWatch = true;
-                  popupInSeconds();
-                  popupInTenSeconds();
-                });
-              },
+              onPressed: !startButtonEnabled
+                  ? null
+                  : () {
+                      setState(() {
+                        isRunningStopWatch = true;
+                        stopStopWatch = false;
+                        popupInSeconds();
+                        startButtonEnabled = false;
+                        stopButtonEnabled = true;
+                        resetButtonEnabled = false;
+                      });
+                    },
             ),
           ),
           Padding(
@@ -272,14 +270,17 @@ class _SecondRouteState extends State<SecondRoute> {
                       fontFamily: 'Nunito',
                       fontSize: 30.0,
                       fontWeight: FontWeight.bold)),
-              onPressed: () {
-                setState(() {
-                  isRunningStopWatch = false;
-                  stopStopWatch = false;
-                  popupInSeconds();
-                  popupInTenSeconds();
-                });
-              },
+              onPressed: !stopButtonEnabled
+                  ? null
+                  : () {
+                      setState(() {
+                        isRunningStopWatch = false;
+                        stopStopWatch = false;
+                        startButtonEnabled = true;
+                        stopButtonEnabled = false;
+                        resetButtonEnabled = true;
+                      });
+                    },
             ),
           ),
           Padding(
@@ -294,14 +295,22 @@ class _SecondRouteState extends State<SecondRoute> {
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold),
               ),
-              onPressed: () {
-                setState(() {
-                  isRunningStopWatch = false;
-                  stopStopWatch = true;
-                  popupInSeconds();
-                  popupInTenSeconds();
-                });
-              },
+              onPressed: !resetButtonEnabled
+                  ? null
+                  : () {
+                      setState(() {
+                        isRunningStopWatch = false;
+                        stopStopWatch = true;
+                        calorieCounter = 0.0;
+                        startButtonEnabled = true;
+                        stopButtonEnabled = false;
+                        resetButtonEnabled = false;
+                        secondsMarker = 0;
+                        secondsTwoMarker = 0;
+                        minutesTwoMarker = 0;
+                        minutesMarker = 0;
+                      });
+                    },
             ),
           ),
         ],
