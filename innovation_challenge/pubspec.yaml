@@ -42,6 +42,7 @@ dependencies:
   vs_scrollbar: ^0.1.2
   ko_swipe_card: ^1.0.0
   category_picker: ^1.0.1
+  date_picker_timeline: ^1.2.1
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"
