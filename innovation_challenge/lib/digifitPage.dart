@@ -12,12 +12,8 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  String title = 'Yoga';
+  String title = 'Treadmill';
   String valueOfValues;
-  CategoryPickerItem settingCategories(String value) {
-    valueOfValues = value;
-    return CategoryPickerItem(value: valueOfValues);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +41,23 @@ class _DigiFitPageState extends State<DigiFitPage> {
         children: [
           CategoryPicker(
             items: [
-              settingCategories('Indoor'),
-              settingCategories('Outdoor'),
-              settingCategories('High-Impact'),
-              settingCategories('Low-Impact'),
+              CategoryPickerItem(value: 'Indoor'),
+              CategoryPickerItem(value: 'Outdoor'),
+              CategoryPickerItem(value: 'High-Impact'),
+              CategoryPickerItem(value: 'Low-Impact'),
             ],
             onValueChanged: (value) {
-              setState(() {});
+              setState(() {
+                if (value.value == 'Indoor') {
+                  title = 'Treadmill';
+                } else if (value.value == 'Outdoor') {
+                  title = 'Running';
+                } else if (value.value == 'High-Impact') {
+                  title = 'Biking';
+                } else if (value.value == 'Low-Impact') {
+                  title = 'Walking';
+                }
+              });
             },
             backgroundColor: primaryColor,
             selectedItemColor: tertiaryColor,
@@ -61,7 +67,15 @@ class _DigiFitPageState extends State<DigiFitPage> {
             unselectedItemTextDarkThemeColor: Colors.black,
             unselectedItemTextLightThemeColor: Colors.black,
           ),
-          Text(title),
+          SizedBox(height: 30),
+          Text(
+            title,
+            style: TextStyle(
+                color: Colors.white, fontFamily: 'Nunito', fontSize: 75),
+          ),
+          SizedBox(
+            height: 30,
+          ),
           CupertinoButton(
             child: Container(
               width: 300.0,
@@ -79,7 +93,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(builder: (context) => SecondRoute()),
+                CupertinoPageRoute(builder: (context) => SecondRoute(title)),
               );
             },
           )
@@ -98,18 +112,32 @@ class _DigiFitPageState extends State<DigiFitPage> {
 }
 
 class SecondRoute extends StatefulWidget {
+  final String exerciseName;
+  const SecondRoute(this.exerciseName);
   @override
   _SecondRouteState createState() => _SecondRouteState();
 }
 
 class _SecondRouteState extends State<SecondRoute> {
-  int calorieCounter = 0;
+  double calorieCounter = 0;
   int secondsMarker = 0;
   int secondsTwoMarker = 0;
   int minutesMarker = 0;
   int minutesTwoMarker = 0;
   bool isRunningStopWatch = true;
   bool stopStopWatch = false;
+  caloriesCounter() {
+    if (widget.exerciseName == 'Treadmill') {
+      calorieCounter = (((calorieCounter + 1.6) * 100).round()) / 100;
+    } else if (widget.exerciseName == 'Running') {
+      calorieCounter = (((calorieCounter + 1.9) * 100).round()) / 100;
+    } else if (widget.exerciseName == 'Biking') {
+      calorieCounter = (((calorieCounter + 2.1) * 100).round()) / 100;
+    } else if (widget.exerciseName == 'Walking') {
+      calorieCounter = (((calorieCounter + 1) * 100).round()) / 100;
+    }
+  }
+
   void popupInSeconds() async {
     await Future.delayed(Duration(seconds: 1), () {
       if (isRunningStopWatch == true) {
@@ -132,7 +160,6 @@ class _SecondRouteState extends State<SecondRoute> {
             minutesMarker++;
             secondsTwoMarker = 0;
             secondsMarker = 0;
-            calorieCounter = calorieCounter + 5;
           } else if (secondsMarker == 9) {
             secondsTwoMarker++;
             secondsMarker = 0;
@@ -156,11 +183,11 @@ class _SecondRouteState extends State<SecondRoute> {
       if (isRunningStopWatch == true) {
         popupInTenSeconds();
         setState(() {
-          calorieCounter = calorieCounter + 10;
+          caloriesCounter();
         });
       } else if (stopStopWatch == true && isRunningStopWatch == false) {
         setState(() {
-          calorieCounter = 0;
+          caloriesCounter();
         });
       }
     });
@@ -176,6 +203,23 @@ class _SecondRouteState extends State<SecondRoute> {
           style: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
         ),
         backgroundColor: secondaryColor,
+        leading: GestureDetector(
+          child: Icon(
+            Icons.circle,
+            color: secondaryColor,
+          ),
+        ),
+        trailing: GestureDetector(
+          onTap: () async {
+            isRunningStopWatch = false;
+            Navigator.of(context).pop();
+          },
+          child: Icon(
+            Icons.done,
+            color: CupertinoColors.white,
+            size: 30,
+          ),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -194,7 +238,7 @@ class _SecondRouteState extends State<SecondRoute> {
           ),
           Center(
             child: Text(
-              'Calorie Counter: ' + calorieCounter.toString(),
+              'Calories Burnt: ' + calorieCounter.toString(),
               style: TextStyle(
                   color: Colors.white, fontFamily: 'Nunito', fontSize: 25),
             ),
