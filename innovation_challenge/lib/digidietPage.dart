@@ -59,15 +59,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
         .of(context)
         .size
         .width;
-    if (Provider
-        .of(context)
-        .auth
-        .showDigiFitQuestionnaire) {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (context) => DigiDietQuestionnairePage()));
-    }
     return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
             backgroundColor: secondaryColor,
@@ -115,7 +106,14 @@ class _DigiDietPageState extends State<DigiDietPage> {
     });
   }
 
+  bool hasShownQuestionnaire = true;
   Widget updateViewBasedOnTab(int i) {
+    if (Provider
+        .of(context)
+        .auth
+        .showDigiDietQuestionnaire) {
+      openQuestionnaire();
+    }
     if (i == 0) {
       return new Scaffold(
         backgroundColor: primaryColor,
@@ -400,6 +398,20 @@ class _DigiDietPageState extends State<DigiDietPage> {
         ),
       );
     }
+  }
+
+  void openQuestionnaire() async {
+    await Future.delayed(Duration(milliseconds: 1000), () {
+      if(!hasShownQuestionnaire) {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) => DigiDietQuestionnairePage()));
+        hasShownQuestionnaire = true;
+        Provider.of(context).auth.showDigiDietQuestionnaire = false;
+      }
+    });
+
   }
 
   String nameOfDayFromWeekday(int weekday) {

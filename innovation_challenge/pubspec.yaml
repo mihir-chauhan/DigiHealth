@@ -75,6 +75,9 @@ flutter:
         - asset: fonts/Nunito-Bold.ttf
         - asset: fonts/Nunito-ExtraBold.ttf
         - asset: fonts/Nunito-Black.ttf
+    - family: Barlow
+      fonts:
+        - asset: fonts/Barlow-BoldItalic.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

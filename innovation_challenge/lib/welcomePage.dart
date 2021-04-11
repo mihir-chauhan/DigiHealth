@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +31,18 @@ class WelcomePage extends StatelessWidget {
                   'assets/DigiHealthBanner.png',
                 ),
                 SizedBox(height: _height * 0.05),
-                AutoSizeText("Your first step to a healthier life",
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 40, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
+                TypewriterAnimatedTextKit(
+                  text: [
+                    "Health like never before",
+                  ],
+                  textStyle: TextStyle(
+                      fontSize: 30.0,
+                      fontFamily: "Barlow"
+                  ),
+                  textAlign: TextAlign.start,
+                  speed: Duration(milliseconds: 100),
+                  pause: Duration(milliseconds: 1000),
+                ),
                 SizedBox(height: _height * 0.1),
                 CupertinoButton(
                   color: Colors.white,
