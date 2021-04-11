@@ -44,6 +44,9 @@ dependencies:
   category_picker: ^1.0.1
   date_picker_timeline: ^1.2.1
   grouped_buttons: ^1.0.4
+  multi_charts: ^0.2.0
+  animated_text_kit: ^3.1.2
+
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"
