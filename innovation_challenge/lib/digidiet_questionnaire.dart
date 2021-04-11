@@ -407,6 +407,8 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
         pointsForWFPBDiet > pointsForIntermittentFasting &&
         pointsForWFPBDiet > pointsForMediterraneanDiet) {
       return "Whole Food Plant Based Diet";
+    } else {
+      return "Mediterranean Diet";
     }
   }
 }
