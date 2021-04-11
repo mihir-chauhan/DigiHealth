@@ -1,8 +1,6 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
-import 'package:ko_swipe_card/ko_swipe_card.dart';
 import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
 
@@ -14,9 +12,11 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  String title;
+  String title = 'Yoga';
+  String valueOfValues;
   CategoryPickerItem settingCategories(String value) {
-    return CategoryPickerItem(value: value);
+    valueOfValues = value;
+    return CategoryPickerItem(value: valueOfValues);
   }
 
   @override
@@ -61,6 +61,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
             unselectedItemTextDarkThemeColor: Colors.black,
             unselectedItemTextLightThemeColor: Colors.black,
           ),
+          Text(title),
           CupertinoButton(
             child: Container(
               width: 300.0,
@@ -75,18 +76,17 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 size: 300.0,
               ),
             ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => SecondRoute()),
+              );
+            },
           )
         ],
       ),
     );
   }
-
-  // List<String> activityList = [
-  //   "Outdoor Run",
-  //   "Indoor Jog",
-  //   "Cycling",
-  //   "Treadmill",
-  // ];
 
   List<Color> activityColor = [
     //outdoor is orange, indoor is blue
@@ -95,63 +95,173 @@ class _DigiFitPageState extends State<DigiFitPage> {
     outdoorExerciseColor,
     tertiaryColor
   ];
-
-  // Widget _buildCard(BuildContext context, int index, double rotateFraction) {
-  //   return GestureDetector(
-  //     child: Container(
-  //       color: activityColor[index],
-  //       child: Column(
-  //         children: [
-  //           Align(
-  //             alignment: Alignment.topCenter,
-  //             child: Image.asset(
-  //               (activityList[index] == "Outdoor Run"
-  //                   ? "outdoorrun.gif"
-  //                   : activityList[index] == "Indoor Jog"
-  //                       ? "indoorjog.gif"
-  //                       : activityList[index] == "Cycling"
-  //                           ? "cycling.gif"
-  //                           : "treadmill.gif"),
-  //               height: MediaQuery.of(context).size.width * 0.25,
-  //             ),
-  //           ),
-  //           Padding(
-  //             padding:
-  //                 EdgeInsets.all(MediaQuery.of(context).size.height * 0.05),
-  //             child: AutoSizeText(activityList[index],
-  //                 maxLines: 2,
-  //                 textAlign: TextAlign.center,
-  //                 style: TextStyle(
-  //                     fontSize: 35,
-  //                     color: Colors.white,
-  //                     fontFamily: 'Nunito',
-  //                     fontWeight: FontWeight.w500)),
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //     onTap: () {
-  //       //index always 0 because it is top of deck
-  //     },
-  //   );
-  // }
 }
-// KoSwipeCard(
-// cardWidth: MediaQuery.of(context).size.width * 0.75,
-// cardHeight: MediaQuery.of(context).size.height * 0.5,
-// cardDeltaHeight: 10,
-// itemCount: activityList.length,
-// indexedCardBuilder: (ctx, index, rotateFraction, translateFraction) =>
-// _buildCard(ctx, index, translateFraction),
-// topCardDismissListener: () {
-// setState(() {
-// String activityBeingSwipedOut = activityList.elementAt(0);
-// activityList.removeAt(0);
-// activityList.add(activityBeingSwipedOut);
-//
-// Color colorBeingSwipedOut = activityColor.elementAt(0);
-// activityColor.removeAt(0);
-// activityColor.add(colorBeingSwipedOut);
-// });
-// },
-// ),
+
+class SecondRoute extends StatefulWidget {
+  @override
+  _SecondRouteState createState() => _SecondRouteState();
+}
+
+class _SecondRouteState extends State<SecondRoute> {
+  int calorieCounter = 0;
+  int secondsMarker = 0;
+  int secondsTwoMarker = 0;
+  int minutesMarker = 0;
+  int minutesTwoMarker = 0;
+  bool isRunningStopWatch = true;
+  bool stopStopWatch = false;
+  void popupInSeconds() async {
+    await Future.delayed(Duration(seconds: 1), () {
+      if (isRunningStopWatch == true) {
+        popupInSeconds();
+        setState(() {
+          if (minutesTwoMarker == 5 &&
+              minutesMarker == 9 &&
+              secondsTwoMarker == 5 &&
+              secondsMarker == 9) {
+            secondsMarker = 0;
+            secondsTwoMarker = 0;
+            minutesMarker = 0;
+            minutesTwoMarker = 0;
+          } else if (minutesMarker == 9 &&
+              secondsTwoMarker == 5 &&
+              secondsMarker == 9) {
+            minutesTwoMarker++;
+            minutesMarker = 0;
+          } else if (secondsTwoMarker == 5 && secondsMarker == 9) {
+            minutesMarker++;
+            secondsTwoMarker = 0;
+            secondsMarker = 0;
+            calorieCounter = calorieCounter + 5;
+          } else if (secondsMarker == 9) {
+            secondsTwoMarker++;
+            secondsMarker = 0;
+          } else if (secondsMarker < 9) {
+            secondsMarker++;
+          }
+        });
+      } else if (stopStopWatch == true && isRunningStopWatch == false) {
+        setState(() {
+          secondsMarker = 0;
+          secondsTwoMarker = 0;
+          minutesTwoMarker = 0;
+          minutesMarker = 0;
+        });
+      }
+    });
+  }
+
+  void popupInTenSeconds() async {
+    await Future.delayed(Duration(seconds: 10), () {
+      if (isRunningStopWatch == true) {
+        popupInTenSeconds();
+        setState(() {
+          calorieCounter = calorieCounter + 10;
+        });
+      } else if (stopStopWatch == true && isRunningStopWatch == false) {
+        setState(() {
+          calorieCounter = 0;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: secondaryColor,
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          'Stopwatch',
+          style: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
+        ),
+        backgroundColor: secondaryColor,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Center(
+            child: Text(
+              minutesTwoMarker.toString() +
+                  minutesMarker.toString() +
+                  ':' +
+                  secondsTwoMarker.toString() +
+                  secondsMarker.toString(),
+              style: TextStyle(
+                  color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Calorie Counter: ' + calorieCounter.toString(),
+              style: TextStyle(
+                  color: Colors.white, fontFamily: 'Nunito', fontSize: 25),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 75.0),
+            child: CupertinoButton(
+              color: Colors.green,
+              child: Text('Start',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Nunito',
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold)),
+              onPressed: () {
+                setState(() {
+                  isRunningStopWatch = true;
+                  popupInSeconds();
+                  popupInTenSeconds();
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 75.0),
+            child: CupertinoButton(
+              color: Colors.red,
+              child: Text('Pause',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Nunito',
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold)),
+              onPressed: () {
+                setState(() {
+                  isRunningStopWatch = false;
+                  stopStopWatch = false;
+                  popupInSeconds();
+                  popupInTenSeconds();
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 75.0),
+            child: CupertinoButton(
+              color: Colors.grey,
+              child: Text(
+                'Reset',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Nunito',
+                    fontSize: 30.0,
+                    fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                setState(() {
+                  isRunningStopWatch = false;
+                  stopStopWatch = true;
+                  popupInSeconds();
+                  popupInTenSeconds();
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
