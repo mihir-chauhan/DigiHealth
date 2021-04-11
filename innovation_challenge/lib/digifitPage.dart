@@ -14,11 +14,10 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  // int i;
-  // CategoryPickerItem settingCategories(String value, int numberOfi) {
-  //   i = num
-  //   return CategoryPickerItem(value: value);
-  // }
+  String title;
+  CategoryPickerItem settingCategories(String value) {
+    return CategoryPickerItem(value: value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,34 +45,48 @@ class _DigiFitPageState extends State<DigiFitPage> {
         children: [
           CategoryPicker(
             items: [
-              CategoryPickerItem(
-                value: "Cardio",
-              ),
-              CategoryPickerItem(
-                value: "Flexibility",
-              ),
-              CategoryPickerItem(
-                value: "Endurance",
-              ),
-              CategoryPickerItem(
-                value: "Strength",
-              ),
+              settingCategories('Indoor'),
+              settingCategories('Outdoor'),
+              settingCategories('High-Impact'),
+              settingCategories('Low-Impact'),
             ],
             onValueChanged: (value) {
-              print(value.label);
+              setState(() {});
             },
+            backgroundColor: primaryColor,
+            selectedItemColor: tertiaryColor,
+            unselectedItemBorderColor: Colors.black,
+            selectedItemTextDarkThemeColor: Colors.white,
+            selectedItemTextLightThemeColor: Colors.white,
+            unselectedItemTextDarkThemeColor: Colors.black,
+            unselectedItemTextLightThemeColor: Colors.black,
           ),
+          CupertinoButton(
+            child: Container(
+              width: 300.0,
+              height: 300.0,
+              decoration: new BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.play_arrow,
+                color: Colors.green,
+                size: 300.0,
+              ),
+            ),
+          )
         ],
       ),
     );
   }
 
-  List<String> activityList = [
-    "Outdoor Run",
-    "Indoor Jog",
-    "Cycling",
-    "Treadmill",
-  ];
+  // List<String> activityList = [
+  //   "Outdoor Run",
+  //   "Indoor Jog",
+  //   "Cycling",
+  //   "Treadmill",
+  // ];
 
   List<Color> activityColor = [
     //outdoor is orange, indoor is blue
@@ -83,45 +96,45 @@ class _DigiFitPageState extends State<DigiFitPage> {
     tertiaryColor
   ];
 
-  Widget _buildCard(BuildContext context, int index, double rotateFraction) {
-    return GestureDetector(
-      child: Container(
-        color: activityColor[index],
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Image.asset(
-                (activityList[index] == "Outdoor Run"
-                    ? "outdoorrun.gif"
-                    : activityList[index] == "Indoor Jog"
-                        ? "indoorjog.gif"
-                        : activityList[index] == "Cycling"
-                            ? "cycling.gif"
-                            : "treadmill.gif"),
-                height: MediaQuery.of(context).size.width * 0.25,
-              ),
-            ),
-            Padding(
-              padding:
-                  EdgeInsets.all(MediaQuery.of(context).size.height * 0.05),
-              child: AutoSizeText(activityList[index],
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 35,
-                      color: Colors.white,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w500)),
-            )
-          ],
-        ),
-      ),
-      onTap: () {
-        //index always 0 because it is top of deck
-      },
-    );
-  }
+  // Widget _buildCard(BuildContext context, int index, double rotateFraction) {
+  //   return GestureDetector(
+  //     child: Container(
+  //       color: activityColor[index],
+  //       child: Column(
+  //         children: [
+  //           Align(
+  //             alignment: Alignment.topCenter,
+  //             child: Image.asset(
+  //               (activityList[index] == "Outdoor Run"
+  //                   ? "outdoorrun.gif"
+  //                   : activityList[index] == "Indoor Jog"
+  //                       ? "indoorjog.gif"
+  //                       : activityList[index] == "Cycling"
+  //                           ? "cycling.gif"
+  //                           : "treadmill.gif"),
+  //               height: MediaQuery.of(context).size.width * 0.25,
+  //             ),
+  //           ),
+  //           Padding(
+  //             padding:
+  //                 EdgeInsets.all(MediaQuery.of(context).size.height * 0.05),
+  //             child: AutoSizeText(activityList[index],
+  //                 maxLines: 2,
+  //                 textAlign: TextAlign.center,
+  //                 style: TextStyle(
+  //                     fontSize: 35,
+  //                     color: Colors.white,
+  //                     fontFamily: 'Nunito',
+  //                     fontWeight: FontWeight.w500)),
+  //           )
+  //         ],
+  //       ),
+  //     ),
+  //     onTap: () {
+  //       //index always 0 because it is top of deck
+  //     },
+  //   );
+  // }
 }
 // KoSwipeCard(
 // cardWidth: MediaQuery.of(context).size.width * 0.75,
