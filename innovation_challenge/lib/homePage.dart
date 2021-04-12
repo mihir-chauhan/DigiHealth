@@ -92,41 +92,41 @@ class _HomePageState extends State<HomePage> {
         showCupertinoDialog(
             context: context,
             builder: (_) => Container(
-              child: Expanded(
                 child: NetworkGiffyDialog(
                   image: Image.asset("welcome.gif"),
-                  title: Text("Welcome!",
+                  title: Text("Welcome to DigiHealth!",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 17,
+                          fontSize: 15,
                           color: Colors.black,
                           fontFamily: 'Nunito',
                           fontWeight: FontWeight.w600)),
                   description: Text(
-                    "Choose a workout customized by our intelligent AI, get healthy diet recommendations from our AI-based diet recommendation engine, encourage and compete with others using the chat, and view your personal stats!",
+                    "Choose a workout or get diet suggestions from intelligent AI, encourage others with the chat, and view your all-time stats!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black87,
                         fontFamily: 'Nunito',
                         fontWeight: FontWeight.w400),
                   ),
-                  entryAnimation: EntryAnimation.BOTTOM,
+                  entryAnimation: EntryAnimation.DEFAULT,
                   onOkButtonPressed: () {},
                   buttonCancelText: Text(
                     "I'm Ready!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.white,
                         fontFamily: 'Nunito',
                         fontWeight: FontWeight.w300),
                   ),
                   buttonCancelColor: primaryColor,
                   onlyCancelButton: true,
-                )
-              ),
-            ));
+                ),
+              )
+
+            );
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }
