@@ -47,17 +47,7 @@ class _HomePageState extends State<HomePage> {
             heroTag: "homePage",
             middle: Text("Home",
                 style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
-            backgroundColor: secondaryColor,
-            leading: GestureDetector(
-              onTap: () async {
-
-              },
-              child: Icon(
-                Icons.menu_rounded,
-                color: CupertinoColors.white,
-                size: 30,
-              ),
-            )),
+            backgroundColor: secondaryColor),
         child: Scaffold(
           backgroundColor: primaryColor,
           body: SafeArea(
