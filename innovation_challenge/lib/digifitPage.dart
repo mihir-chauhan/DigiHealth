@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
+import 'digidietPage.dart';
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -13,7 +14,6 @@ class DigiFitPage extends StatefulWidget {
 
 class _DigiFitPageState extends State<DigiFitPage> {
   String title = 'Treadmill';
-  String valueOfValues;
 
   @override
   Widget build(BuildContext context) {
@@ -67,19 +67,19 @@ class _DigiFitPageState extends State<DigiFitPage> {
             unselectedItemTextDarkThemeColor: Colors.black,
             unselectedItemTextLightThemeColor: Colors.black,
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 25),
           Text(
             title,
             style: TextStyle(
-                color: Colors.white, fontFamily: 'Nunito', fontSize: 75),
+                color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
           ),
           SizedBox(
-            height: 30,
+            height: 25,
           ),
           CupertinoButton(
             child: Container(
-              width: 300.0,
-              height: 300.0,
+              width: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.width * 0.75,
               decoration: new BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -87,7 +87,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
               child: Icon(
                 Icons.play_arrow,
                 color: Colors.green,
-                size: 300.0,
+                size: MediaQuery.of(context).size.width * 0.75,
               ),
             ),
             onPressed: () {
@@ -151,7 +151,7 @@ class _SecondRouteState extends State<SecondRoute> {
     await Future.delayed(Duration(seconds: 1), () {
       if (isRunningStopWatch == true) {
         popupInSeconds();
-        if(counterForCaloriesTenSecond < 10) {
+        if (counterForCaloriesTenSecond < 10) {
           counterForCaloriesTenSecond++;
         } else {
           counterForCaloriesTenSecond = 0;
