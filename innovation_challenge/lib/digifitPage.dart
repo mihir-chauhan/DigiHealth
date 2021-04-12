@@ -189,7 +189,7 @@ class _SecondRouteState extends State<SecondRoute> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: secondaryColor,
+      backgroundColor: primaryColor,
       navigationBar: CupertinoNavigationBar(
         middle: Text(
           'Stopwatch',
