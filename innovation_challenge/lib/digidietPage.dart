@@ -76,7 +76,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               heroTag: "digidietPage",
-              middle: Text("DigiDiet " + (i == 0 ? "Journal" : "Meal Planner"),
+              middle: Text("DigiDiet " + (i == 0 ? "Meal Planner" : "Stats"),
                   style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
               backgroundColor: secondaryColor,
               leading: GestureDetector(
@@ -90,7 +90,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                 ),
               ),
             ),
-            child: updateViewBasedOnTab(i),
+            child: updateViewBasedOnTab(i, context),
           );
         });
   }
@@ -106,12 +106,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
     });
   }
 
-  bool hasShownQuestionnaire = true;
-  Widget updateViewBasedOnTab(int i) {
-    if (Provider
-        .of(context)
-        .auth
-        .showDigiDietQuestionnaire) {
+  bool hasShownQuestionnaire = false;
+  Widget updateViewBasedOnTab(int i, context) {
+    if (Provider.of(context).auth.showDigiDietQuestionnaire) {
       openQuestionnaire();
     }
     if (i == 0) {

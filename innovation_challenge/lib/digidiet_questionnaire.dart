@@ -56,7 +56,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                 await databaseReference
                     .collection("User Data")
                     .document(user.email).updateData({
-                  "dietPlan": dietName
+                  "Diet Plan": dietName
                 });
                 setState(() {
                   hideResult = false;
@@ -92,9 +92,9 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                           RadioButtonGroup(
                             labels: <String>[
                               "I'm looking to shred fat fast!",
-                              "I’d like to lose some weight and be\nhealthier.",
+                              "I’d like to lose some weight and\nbe healthier.",
                               "I’m really looking for balance and\nlong-term health.",
-                              "I want to improve my health in a way\nthat’s also sustainable.",
+                              "I want to improve my health in a\nway that’s also sustainable.",
                             ],
                             onSelected: (String selected) {
                               if (selected
@@ -107,7 +107,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                                   "I’m really looking for balance and\nlong-term health.")) {
                                 question1Selection = 2;
                               } else if (selected.contains(
-                                  "I want to improve my health in a way\nthat’s also sustainable.")) {
+                                  "I want to improve my health in a\nway that’s also sustainable.")) {
                                 question1Selection = 3;
                               }
                             },
@@ -134,23 +134,23 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                           ),
                           RadioButtonGroup(
                             labels: <String>[
-                              "I'm ready to go the full nine yards on\nmy eating habits.",
-                              "I can put in the hard work but I also\nneed my cheat days.",
-                              "I don’t mind making sacrifices when\nit’s important.",
-                              "I’m really not looking to go too far\noutside my comfort zone.",
+                              "I'm ready to go the full nine\nyards on my eating habits.",
+                              "I can put in the hard work but\nI also need my cheat days.",
+                              "I don’t mind making sacrifices\nwhen it’s important.",
+                              "I’m really not looking to go too\nfar outside my comfort zone.",
                             ],
                             onSelected: (String selected) {
                               if (selected.contains(
-                                  "I'm ready to go the full nine yards on\nmy eating habits.")) {
+                                  "I'm ready to go the full nine\nyards on my eating habits.")) {
                                 question2Selection = 0;
                               } else if (selected.contains(
-                                  "I can put in the hard work but I also\nneed my cheat days.")) {
+                                  "I can put in the hard work but\nI also need my cheat days.")) {
                                 question2Selection = 1;
                               } else if (selected.contains(
-                                  "I don’t mind making sacrifices when\nit’s important.")) {
+                                  "I don’t mind making sacrifices\nwhen it’s important.")) {
                                 question2Selection = 2;
                               } else if (selected.contains(
-                                  "I’m really not looking to go too far\noutside my comfort zone.")) {
+                                  "I’m really not looking to go too\nfar outside my comfort zone.")) {
                                 question2Selection = 3;
                               }
                             },
@@ -180,7 +180,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                               "I love it all.",
                               "Is there anything else?",
                               "I try to limit red meat.",
-                              "There are so many better sources of\nprotein.",
+                              "There are so many better sources\nof protein.",
                             ],
                             onSelected: (String selected) {
                               if (selected.contains("I love it all.")) {
@@ -192,7 +192,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                                   .contains("I try to limit red meat.")) {
                                 question3Selection = 2;
                               } else if (selected.contains(
-                                  "There are so many better sources of\nprotein.")) {
+                                  "There are so many better sources\nof protein.")) {
                                 question3Selection = 3;
                               }
                             },
@@ -221,7 +221,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                             labels: <String>[
                               "Yes! In every glorious form!",
                               "There are healthy carbs, right?",
-                              "No way, I want my body burning clean\nfuel.",
+                              "No way, I want my body burning\nclean fuel.",
                             ],
                             onSelected: (String selected) {
                               if (selected
@@ -231,7 +231,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                                   "There are healthy carbs, right?")) {
                                 question4Selection = 1;
                               } else if (selected.contains(
-                                  "No way, I want my body burning clean\nfuel.")) {
+                                  "No way, I want my body burning\nclean fuel.")) {
                                 question4Selection = 2;
                               }
                             },
@@ -259,7 +259,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                           RadioButtonGroup(
                             labels: <String>[
                               "Lactose intolerant and fine with it.",
-                              "Who doesn’t like butter and cheese?",
+                              "Who doesn’t like butter and\ncheese?",
                               "Ice cream is pure joy. No one is\ntaking that from me.",
                             ],
                             onSelected: (String selected) {
@@ -267,11 +267,11 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                                   "Lactose intolerant and fine with it.")) {
                                 question5Selection = 0;
                               } else if (selected.contains(
-                                  "Who doesn’t like butter and cheese?")) {
-                                question5Selection = 2;
+                                  "Who doesn’t like butter and\ncheese?")) {
+                                question5Selection = 1;
                               } else if (selected.contains(
                                   "Ice cream is pure joy. No one is\ntaking that from me.")) {
-                                question5Selection = 3;
+                                question5Selection = 2;
                               }
                             },
                             labelStyle: TextStyle(
@@ -304,7 +304,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                       child: Column(
                         children: [
                           Image.asset(
-                            "diet.png",
+                            "images/diet.png",
                             width: MediaQuery.of(context).size.height * 0.2,
                           ),
                           SizedBox(height: _height * 0.02),
@@ -345,6 +345,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
   }
 
   String dietRecommendationFromAnswers() {
+    print(question1Selection.toString() + ", " + question2Selection.toString() + ", " + question3Selection.toString() + ", " + question4Selection.toString() + ", " + question5Selection.toString());
     int pointsForPaleolithic = 0;
     int pointsForMediterraneanDiet = 0;
     int pointsForIntermittentFasting = 0;
@@ -380,7 +381,8 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
     } else if (question3Selection == 2) {
       pointsForMediterraneanDiet++;
     } else if (question3Selection == 3) {
-      pointsForWFPBDiet++;
+      pointsForWFPBDiet+=3;
+      pointsForIntermittentFasting+=3;
     }
 
     /**Question 4**/
@@ -418,7 +420,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
         pointsForWFPBDiet > pointsForMediterraneanDiet) {
       return "Whole Food Plant Based Diet";
     } else {
-      return "Mediterranean Diet";
+      return "Whole Food Plant Based Diet";
     }
   }
 }

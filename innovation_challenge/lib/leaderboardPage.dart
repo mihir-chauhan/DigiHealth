@@ -3,8 +3,8 @@ import 'package:DigiHealth/appPrefs.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:lists/lists.dart';
 import 'package:vs_scrollbar/vs_scrollbar.dart';
 
 class LeaderboardPage extends StatefulWidget {
@@ -14,41 +14,38 @@ class LeaderboardPage extends StatefulWidget {
 
 class _LeaderboardPageState extends State<LeaderboardPage> {
   static var leaderboardName;
-
+  static var leaderboardPoints;
   int i = 50;
-  SparseList leaderboardPoints = SparseList<int>();
 
   setupLeaderboardRankings() async {
     leaderboardName = ValueNotifier<List<String>>(new List<String>());
+    leaderboardPoints = ValueNotifier<List<int>>(new List<int>());
     Firestore.instance
         //setsup arraylist
         .collection('User Data')
-        .orderBy('points', descending: true)
+        .orderBy('Points', descending: true)
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
         leaderboardName.value.add(doc['Name']);
-        leaderboardPoints.add(doc['points']);
+        leaderboardPoints.value.add(doc['Points']);
         leaderboardName.notifyListeners();
       });
     });
   }
 
   AutoSizeText populateLeaderboardWithName(int index) {
-    //get from array at index(passed in)
     return AutoSizeText(
       leaderboardName.value[index].toString(),
       maxLines: 1,
       style:
           TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
     );
-    // return leaderboardName.toList()[index];
   }
 
   AutoSizeText populateLeaderboardWithPoints(int index) {
-    //get from array at index(passed in)
     return AutoSizeText(
-      leaderboardPoints[index].toString(),
+      leaderboardPoints.value[index].toString(),
       maxLines: 1,
       style: TextStyle(
           color: Colors.white,
@@ -56,32 +53,35 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           fontSize: 100,
           fontWeight: FontWeight.bold),
     );
-    // return leaderboardName.toList()[index];
   }
 
   AssetImage classifyRank(int i) {
-    if (leaderboardPoints[i] > 5000) {
+    if(i == 0) {
+      return AssetImage('images/rank.png');
+    }
+
+    if (leaderboardPoints.value[i] > 5000) {
       return AssetImage('images/diamond1.png');
     }
-    if (leaderboardPoints[i] > 4500) {
+    if (leaderboardPoints.value[i] > 4500) {
       return AssetImage('images/platinum2.png');
     }
-    if (leaderboardPoints[i] > 4000) {
+    if (leaderboardPoints.value[i] > 4000) {
       return AssetImage('images/platinum1.png');
     }
-    if (leaderboardPoints[i] > 3500) {
+    if (leaderboardPoints.value[i] > 3500) {
       return AssetImage('images/gold2.png');
     }
-    if (leaderboardPoints[i] > 3000) {
+    if (leaderboardPoints.value[i] > 3000) {
       return AssetImage('images/gold1.png');
     }
-    if (leaderboardPoints[i] > 2500) {
+    if (leaderboardPoints.value[i] > 2500) {
       return AssetImage('images/silver2.png');
     }
-    if (leaderboardPoints[i] > 2000) {
+    if (leaderboardPoints.value[i] > 2000) {
       return AssetImage('images/silver1.png');
     }
-    if (leaderboardPoints[i] > 1500) {
+    if (leaderboardPoints.value[i] > 1500) {
       return AssetImage('images/bronze2.png');
     } else {
       return AssetImage('images/bronze1.png');
@@ -100,12 +100,12 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Future.delayed(Duration(milliseconds: 1000), () {
-    //   if (_scrollController.offset == 0) {
-    //     _scrollController.animateTo(1000,
-    //         duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
-    //   }
-    // });
+  //   Future.delayed(Duration(milliseconds: 1000), () {
+  //     if (_scrollController.offset == 0) {
+  //       _scrollController.animateTo(1000,
+  //           duration: Duration(milliseconds: 750), curve: Curves.easeInOutExpo);
+  //     }
+  //   });
 
     setupLeaderboardRankings();
     return CupertinoPageScaffold(
@@ -125,9 +125,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               size: 30,
             ),
           )),
-      child: ValueListenableBuilder(
-        valueListenable: leaderboardName,
-        builder: (context, value, widget) {
+      child: ValueListenableBuilder2<List<String>, List<int>>(
+        leaderboardName,
+        leaderboardPoints,
+        builder: (context, leaderboardName, leaderboardPoints, child) {
           return CupertinoPageScaffold(
             key: ObjectKey(Random().nextInt(100)),
             backgroundColor: primaryColor,
@@ -142,7 +143,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 controller: _scrollController,
                 shrinkWrap: false,
                 physics: BouncingScrollPhysics(),
-                itemCount: value.length,
+                itemCount: leaderboardName.length,
                 scrollDirection: Axis.vertical,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
@@ -174,6 +175,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(width: 10),
                                   Align(
                                     child: populateLeaderboardWithName(index),
                                   ),
@@ -194,7 +196,38 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             ),
           );
         },
-      ),
+      )
     );
   }
 }
+
+class ValueListenableBuilder2<A, B> extends StatelessWidget {
+  ValueListenableBuilder2(
+      this.first,
+      this.second, {
+        Key key,
+        this.builder,
+        this.child,
+      }) : super(key: key);
+
+  final ValueListenable<A> first;
+  final ValueListenable<B> second;
+  final Widget child;
+  final Widget Function(BuildContext context, A a, B b, Widget child) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<A>(
+      valueListenable: first,
+      builder: (_, a, __) {
+        return ValueListenableBuilder<B>(
+          valueListenable: second,
+          builder: (context, b, __) {
+            return builder(context, a, b, child);
+          },
+        );
+      },
+    );
+  }
+}
+

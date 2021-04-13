@@ -28,7 +28,7 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 48, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200)),
                 SizedBox(height: _height * 0.05),
                 Image.asset(
-                  'assets/DigiHealthBanner.png',
+                  'images/DigiHealthBanner.png',
                 ),
                 SizedBox(height: _height * 0.05),
                 TypewriterAnimatedTextKit(

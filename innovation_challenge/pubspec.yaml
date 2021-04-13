@@ -91,11 +91,6 @@ flutter:
     - welcome.gif
     - rank.png
     - DigiHealthLogo.png
-    - outdoorrun.gif
-    - cycling.gif
-    - treadmill.gif
-    - indoorjog.gif
-    - diet.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

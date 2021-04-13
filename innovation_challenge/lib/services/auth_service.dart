@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -24,6 +25,17 @@ class AuthService {
     userUpdateInfo.displayName = name;
     await currentUser.updateProfile(userUpdateInfo);
     await currentUser.reload();
+
+    final databaseReference = Firestore.instance;
+    await databaseReference
+        .collection("User Data")
+        .document(email).setData({
+      "Name": name,
+      "Diet Plan": "Not Set",
+      "Calories Burned": 0,
+      "Points": 0,
+      "Exercise Time": 0
+    });
 
     madeNewAccount = true;
     showDigiDietQuestionnaire = true;
