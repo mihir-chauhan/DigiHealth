@@ -317,7 +317,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                         maxLines: 1,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 30,
+                            fontSize: 25,
                             fontFamily: 'Nunito')),
                     SizedBox(height: _height * 0.02),
                     Align(
