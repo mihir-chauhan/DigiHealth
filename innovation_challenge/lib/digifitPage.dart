@@ -1,7 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:draw_graph/draw_graph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:draw_graph/models/feature.dart';
 import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
 import 'package:multi_charts/multi_charts.dart';
@@ -14,8 +16,20 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
+  final List<Feature> features = [
+    Feature(
+      title: "Calories Burnt",
+      color: Colors.blue,
+      data: [0.2, 0.3, 0.4, 0.7, 0.9],
+    ),
+    Feature(
+      title: "Time Exercised",
+      color: Colors.red,
+      data: [0.1, 0.5, 0.3, 0.6, 0.7],
+    )
+  ];
   String title = 'Treadmill';
-  Icon dietIcon = Icon(Icons.whatshot_outlined, color: Colors.white);
+  Icon dietIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
   Icon journalIcon = Icon(Icons.analytics_outlined, color: Colors.white);
   var _height;
   var _width;
@@ -130,7 +144,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Consumption per Food Group",
+                      child: AutoSizeText("Improvement Over Time",
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 30,
@@ -139,28 +153,22 @@ class _DigiFitPageState extends State<DigiFitPage> {
                               fontWeight: FontWeight.w400))),
                 ),
                 Container(
-                  height: 320,
+                  width: MediaQuery.of(context).size.width,
+                  height: 350,
                   decoration: BoxDecoration(
                       color: tertiaryColor,
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: RadarChart(
-                      values: [5, 10, 3, 5, 6, 9],
-                      labels: [
-                        "Protein",
-                        "Carbs",
-                        "Dairy",
-                        "Fruits",
-                        "Veggies",
-                        "Grains",
-                      ],
-                      maxValue: 10,
-                      fillColor: Colors.blue,
-                      strokeColor: Colors.white,
-                      labelColor: Colors.white,
-                      textScaleFactor: 0.07,
-                      curve: Curves.easeInOutExpo,
+                    padding: const EdgeInsets.only(
+                      top: 30.0,
+                    ),
+                    child: LineGraph(
+                      features: features,
+                      size: Size(320, 300),
+                      labelX: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20'],
+                      labelY: ['20', '40', '60', '80', '100'],
+                      showDescription: true,
+                      graphColor: Colors.white60,
                     ),
                   ),
                 ),
@@ -168,7 +176,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Average Calories per Meal",
+                      child: AutoSizeText("Average Type of Exercise Done",
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 30,
@@ -184,11 +192,17 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: PieChart(
-                      values: [34.76, 32.21, 33.03],
+                      values: [
+                        23,
+                        39,
+                        24,
+                        14,
+                      ],
                       labels: [
-                        "Breakfast",
-                        "Lunch",
-                        "Dinner",
+                        "Indoor",
+                        "Outdoor",
+                        "High-Impact",
+                        "Low-Impact",
                       ],
                       labelColor: Colors.white,
                       legendTextColor: Colors.white,
@@ -204,7 +218,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     child: Align(
                         alignment: Alignment.centerLeft,
                         child: AutoSizeText(
-                            "Daily Average Total Calories: 1952.534",
+                            "Rate of Improvement Per Day: 13.4%",
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 30,
