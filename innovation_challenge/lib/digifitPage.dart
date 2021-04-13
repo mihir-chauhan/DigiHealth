@@ -95,8 +95,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
             ),
             CupertinoButton(
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.75,
-                height: MediaQuery.of(context).size.width * 0.75,
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.width * 0.5,
                 decoration: new BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
@@ -104,7 +104,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 child: Icon(
                   Icons.play_arrow,
                   color: Colors.green,
-                  size: MediaQuery.of(context).size.width * 0.75,
+                  size: MediaQuery.of(context).size.width * 0.5,
                 ),
               ),
               onPressed: () {
@@ -242,7 +242,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   void openQuestionnaire() async {
     await Future.delayed(Duration(milliseconds: 1000), () {
-      if(!hasShownQuestionnaire) {
+      if (!hasShownQuestionnaire) {
         Navigator.push(
             context,
             CupertinoPageRoute(
@@ -251,7 +251,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
         Provider.of(context).auth.showDigiFitQuestionnaire = false;
       }
     });
-
   }
 
   @override

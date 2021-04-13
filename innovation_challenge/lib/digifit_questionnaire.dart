@@ -20,7 +20,6 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
   int question4Selection = -1;
   int question5Selection = -1;
   bool hideResult = true;
-  String fitName = "Mediterranean Diet";
   var _height;
 
   @override
@@ -53,8 +52,7 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                 final databaseReference = Firestore.instance;
                 await databaseReference
                     .collection("User Data")
-                    .document(user.email)
-                    .updateData({"Diet Plan": fitName});
+                    .document(user.email);
                 setState(() {
                   hideResult = false;
                 });
