@@ -232,7 +232,7 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           color: tertiaryColor),
-                      height: MediaQuery.of(context).size.height * 0.225,
+                      height: MediaQuery.of(context).size.height * 0.161,
                       width: MediaQuery.of(context).size.width,
                       child: Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -245,7 +245,7 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Nunito',
-                                          fontSize: 25.0,
+                                          fontSize: 20.0,
                                           fontWeight: FontWeight.w300)),
                                   onPressed: () {
                                     Navigator.pop(context);
