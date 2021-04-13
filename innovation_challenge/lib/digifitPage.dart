@@ -264,7 +264,7 @@ class _SecondRouteState extends State<SecondRoute> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 75.0),
             child: CupertinoButton(
-              color: Colors.orange,
+              color: Colors.blue,
               disabledColor: tertiaryColor,
               child: Text('Pause',
                   style: TextStyle(
