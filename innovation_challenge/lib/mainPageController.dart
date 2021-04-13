@@ -1,7 +1,6 @@
 import 'package:DigiHealth/chatPage.dart';
 import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';
-import 'package:DigiHealth/profilePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
