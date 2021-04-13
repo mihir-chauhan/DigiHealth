@@ -1,3 +1,5 @@
+import 'package:DigiHealth/digifit_questionnaire.dart';
+import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +47,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
   }
 
   Widget updateViewBasedOnTab(int i) {
+    if (Provider.of(context).auth.showDigiFitQuestionnaire) {
+      openQuestionnaire();
+    }
     if (i == 0) {
       return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -231,6 +236,22 @@ class _DigiFitPageState extends State<DigiFitPage> {
         ),
       );
     }
+  }
+
+  bool hasShownQuestionnaire = false;
+
+  void openQuestionnaire() async {
+    await Future.delayed(Duration(milliseconds: 1000), () {
+      if(!hasShownQuestionnaire) {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) => DigiFitQuestionnairePage()));
+        hasShownQuestionnaire = true;
+        Provider.of(context).auth.showDigiFitQuestionnaire = false;
+      }
+    });
+
   }
 
   @override
