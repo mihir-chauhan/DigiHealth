@@ -48,29 +48,29 @@ class _DigiDietPageState extends State<DigiDietPage> {
   ];
   List<String> wholeFoodPlantBasedDiet = [
     "Low Fat Cinnamon Nut Granola",
-    "",
-    "",
+    "Penne with Tomato and Mushroom",
+    "Lentil Vegetable Soup",
     "Heart Healthy Smoothie",
-    "",
-    "",
+    "Salad Sandwich",
+    "Avocado White Bean Wraps",
     "Cocoprorridge Bowl",
-    "",
-    "",
+    "Burritos with Spanish Rice",
+    "Creamy Wild Rice Soup",
     "Carrot Cake Overnight Oats",
-    "",
-    "",
+    "Easy Vegan Corn Chowder",
+    "Spinach Potato Tacos",
     "Vegan Breakfast Skillet",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
+    "Black Bean Burgers",
+    "Black Bean Quesadillas",
+    "Savory Vegan Breakfast Bowl",
+    "8 Bean Chili",
+    "Potato Cauliflower Curry",
+    "Fruit-Filled Overnight Oats",
+    "Mixed Veg Rice Bowls",
+    "No-Fry Fried Rice",
+    "Zen Quinoa Breakfast Bowl",
+    "Tex-Mex Pita Pizzas",
+    "Veggie and Apple Slaw"
   ];
   String mealPlannerDay = "Today";
   int dayofweek = 0;
@@ -134,9 +134,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   bool hasShownQuestionnaire = false;
   Widget updateViewBasedOnTab(int i, context) {
-    // if (Provider.of(context).auth.showDigiDietQuestionnaire) {
+    if (Provider.of(context).auth.showDigiDietQuestionnaire) {
       openQuestionnaire();
-    // }
+    }
     if (i == 0) {
       return new Scaffold(
         backgroundColor: primaryColor,
@@ -210,7 +210,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3],
+                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -236,7 +236,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3 + 1],
+                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3 + 1],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -262,7 +262,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(mediterraneanDiet[dayofweek * 3 + 2],
+                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3 + 2],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -285,136 +285,136 @@ class _DigiDietPageState extends State<DigiDietPage> {
             padding: EdgeInsets.all(5.0),
             child: Column(
               children: [
-              SizedBox(
-              height: _height * 0.01,
-            ),
-            Container(
-              width: _width,
-              height: _height * 0.0025,
-              color: secondaryColor,
-            ),
-            Center(
-                child: Text("Your Diet Stats",
-                    style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200))),
-            Container(
-              width: _width,
-              height: _height * 0.0025,
-              color: secondaryColor,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Diet Option",
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400))),
-            ),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Mediterranean Diet",
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w200)),
+                SizedBox(
+                  height: _height * 0.01,
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AutoSizeText("Consumption per Food Group",
-                      maxLines: 1,
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400))),
-            ),
-            Container(
-              height: 320,
-              decoration: BoxDecoration(
-                  color: tertiaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: RadarChart(
-                  values: [5, 10, 3, 5, 6, 9],
-                  labels: [
-                    "Protein",
-                    "Carbs",
-                    "Dairy",
-                    "Fruits",
-                    "Veggies",
-                    "Grains",
-                  ],
-                  maxValue: 10,
-                  fillColor: Colors.blue,
-                  strokeColor: Colors.white,
-                  labelColor: Colors.white,
-                  textScaleFactor: 0.06,
+                Container(
+                  width: _width,
+                  height: _height * 0.0025,
+                  color: secondaryColor,
+                ),
+                Center(
+                    child: Text("Your Diet Stats",
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200))),
+                Container(
+                  width: _width,
+                  height: _height * 0.0025,
+                  color: secondaryColor,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Diet Option",
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Whole Food Plant Based Diet",
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200)),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText("Consumption per Food Group",
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  height: 320,
+                  decoration: BoxDecoration(
+                      color: tertiaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RadarChart(
+                      values: [5, 10, 3, 5, 6, 9],
+                      labels: [
+                        "Protein",
+                        "Carbs",
+                        "Dairy",
+                        "Fruits",
+                        "Veggies",
+                        "Grains",
+                      ],
+                      maxValue: 10,
+                      fillColor: Colors.blue,
+                      strokeColor: Colors.white,
+                      labelColor: Colors.white,
+                      textScaleFactor: 0.06,
 
-                  curve: Curves.easeInOutExpo,
+                      curve: Curves.easeInOutExpo,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AutoSizeText("Average Calories per Meal",
-                      maxLines: 1,
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400))),
-            ),
-            Container(
-              height: 320,
-              decoration: BoxDecoration(
-                  color: tertiaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: PieChart(
-                  values: [34.76, 32.21, 33.03],
-                  labels: [
-                    "Breakfast",
-                    "Lunch",
-                    "Dinner",
-                  ],
-                  labelColor: Colors.white,
-                  legendTextColor: Colors.white,
-                  textScaleFactor: 0.07,
-                  curve: Curves.easeInOutExpo,
-                  legendPosition: LegendPosition.Bottom,
-                  separateFocusedValue: true,
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText("Average Calories per Meal",
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w400))),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AutoSizeText("Daily Average Total Calories: 1952.534",
-                      maxLines: 1,
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400)))),
+                Container(
+                  height: 320,
+                  decoration: BoxDecoration(
+                      color: tertiaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: PieChart(
+                      values: [34.76, 32.21, 33.03],
+                      labels: [
+                        "Breakfast",
+                        "Lunch",
+                        "Dinner",
+                      ],
+                      labelColor: Colors.white,
+                      legendTextColor: Colors.white,
+                      textScaleFactor: 0.07,
+                      curve: Curves.easeInOutExpo,
+                      legendPosition: LegendPosition.Bottom,
+                      separateFocusedValue: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Daily Average Total Calories: 1952.534",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400)))),
               ],
             ),
           ),
