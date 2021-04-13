@@ -47,9 +47,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
   }
 
   Widget updateViewBasedOnTab(int i) {
-    // if (Provider.of(context).auth.showDigiFitQuestionnaire) {
+    if (Provider.of(context).auth.showDigiFitQuestionnaire) {
     openQuestionnaire();
-    // }
+    }
     if (i == 0) {
       return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -274,7 +274,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               heroTag: "digifitPage",
-              middle: Text("DigiFit " + (i == 0 ? "Workout" : "Stats"),
+              middle: Text("DigiFit " + (i == 0 ? "Fitness Tracker" : "Stats"),
                   style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
               backgroundColor: secondaryColor,
               leading: GestureDetector(
