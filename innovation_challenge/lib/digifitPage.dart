@@ -47,9 +47,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
   }
 
   Widget updateViewBasedOnTab(int i) {
-    if (Provider.of(context).auth.showDigiFitQuestionnaire) {
-      openQuestionnaire();
-    }
+    // if (Provider.of(context).auth.showDigiFitQuestionnaire) {
+    openQuestionnaire();
+    // }
     if (i == 0) {
       return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,

@@ -134,9 +134,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   bool hasShownQuestionnaire = false;
   Widget updateViewBasedOnTab(int i, context) {
-    if (Provider.of(context).auth.showDigiDietQuestionnaire) {
+    // if (Provider.of(context).auth.showDigiDietQuestionnaire) {
       openQuestionnaire();
-    }
+    // }
     if (i == 0) {
       return new Scaffold(
         backgroundColor: primaryColor,
