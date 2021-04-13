@@ -46,6 +46,32 @@ class _DigiDietPageState extends State<DigiDietPage> {
     "Greek Wedge Salad",
     "Panzanella Salad"
   ];
+  List<String> wholeFoodPlantBasedDiet = [
+    "Low Fat Cinnamon Nut Granola",
+    "",
+    "",
+    "Heart Healthy Smoothie",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ];
   String mealPlannerDay = "Today";
   int dayofweek = 0;
 
@@ -337,7 +363,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   fillColor: Colors.blue,
                   strokeColor: Colors.white,
                   labelColor: Colors.white,
-                  textScaleFactor: 0.07,
+                  textScaleFactor: 0.06,
 
                   curve: Curves.easeInOutExpo,
                 ),

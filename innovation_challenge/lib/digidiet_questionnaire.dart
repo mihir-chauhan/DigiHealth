@@ -1,5 +1,4 @@
 import 'package:DigiHealth/provider_widget.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,9 +54,8 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                 dietName = dietRecommendationFromAnswers();
                 await databaseReference
                     .collection("User Data")
-                    .document(user.email).updateData({
-                  "Diet Plan": dietName
-                });
+                    .document(user.email)
+                    .updateData({"Diet Plan": dietName});
                 setState(() {
                   hideResult = false;
                 });
@@ -69,283 +67,236 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
               size: 30,
             ),
           )),
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: primaryColor,
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("What are your dieting goals?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito')),
-                          ),
-                          RadioButtonGroup(
-                            labels: <String>[
-                              "I'm looking to shred fat fast!",
-                              "I’d like to lose some weight and\nbe healthier.",
-                              "I’m really looking for balance and\nlong-term health.",
-                              "I want to improve my health in a\nway that’s also sustainable.",
-                            ],
-                            onSelected: (String selected) {
-                              if (selected
-                                  .contains("I'm looking to shred fat fast!")) {
-                                question1Selection = 0;
-                              } else if (selected.contains(
-                                  "I’d like to lose some weight and be\nhealthier.")) {
-                                question1Selection = 1;
-                              } else if (selected.contains(
-                                  "I’m really looking for balance and\nlong-term health.")) {
-                                question1Selection = 2;
-                              } else if (selected.contains(
-                                  "I want to improve my health in a\nway that’s also sustainable.")) {
-                                question1Selection = 3;
-                              }
-                            },
-                            labelStyle: TextStyle(
+      child: Scaffold(
+        backgroundColor: primaryColor,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("What are your dieting goals?",
+                            style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 17,
-                                fontFamily: 'Nunito'),
-                            activeColor: Colors.white,
-                          )
-                        ],
+                                fontSize: 20,
+                                fontFamily: 'Nunito')),
                       ),
-                    ),
-                    SizedBox(height: _height * 0.05),
-                    Container(
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("How committed are you willing to be?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito')),
-                          ),
-                          RadioButtonGroup(
-                            labels: <String>[
-                              "I'm ready to go the full nine\nyards on my eating habits.",
-                              "I can put in the hard work but\nI also need my cheat days.",
-                              "I don’t mind making sacrifices\nwhen it’s important.",
-                              "I’m really not looking to go too\nfar outside my comfort zone.",
-                            ],
-                            onSelected: (String selected) {
-                              if (selected.contains(
-                                  "I'm ready to go the full nine\nyards on my eating habits.")) {
-                                question2Selection = 0;
-                              } else if (selected.contains(
-                                  "I can put in the hard work but\nI also need my cheat days.")) {
-                                question2Selection = 1;
-                              } else if (selected.contains(
-                                  "I don’t mind making sacrifices\nwhen it’s important.")) {
-                                question2Selection = 2;
-                              } else if (selected.contains(
-                                  "I’m really not looking to go too\nfar outside my comfort zone.")) {
-                                question2Selection = 3;
-                              }
-                            },
-                            labelStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontFamily: 'Nunito'),
-                            activeColor: Colors.white,
-                          )
+                      RadioButtonGroup(
+                        labels: <String>[
+                          "I'm looking to shred fat fast!",
+                          "I’d like to lose some weight and\nbe healthier.",
+                          "I’m really looking for balance and\nlong-term health.",
+                          "I want to improve my health in a\nway that’s also sustainable.",
                         ],
-                      ),
-                    ),
-                    SizedBox(height: _height * 0.05),
-                    Container(
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Are you a meat eater?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito')),
-                          ),
-                          RadioButtonGroup(
-                            labels: <String>[
-                              "I love it all.",
-                              "Is there anything else?",
-                              "I try to limit red meat.",
-                              "There are so many better sources\nof protein.",
-                            ],
-                            onSelected: (String selected) {
-                              if (selected.contains("I love it all.")) {
-                                question3Selection = 0;
-                              } else if (selected
-                                  .contains("Is there anything else?")) {
-                                question3Selection = 1;
-                              } else if (selected
-                                  .contains("I try to limit red meat.")) {
-                                question3Selection = 2;
-                              } else if (selected.contains(
-                                  "There are so many better sources\nof protein.")) {
-                                question3Selection = 3;
-                              }
-                            },
-                            labelStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontFamily: 'Nunito'),
-                            activeColor: Colors.white,
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: _height * 0.05),
-                    Container(
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Do you love carbs?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito')),
-                          ),
-                          RadioButtonGroup(
-                            labels: <String>[
-                              "Yes! In every glorious form!",
-                              "There are healthy carbs, right?",
-                              "No way, I want my body burning\nclean fuel.",
-                            ],
-                            onSelected: (String selected) {
-                              if (selected
-                                  .contains("Yes! In every glorious form!")) {
-                                question4Selection = 0;
-                              } else if (selected.contains(
-                                  "There are healthy carbs, right?")) {
-                                question4Selection = 1;
-                              } else if (selected.contains(
-                                  "No way, I want my body burning\nclean fuel.")) {
-                                question4Selection = 2;
-                              }
-                            },
-                            labelStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontFamily: 'Nunito'),
-                            activeColor: Colors.white,
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: _height * 0.05),
-                    Container(
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("What are your feelings on dairy?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito')),
-                          ),
-                          RadioButtonGroup(
-                            labels: <String>[
-                              "Lactose intolerant and fine with it.",
-                              "Who doesn’t like butter and\ncheese?",
-                              "Ice cream is pure joy. No one is\ntaking that from me.",
-                            ],
-                            onSelected: (String selected) {
-                              if (selected.contains(
-                                  "Lactose intolerant and fine with it.")) {
-                                question5Selection = 0;
-                              } else if (selected.contains(
-                                  "Who doesn’t like butter and\ncheese?")) {
-                                question5Selection = 1;
-                              } else if (selected.contains(
-                                  "Ice cream is pure joy. No one is\ntaking that from me.")) {
-                                question5Selection = 2;
-                              }
-                            },
-                            labelStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontFamily: 'Nunito'),
-                            activeColor: Colors.white,
-                          )
-                        ],
-                      ),
-                    )
-                  ],
+                        onSelected: (String selected) {
+                          if (selected
+                              .contains("I'm looking to shred fat fast!")) {
+                            question1Selection = 0;
+                          } else if (selected.contains(
+                              "I’d like to lose some weight and be\nhealthier.")) {
+                            question1Selection = 1;
+                          } else if (selected.contains(
+                              "I’m really looking for balance and\nlong-term health.")) {
+                            question1Selection = 2;
+                          } else if (selected.contains(
+                              "I want to improve my health in a\nway that’s also sustainable.")) {
+                            question1Selection = 3;
+                          }
+                        },
+                        labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Nunito'),
+                        activeColor: Colors.white,
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-          hideResult
-              ? new Container()
-              : Container(
-                  alignment: Alignment.center,
-                  padding: new EdgeInsets.only(right: 20.0, left: 20.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: tertiaryColor),
-                    height: MediaQuery.of(context).size.height * 0.525,
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            "images/diet.png",
-                            width: MediaQuery.of(context).size.height * 0.2,
-                          ),
-                          SizedBox(height: _height * 0.02),
-                          Text("Your Diet is...",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontFamily: 'Nunito')),
-                          AutoSizeText(dietName,
-                              maxLines: 1,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontFamily: 'Nunito')),
-                          SizedBox(height: _height * 0.02),
-                          Align(
-                              alignment: Alignment.bottomCenter,
-                              child: CupertinoButton(
-                                color: primaryColor,
-                                child: Text('Start Eating!',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 25.0,
-                                        fontWeight: FontWeight.w300)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              )),
-                        ],
+                SizedBox(height: _height * 0.05),
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("How committed are you willing to be?",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito')),
                       ),
-                    ),
+                      RadioButtonGroup(
+                        labels: <String>[
+                          "I'm ready to go the full nine\nyards on my eating habits.",
+                          "I can put in the hard work but\nI also need my cheat days.",
+                          "I don’t mind making sacrifices\nwhen it’s important.",
+                          "I’m really not looking to go too\nfar outside my comfort zone.",
+                        ],
+                        onSelected: (String selected) {
+                          if (selected.contains(
+                              "I'm ready to go the full nine\nyards on my eating habits.")) {
+                            question2Selection = 0;
+                          } else if (selected.contains(
+                              "I can put in the hard work but\nI also need my cheat days.")) {
+                            question2Selection = 1;
+                          } else if (selected.contains(
+                              "I don’t mind making sacrifices\nwhen it’s important.")) {
+                            question2Selection = 2;
+                          } else if (selected.contains(
+                              "I’m really not looking to go too\nfar outside my comfort zone.")) {
+                            question2Selection = 3;
+                          }
+                        },
+                        labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Nunito'),
+                        activeColor: Colors.white,
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: _height * 0.05),
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Are you a meat eater?",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito')),
+                      ),
+                      RadioButtonGroup(
+                        labels: <String>[
+                          "I love it all.",
+                          "Is there anything else?",
+                          "I try to limit red meat.",
+                          "There are so many better sources\nof protein.",
+                        ],
+                        onSelected: (String selected) {
+                          if (selected.contains("I love it all.")) {
+                            question3Selection = 0;
+                          } else if (selected
+                              .contains("Is there anything else?")) {
+                            question3Selection = 1;
+                          } else if (selected
+                              .contains("I try to limit red meat.")) {
+                            question3Selection = 2;
+                          } else if (selected.contains(
+                              "There are so many better sources\nof protein.")) {
+                            question3Selection = 3;
+                          }
+                        },
+                        labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Nunito'),
+                        activeColor: Colors.white,
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: _height * 0.05),
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Do you love carbs?",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito')),
+                      ),
+                      RadioButtonGroup(
+                        labels: <String>[
+                          "Yes! In every glorious form!",
+                          "There are healthy carbs, right?",
+                          "No way, I want my body burning\nclean fuel.",
+                        ],
+                        onSelected: (String selected) {
+                          if (selected
+                              .contains("Yes! In every glorious form!")) {
+                            question4Selection = 0;
+                          } else if (selected
+                              .contains("There are healthy carbs, right?")) {
+                            question4Selection = 1;
+                          } else if (selected.contains(
+                              "No way, I want my body burning\nclean fuel.")) {
+                            question4Selection = 2;
+                          }
+                        },
+                        labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Nunito'),
+                        activeColor: Colors.white,
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: _height * 0.05),
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("What are your feelings on dairy?",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito')),
+                      ),
+                      RadioButtonGroup(
+                        labels: <String>[
+                          "Lactose intolerant and fine with it.",
+                          "Who doesn’t like butter and\ncheese?",
+                          "Ice cream is pure joy. No one is\ntaking that from me.",
+                        ],
+                        onSelected: (String selected) {
+                          if (selected.contains(
+                              "Lactose intolerant and fine with it.")) {
+                            question5Selection = 0;
+                          } else if (selected.contains(
+                              "Who doesn’t like butter and\ncheese?")) {
+                            question5Selection = 1;
+                          } else if (selected.contains(
+                              "Ice cream is pure joy. No one is\ntaking that from me.")) {
+                            question5Selection = 2;
+                          }
+                        },
+                        labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Nunito'),
+                        activeColor: Colors.white,
+                      )
+                    ],
                   ),
                 )
-        ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   String dietRecommendationFromAnswers() {
-    print(question1Selection.toString() + ", " + question2Selection.toString() + ", " + question3Selection.toString() + ", " + question4Selection.toString() + ", " + question5Selection.toString());
+    print(question1Selection.toString() +
+        ", " +
+        question2Selection.toString() +
+        ", " +
+        question3Selection.toString() +
+        ", " +
+        question4Selection.toString() +
+        ", " +
+        question5Selection.toString());
     int pointsForPaleolithic = 0;
     int pointsForMediterraneanDiet = 0;
     int pointsForIntermittentFasting = 0;
@@ -381,8 +332,8 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
     } else if (question3Selection == 2) {
       pointsForMediterraneanDiet++;
     } else if (question3Selection == 3) {
-      pointsForWFPBDiet+=3;
-      pointsForIntermittentFasting+=3;
+      pointsForWFPBDiet += 3;
+      pointsForIntermittentFasting += 3;
     }
 
     /**Question 4**/
