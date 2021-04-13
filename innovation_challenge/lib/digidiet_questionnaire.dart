@@ -297,7 +297,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         color: tertiaryColor),
-                    height: MediaQuery.of(context).size.height * 0.5,
+                    height: MediaQuery.of(context).size.height * 0.525,
                     width: MediaQuery.of(context).size.width,
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
