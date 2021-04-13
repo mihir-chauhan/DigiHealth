@@ -77,7 +77,7 @@ class _SignUpPageState extends State<SignUpPage> {
             .of(context)
             .auth;
         if (authFormType == AuthFormType.signIn) {
-          String uid = await auth.signInWithEmailAndPassword(_email, _password);
+          await auth.signInWithEmailAndPassword(_email, _password);
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
             context,
@@ -87,7 +87,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
           Navigator.pushNamed(context, '/home');
         } else {
-          String uid = await auth.createUserWithEmailAndPassword(
+          await auth.createUserWithEmailAndPassword(
               _email, _password, _name);
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
