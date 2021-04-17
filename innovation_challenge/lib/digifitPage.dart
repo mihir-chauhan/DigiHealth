@@ -26,9 +26,12 @@ class _DigiFitPageState extends State<DigiFitPage> {
   var timeExercised = ValueNotifier<List<double>>(new List<double>());
   var exercisePercentage = ValueNotifier<List<String>>(new List<String>());
   bool hasShownGraphs = false;
-  List<double> percentageList;
+  List<double> percentageList = [];
 
   setupGraphs() async {
+    caloriesBurnt.value.clear();
+    timeExercised.value.clear();
+    exercisePercentage.value.clear();
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
     Firestore.instance
@@ -101,7 +104,18 @@ class _DigiFitPageState extends State<DigiFitPage> {
     ];
   }
 
-  List<Feature> features;
+  List<Feature> features = [
+    Feature(
+      title: "Calories Burnt",
+      color: Colors.red,
+      data: [0],
+    ),
+    Feature(
+      title: "Time Exercised",
+      color: Colors.blue,
+      data: [0],
+    ),
+  ];
 
   List<String> indoor = [
     'Push-Ups',
@@ -189,6 +203,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   var _width;
 
   void updateTabBarController(int i) {
+    setupGraphs();
     setState(() {
       dietIcon = (i == 0)
           ? Icon(Icons.whatshot_rounded, color: Colors.white)
@@ -199,12 +214,13 @@ class _DigiFitPageState extends State<DigiFitPage> {
     });
   }
 
+
+
   Widget updateViewBasedOnTab(int i) {
     if (!hasShownGraphs) {
       hasShownGraphs = true;
       setupGraphs();
     }
-    print(percentageList);
     if (Provider.of(context).auth.showDigiFitQuestionnaire) {
       openQuestionnaire();
     }
@@ -347,7 +363,20 @@ class _DigiFitPageState extends State<DigiFitPage> {
                               fontFamily: 'Nunito',
                               fontWeight: FontWeight.w400))),
                 ),
-                Container(
+                (percentageList.length == 0) ? Container(height: 320,
+                  decoration: BoxDecoration(
+                      color: tertiaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: AutoSizeText("No Data",
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 30,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w400)),
+                ),) : Container(
                   height: 320,
                   decoration: BoxDecoration(
                       color: tertiaryColor,
