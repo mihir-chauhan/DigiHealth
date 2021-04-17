@@ -1,11 +1,14 @@
 import 'package:DigiHealth/digidiet_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:multi_charts/multi_charts.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DigiDietPage extends StatefulWidget {
   DigiDietPage();
@@ -19,72 +22,80 @@ class _DigiDietPageState extends State<DigiDietPage> {
   Icon journalIcon = Icon(Icons.analytics_outlined, color: Colors.white);
   var _height;
   var _width;
-
-  List<String> mediterraneanDiet = [
-    "Spinach & Goat Cheese Egg Muffins",
-    "Farro, Eggplant, & White Bean Bowl",
-    "Mediterranean Quinoa Bowl",
-    "Chard Breakfast Skillet",
-    "Mediterranean Chicken Wrap",
-    "Balsamic Chicken Skillet",
-    "Sheet Pan Egg Tacos",
-    "Tuna Salad Sandwich",
-    "Chickpea Vegetable Coconut Curry",
-    "Savory Spanish Oatmeal",
-    "Chicken Pita with Fresh Herbs",
-    "Kale Salad with Crispy Chickpeas",
-    "Spinach-Curry Crepes",
-    "Salmon Niçoise Salad",
-    "Sweet Potato Noodles with Almond Sauce",
-    "Mediterranean Lentil Salad",
-    "Greek Wedge Salad",
-    "Panzanella Salad",
-    "Breakfast Migas",
-    "Bowl of Roasted Chickpeas",
-    "Cauliflower Steaks with Lemon-Herb Sauce",
-    "Mediterranean Lentil Salad",
-    "Greek Wedge Salad",
-    "Panzanella Salad"
-  ];
-  List<String> wholeFoodPlantBasedDiet = [
-    "Low Fat Cinnamon Nut Granola",
-    "Penne with Tomato and Mushroom",
-    "Lentil Vegetable Soup",
-    "Heart Healthy Smoothie",
-    "Salad Sandwich",
-    "Avocado White Bean Wraps",
-    "Cocoprorridge Bowl",
-    "Burritos with Spanish Rice",
-    "Creamy Wild Rice Soup",
-    "Carrot Cake Overnight Oats",
-    "Easy Vegan Corn Chowder",
-    "Spinach Potato Tacos",
-    "Vegan Breakfast Skillet",
-    "Black Bean Burgers",
-    "Black Bean Quesadillas",
-    "Savory Vegan Breakfast Bowl",
-    "8 Bean Chili",
-    "Potato Cauliflower Curry",
-    "Fruit-Filled Overnight Oats",
-    "Mixed Veg Rice Bowls",
-    "No-Fry Fried Rice",
-    "Zen Quinoa Breakfast Bowl",
-    "Tex-Mex Pita Pizzas",
-    "Veggie and Apple Slaw"
-  ];
+  final firebaseRTDatabaseRef = FirebaseDatabase.instance;
   String mealPlannerDay = "Today";
   int dayofweek = 0;
+  String nameOfDiet = "Loading";
+  List<String> breakfastList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
+
+  List<String> breakfastLinkList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
+
+  List<String> lunchList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
+
+  List<String> lunchLinkList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
+
+  List<String> dinnerList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
+
+  List<String> dinnerLinkList = [
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+    "Loading",
+  ];
 
   @override
   Widget build(BuildContext context) {
-    _height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    _width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
     return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
             backgroundColor: secondaryColor,
@@ -121,6 +132,87 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
   }
 
+  void updateMealPlanBasedOnDiet() async {
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final ref = firebaseRTDatabaseRef.reference();
+    Firestore.instance
+        .collection('User Data')
+        .document(user.email)
+        .get()
+        .then<dynamic>((DocumentSnapshot snapshot) {
+      setState(() {
+        nameOfDiet = snapshot.data["Diet Plan"];
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("breakfast")
+          .once()
+          .then((snapshot) {
+            setState(() {
+              breakfastList = List<String>.from(snapshot.value as List<dynamic>);
+            });
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("breakfastLink")
+          .once()
+          .then((snapshot) {
+            setState(() {
+              breakfastLinkList = List<String>.from(snapshot.value as List<dynamic>);
+            });
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("lunch")
+          .once()
+          .then((snapshot) {
+            setState(() {
+              lunchList = List<String>.from(snapshot.value as List<dynamic>);
+            });
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("lunchLink")
+          .once()
+          .then((snapshot) {
+            setState(() {
+              lunchLinkList = List<String>.from(snapshot.value as List<dynamic>);
+            });
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("dinner")
+          .once()
+          .then((snapshot) {
+            setState(() {
+              dinnerList = List<String>.from(snapshot.value as List<dynamic>);
+            });
+      });
+
+      ref
+          .child("Diets")
+          .child(nameOfDiet)
+          .child("dinnerLink")
+          .once()
+          .then((snapshot) {
+        setState(() {
+          dinnerLinkList = List<String>.from(snapshot.value as List<dynamic>);
+        });
+      });
+    });
+  }
+
   void updateTabBarController(int i) {
     setState(() {
       dietIcon = (i == 0)
@@ -133,10 +225,18 @@ class _DigiDietPageState extends State<DigiDietPage> {
   }
 
   bool hasShownQuestionnaire = false;
+
+  bool hasupdatedmeal = false;
+
   Widget updateViewBasedOnTab(int i, context) {
     if (Provider.of(context).auth.showDigiDietQuestionnaire) {
       openQuestionnaire();
     }
+    if (!hasupdatedmeal) {
+      hasupdatedmeal = true;
+      updateMealPlanBasedOnDiet();
+    }
+
     if (i == 0) {
       return new Scaffold(
         backgroundColor: primaryColor,
@@ -210,7 +310,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3],
+                      child: AutoSizeText(breakfastList[dayofweek * 3],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -236,7 +336,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3 + 1],
+                      child: AutoSizeText(lunchList[dayofweek * 3 + 1],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -262,7 +362,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(wholeFoodPlantBasedDiet[dayofweek * 3 + 2],
+                      child: AutoSizeText(dinnerList[dayofweek * 3 + 2],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -321,7 +421,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text("Whole Food Plant Based Diet",
+                      child: Text(nameOfDiet,
                           style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
@@ -364,7 +464,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                       strokeColor: Colors.white,
                       labelColor: Colors.white,
                       textScaleFactor: 0.06,
-
                       curve: Curves.easeInOutExpo,
                     ),
                   ),
@@ -408,7 +507,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                     child: Align(
                         alignment: Alignment.centerLeft,
-                        child: AutoSizeText("Daily Average Total Calories: 1952.534",
+                        child: AutoSizeText(
+                            "Daily Average Total Calories: 1952.534",
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 30,
@@ -425,7 +525,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   void openQuestionnaire() async {
     await Future.delayed(Duration(milliseconds: 1000), () {
-      if(!hasShownQuestionnaire) {
+      if (!hasShownQuestionnaire) {
         Navigator.push(
             context,
             CupertinoPageRoute(
@@ -434,23 +534,22 @@ class _DigiDietPageState extends State<DigiDietPage> {
         Provider.of(context).auth.showDigiDietQuestionnaire = false;
       }
     });
-
   }
 
   String nameOfDayFromWeekday(int weekday) {
     return (weekday == 0
         ? "Sunday"
         : weekday == 1
-        ? "Monday"
-        : weekday == 2
-        ? "Tuesday"
-        : weekday == 3
-        ? "Wednesday"
-        : weekday == 4
-        ? "Thursday"
-        : weekday == 5
-        ? "Friday"
-        : "Saturday");
+            ? "Monday"
+            : weekday == 2
+                ? "Tuesday"
+                : weekday == 3
+                    ? "Wednesday"
+                    : weekday == 4
+                        ? "Thursday"
+                        : weekday == 5
+                            ? "Friday"
+                            : "Saturday");
   }
 
   String nameOfMonthFromMonthNumber(int month) {
@@ -458,25 +557,25 @@ class _DigiDietPageState extends State<DigiDietPage> {
     return (month == 0
         ? "January"
         : month == 1
-        ? "February"
-        : month == 2
-        ? "March"
-        : month == 3
-        ? "April"
-        : month == 4
-        ? "May"
-        : month == 5
-        ? "June"
-        : month == 6
-        ? "July"
-        : month == 7
-        ? "August"
-        : month == 8
-        ? "Sept."
-        : month == 9
-        ? "October"
-        : month == 10
-        ? "November"
-        : "December");
+            ? "February"
+            : month == 2
+                ? "March"
+                : month == 3
+                    ? "April"
+                    : month == 4
+                        ? "May"
+                        : month == 5
+                            ? "June"
+                            : month == 6
+                                ? "July"
+                                : month == 7
+                                    ? "August"
+                                    : month == 8
+                                        ? "Sept."
+                                        : month == 9
+                                            ? "October"
+                                            : month == 10
+                                                ? "November"
+                                                : "December");
   }
 }
