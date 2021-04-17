@@ -1,6 +1,8 @@
 import 'package:DigiHealth/digidiet_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:draw_graph/draw_graph.dart';
+import 'package:draw_graph/models/feature.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -133,6 +135,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
   }
 
+  List<double> heightList;
+  List<double> weightList;
+
   void updateMealPlanBasedOnDiet() async {
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
@@ -213,6 +218,34 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
       });
     });
+    Firestore.instance
+        //setsup arraylist
+        .collection('User Data')
+        .document(user.email)
+        .collection('Exercise Logs')
+        .orderBy('Timestamp', descending: false)
+        .getDocuments()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.documents.forEach((doc) {
+        heightList.add(doc['Height']/8);
+        weightList.add(doc['Weight']/300);
+      });
+    }).then((value) {
+      setState(() {
+        features = [
+          Feature(
+            title: "Height",
+            color: Colors.red,
+            data: heightList,
+          ),
+          Feature(
+            title: "Weight",
+            color: Colors.blue,
+            data: weightList,
+          ),
+        ];
+      });
+    });
   }
 
   void updateTabBarController(int i) {
@@ -229,6 +262,26 @@ class _DigiDietPageState extends State<DigiDietPage> {
   bool hasShownQuestionnaire = false;
 
   bool hasupdatedmeal = false;
+
+  double weight = 0;
+  double height = 0;
+  TextEditingController weightController = new TextEditingController();
+  TextEditingController heightController = new TextEditingController();
+
+  double lbm = 100.0, bmi = 22.0, fatConcentration = 60;
+
+  List<Feature> features = [
+    Feature(
+      title: "Height",
+      color: Colors.red,
+      data: [0],
+    ),
+    Feature(
+      title: "Weight",
+      color: Colors.blue,
+      data: [0],
+    ),
+  ];
 
   Widget updateViewBasedOnTab(int i, context) {
     if (Provider.of(context).auth.showDigiDietQuestionnaire) {
@@ -330,16 +383,16 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         alignment: Alignment.centerLeft,
                         child: CupertinoButton(
                           padding: EdgeInsets.all(8.0),
-                            color: Colors.orange,
-                            child: Text('Show Recipe',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'Nunito',
-                                    fontSize: 17.0,
-                                    fontWeight: FontWeight.bold)),
-                            onPressed: () async {
-                              _launchURL(breakfastLinkList[dayofweek]);
-                            },
+                          color: Colors.orange,
+                          child: Text('Show Recipe',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontSize: 17.0,
+                                  fontWeight: FontWeight.bold)),
+                          onPressed: () async {
+                            _launchURL(breakfastLinkList[dayofweek]);
+                          },
                         ),
                       ),
                     ),
@@ -388,8 +441,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                     fontWeight: FontWeight.bold)),
                             onPressed: () async {
                               _launchURL(lunchLinkList[dayofweek]);
-                            }
-                        ),
+                            }),
                       ),
                     ),
                   ],
@@ -437,8 +489,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                     fontWeight: FontWeight.bold)),
                             onPressed: () async {
                               _launchURL(dinnerLinkList[dayofweek]);
-                            }
-                        ),
+                            }),
                       ),
                     ),
                   ],
@@ -456,6 +507,117 @@ class _DigiDietPageState extends State<DigiDietPage> {
             padding: EdgeInsets.all(5.0),
             child: Column(
               children: [
+                SizedBox(
+                  height: _height * 0.01,
+                ),
+                Container(
+                  width: _width,
+                  height: _height * 0.0025,
+                  color: secondaryColor,
+                ),
+                Center(
+                    child: Text("Input Your Metrics",
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200))),
+                Container(
+                  width: _width,
+                  height: _height * 0.0025,
+                  color: secondaryColor,
+                ),
+                Container(height: _height * 0.01),
+                CupertinoTextField(
+                  controller: weightController,
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.black87,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w300),
+                  onChanged: (String value) => weight = double.parse(value),
+                  placeholder: "Weight (pounds)",
+                  placeholderStyle: TextStyle(color: hintColor),
+                  cursorColor: Colors.black87,
+                  keyboardType: TextInputType.number,
+                  decoration: BoxDecoration(
+                      color: textColor, borderRadius: BorderRadius.circular(9)),
+                ),
+                Container(height: _height * 0.01),
+                CupertinoTextField(
+                  controller: heightController,
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.black87,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w300),
+                  onChanged: (String value) => height = double.parse(value),
+                  placeholder: "Height (inches)",
+                  placeholderStyle: TextStyle(color: hintColor),
+                  cursorColor: Colors.black87,
+                  keyboardType: TextInputType.number,
+                  decoration: BoxDecoration(
+                      color: textColor, borderRadius: BorderRadius.circular(9)),
+                ),
+                SizedBox(
+                  height: _height * 0.01,
+                ),
+                Wrap(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: CupertinoButton(
+                          padding: EdgeInsets.only(
+                              left: 20.0, right: 20.0, top: 8.0, bottom: 8.0),
+                          color: Colors.orange,
+                          child: Text('Enter',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontSize: 17.0,
+                                  fontWeight: FontWeight.bold)),
+                          onPressed: () async {
+                            setState(() {
+                              lbm = ((((0.407 * (weight * 0.4536)) +
+                                  (0.267 * (height * 2.54)) -
+                                  19.2) *
+                                  100)
+                                  .round()) /
+                                  100;
+                              bmi = ((weight / (height * height) * 703 * 100)
+                                  .round()) /
+                                  100;
+                              fatConcentration = 100 -
+                                  ((((weight - lbm) / weight) * 1000).round()) /
+                                      10;
+                              heightController.clear();
+                              weightController.clear();
+
+                              writeDietDataToFirestoreLog(
+                                  lbm, bmi, fatConcentration, weight, height);
+                            });
+
+                            showCupertinoDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    CupertinoAlertDialog(
+                                      title: new Text("Your Calculated Metric"),
+                                      content: new Text(
+                                          "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Concentration $fatConcentration%"),
+                                      actions: <Widget>[
+                                        CupertinoDialogAction(
+                                          isDefaultAction: true,
+                                          child: Text("Okay"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    ));
+                          }),
+                    ),
+                  ],
+                ),
                 SizedBox(
                   height: _height * 0.01,
                 ),
@@ -543,7 +705,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Average Calories per Meal",
+                      child: AutoSizeText("Your Body Stats",
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 30,
@@ -552,25 +714,22 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontWeight: FontWeight.w400))),
                 ),
                 Container(
-                  height: 320,
+                  width: MediaQuery.of(context).size.width,
+                  height: 350,
                   decoration: BoxDecoration(
                       color: tertiaryColor,
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: PieChart(
-                      values: [34.76, 32.21, 33.03],
-                      labels: [
-                        "Breakfast",
-                        "Lunch",
-                        "Dinner",
-                      ],
-                      labelColor: Colors.white,
-                      legendTextColor: Colors.white,
-                      textScaleFactor: 0.07,
-                      curve: Curves.easeInOutExpo,
-                      legendPosition: LegendPosition.Bottom,
-                      separateFocusedValue: true,
+                    padding: const EdgeInsets.only(
+                      top: 30.0,
+                    ),
+                    child: LineGraph(
+                      features: features,
+                      size: Size(320, 300),
+                      labelX: ['1', '5', '10', '15', '20'],
+                      labelY: ['20', '40', '60', '80', '100'],
+                      showDescription: true,
+                      graphColor: Colors.white60,
                     ),
                   ),
                 ),
@@ -579,7 +738,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     child: Align(
                         alignment: Alignment.centerLeft,
                         child: AutoSizeText(
-                            "Daily Average Total Calories: 1952.534",
+                            "Body Mass Index: " + bmi.toString(),
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 30,
@@ -600,6 +759,26 @@ class _DigiDietPageState extends State<DigiDietPage> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void writeDietDataToFirestoreLog(double lbm, double bmi,
+      double fatConcentration, double weight, double height) async {
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final databaseReference = Firestore.instance;
+
+    await databaseReference
+        .collection("User Data")
+        .document(user.email)
+        .collection("Health Logs")
+        .add({
+      "Lean Body Mass": lbm,
+      "Body Mass Index": bmi,
+      "Fat Concentration": fatConcentration,
+      "Weight": weight,
+      "Height": height,
+      "Timestamp": Timestamp.now()
+    });
   }
 
   void openQuestionnaire() async {

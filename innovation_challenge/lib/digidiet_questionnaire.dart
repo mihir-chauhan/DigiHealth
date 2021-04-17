@@ -25,6 +25,7 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
 
   @override
   Widget build(BuildContext context) {
+    var _context = context;
     _height = MediaQuery.of(context).size.height;
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
@@ -49,18 +50,30 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                   question4Selection != -1 &&
                   question5Selection != -1) {
                 final FirebaseUser user =
-                await Provider.of(context).auth.firebaseAuth.currentUser();
+                    await Provider.of(context).auth.firebaseAuth.currentUser();
                 final databaseReference = Firestore.instance;
 
                 dietName = dietRecommendationFromAnswers();
                 await databaseReference
                     .collection("User Data")
-                    .document(user.email).updateData({
-                  "Diet Plan": dietName
-                });
-                setState(() {
-                  hideResult = false;
-                });
+                    .document(user.email)
+                    .updateData({"Diet Plan": dietName});
+                showCupertinoDialog(
+                    context: context,
+                    builder: (BuildContext context) => CupertinoAlertDialog(
+                          title: new Text("Your Diet Is..."),
+                          content: new Text(dietName + "!"),
+                          actions: <Widget>[
+                            CupertinoDialogAction(
+                              isDefaultAction: true,
+                              child: Text("Okay"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.of(_context).pop();
+                              },
+                            )
+                          ],
+                        ));
               }
             },
             child: Icon(
@@ -291,61 +304,69 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
           hideResult
               ? new Container()
               : Container(
-            alignment: Alignment.center,
-            padding: new EdgeInsets.only(right: 20.0, left: 20.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: tertiaryColor),
-              height: MediaQuery.of(context).size.height * 0.525,
-              width: MediaQuery.of(context).size.width,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Image.asset(
-                      "images/diet.png",
-                      width: MediaQuery.of(context).size.height * 0.2,
-                    ),
-                    SizedBox(height: _height * 0.02),
-                    Text("Your Diet is...",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontFamily: 'Nunito')),
-                    AutoSizeText(dietName,
-                        maxLines: 1,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25,
-                            fontFamily: 'Nunito')),
-                    SizedBox(height: _height * 0.02),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: CupertinoButton(
-                          color: primaryColor,
-                          child: Text('Start Eating!',
+                  alignment: Alignment.center,
+                  padding: new EdgeInsets.only(right: 20.0, left: 20.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: tertiaryColor),
+                    height: MediaQuery.of(context).size.height * 0.525,
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            "images/diet.png",
+                            width: MediaQuery.of(context).size.height * 0.2,
+                          ),
+                          SizedBox(height: _height * 0.02),
+                          Text("Your Diet is...",
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontFamily: 'Nunito',
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.w300)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )),
-                  ],
-                ),
-              ),
-            ),
-          )
+                                  fontSize: 20,
+                                  fontFamily: 'Nunito')),
+                          AutoSizeText(dietName,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  fontFamily: 'Nunito')),
+                          SizedBox(height: _height * 0.02),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: CupertinoButton(
+                                color: primaryColor,
+                                child: Text('Start Eating!',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 25.0,
+                                        fontWeight: FontWeight.w300)),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
         ],
       ),
     );
   }
 
   String dietRecommendationFromAnswers() {
-    print(question1Selection.toString() + ", " + question2Selection.toString() + ", " + question3Selection.toString() + ", " + question4Selection.toString() + ", " + question5Selection.toString());
+    print(question1Selection.toString() +
+        ", " +
+        question2Selection.toString() +
+        ", " +
+        question3Selection.toString() +
+        ", " +
+        question4Selection.toString() +
+        ", " +
+        question5Selection.toString());
     int pointsForPaleolithic = 0;
     int pointsForMediterraneanDiet = 0;
     int pointsForIntermittentFasting = 0;
@@ -381,8 +402,8 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
     } else if (question3Selection == 2) {
       pointsForMediterraneanDiet++;
     } else if (question3Selection == 3) {
-      pointsForWFPBDiet+=3;
-      pointsForIntermittentFasting+=3;
+      pointsForWFPBDiet += 3;
+      pointsForIntermittentFasting += 3;
     }
 
     /**Question 4**/
