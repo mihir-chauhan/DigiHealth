@@ -157,10 +157,9 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    ProfanityFilter.filterAdditionally(["stupid", "dumb", "idiot"]);
     final filter = ProfanityFilter();
 
-    if (filter.hasProfanity(message)) {
+    if (filter.hasProfanity(message) || message.contains("stupid") || message.contains("dumb") || message.contains("idiot")) {
       await databaseReference.collection("Chat").add({
         "profane_message": message,
         "sentBy": user.email,
