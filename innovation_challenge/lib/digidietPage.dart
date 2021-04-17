@@ -135,8 +135,10 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
   }
 
-  List<double> heightList;
+  List<double> bmiList;
   List<double> weightList;
+  List<double> lbmList;
+  List<double> fatList;
 
   void updateMealPlanBasedOnDiet() async {
     final FirebaseUser user =
@@ -218,32 +220,55 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
       });
     });
+    bmiList = new List<double>();
+    weightList = new List<double>();
+    lbmList = new List<double>();
+    fatList = new List<double>();
     Firestore.instance
         //setsup arraylist
         .collection('User Data')
         .document(user.email)
-        .collection('Exercise Logs')
+        .collection('Health Logs')
         .orderBy('Timestamp', descending: false)
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        heightList.add(doc['Height']/8);
+        bmiList.add(doc['Body Mass Index']/30);
         weightList.add(doc['Weight']/300);
-      });
-    }).then((value) {
-      setState(() {
-        features = [
-          Feature(
-            title: "Height",
-            color: Colors.red,
-            data: heightList,
-          ),
-          Feature(
-            title: "Weight",
-            color: Colors.blue,
-            data: weightList,
-          ),
-        ];
+        lbmList.add(doc['Lean Body Mass']/80);
+        fatList.add(doc['Fat Concentration']/100);
+        setState(() {
+          bmi = doc['Body Mass Index'];
+          heightController.text = (doc['Height']).toString();
+          weightController.text = (doc['Weight']).toString();
+          height = (doc['Height']);
+          weight = (doc['Weight']);
+          bmiHeightfeatures = [
+            Feature(
+              title: "BMI",
+              color: Colors.red,
+              data: bmiList,
+            ),
+            Feature(
+              title: "Weight",
+              color: Colors.blue,
+              data: weightList,
+            ),
+          ];
+
+          lbmFatFeatures = [
+            Feature(
+              title: "Lean Body Mass",
+              color: Colors.red,
+              data: lbmList,
+            ),
+            Feature(
+              title: "Fat Percentage",
+              color: Colors.blue,
+              data: fatList,
+            ),
+          ];
+        });
       });
     });
   }
@@ -270,9 +295,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   double lbm = 100.0, bmi = 22.0, fatConcentration = 60;
 
-  List<Feature> features = [
+  List<Feature> bmiHeightfeatures = [
     Feature(
-      title: "Height",
+      title: "BMI",
       color: Colors.red,
       data: [0],
     ),
@@ -283,12 +308,24 @@ class _DigiDietPageState extends State<DigiDietPage> {
     ),
   ];
 
+  List<Feature> lbmFatFeatures = [
+    Feature(
+      title: "Lean Body Mass",
+      color: Colors.red,
+      data: [0],
+    ),
+    Feature(
+      title: "Fat Percentage",
+      color: Colors.blue,
+      data: [0],
+    ),
+  ];
+
   Widget updateViewBasedOnTab(int i, context) {
     if (Provider.of(context).auth.showDigiDietQuestionnaire) {
       openQuestionnaire();
     }
-    if (!hasupdatedmeal) {
-      hasupdatedmeal = true;
+    if (breakfastList[0] == "Loading") {
       updateMealPlanBasedOnDiet();
     }
 
@@ -587,9 +624,39 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               bmi = ((weight / (height * height) * 703 * 100)
                                   .round()) /
                                   100;
+                              weightList.add(weight/300);
+                              bmiList.add(bmi);
+                              bmiHeightfeatures = [
+                                Feature(
+                                  title: "BMI",
+                                  color: Colors.red,
+                                  data: bmiList,
+                                ),
+                                Feature(
+                                  title: "Weight",
+                                  color: Colors.blue,
+                                  data: weightList,
+                                ),
+                              ];
+
                               fatConcentration = 100 -
                                   ((((weight - lbm) / weight) * 1000).round()) /
                                       10;
+
+                              lbmList.add(lbm/80);
+                              fatList.add(fatConcentration/100);
+                              lbmFatFeatures = [
+                                Feature(
+                                  title: "Lean Body Mass",
+                                  color: Colors.red,
+                                  data: lbmList,
+                                ),
+                                Feature(
+                                  title: "Fat Percentage",
+                                  color: Colors.blue,
+                                  data: fatList,
+                                ),
+                              ];
                               heightController.clear();
                               weightController.clear();
 
@@ -603,7 +670,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                     CupertinoAlertDialog(
                                       title: new Text("Your Calculated Metric"),
                                       content: new Text(
-                                          "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Concentration $fatConcentration%"),
+                                          "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Percentage $fatConcentration%"),
                                       actions: <Widget>[
                                         CupertinoDialogAction(
                                           isDefaultAction: true,
@@ -667,6 +734,70 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
+                      child: AutoSizeText("Your Lean Body Mass Stats",
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 350,
+                  decoration: BoxDecoration(
+                      color: tertiaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 30.0,
+                    ),
+                    child: LineGraph(
+                      features: bmiHeightfeatures,
+                      size: Size(320, 300),
+                      labelX: ['1', '5', '10', '15', '20'],
+                      labelY: ['20%', '40%', '60%', '80%', '100%'],
+                      showDescription: true,
+                      graphColor: Colors.white60,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText("Your Weight and BMI Stats",
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w400))),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 350,
+                  decoration: BoxDecoration(
+                      color: tertiaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 30.0,
+                    ),
+                    child: LineGraph(
+                      features: lbmFatFeatures,
+                      size: Size(320, 300),
+                      labelX: ['1', '5', '10', '15', '20'],
+                      labelY: ['20%', '40%', '60%', '80%', '100%'],
+                      showDescription: true,
+                      graphColor: Colors.white60,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
                       child: AutoSizeText("Consumption per Food Group",
                           maxLines: 1,
                           style: TextStyle(
@@ -698,38 +829,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                       labelColor: Colors.white,
                       textScaleFactor: 0.06,
                       curve: Curves.easeInOutExpo,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Your Body Stats",
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 350,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30.0,
-                    ),
-                    child: LineGraph(
-                      features: features,
-                      size: Size(320, 300),
-                      labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['20', '40', '60', '80', '100'],
-                      showDescription: true,
-                      graphColor: Colors.white60,
                     ),
                   ),
                 ),

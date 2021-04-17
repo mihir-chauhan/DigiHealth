@@ -329,7 +329,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       features: features,
                       size: Size(320, 300),
                       labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['20', '40', '60', '80', '100'],
+                      labelY: ['20%', '40%', '60%', '80%', '100%'],
                       showDescription: true,
                       graphColor: Colors.white60,
                     ),
