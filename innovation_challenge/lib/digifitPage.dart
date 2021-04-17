@@ -440,8 +440,10 @@ class _SecondRouteState extends State<SecondRoute> {
         trailing: GestureDetector(
           onTap: () async {
             isRunningStopWatch = false;
-            writeExerciseDataToFirestoreLog();
-            Navigator.of(context).pop();
+            if(timeCounter >= 10) {
+              writeExerciseDataToFirestoreLog();
+            }
+             Navigator.of(context).pop();
           },
           child: Icon(
             Icons.done,
@@ -571,7 +573,8 @@ class _SecondRouteState extends State<SecondRoute> {
       "Calories Burned": calorieCounter,
       "Points Earned": calorieCounter*10,
       "Type of Exercise": widget.exerciseName,
-      "Seconds of Exercise": timeCounter
+      "Seconds of Exercise": timeCounter,
+      "Timestamp": Timestamp.now()
     });
     await databaseReference
         .collection("User Data").document(user.email).get().then<dynamic>(( DocumentSnapshot snapshot) async {
