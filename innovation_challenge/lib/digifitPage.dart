@@ -1,6 +1,7 @@
 import 'package:DigiHealth/digifit_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,8 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
+
+
   final List<Feature> features = [
     Feature(
       title: "Calories Burnt",
@@ -30,7 +33,15 @@ class _DigiFitPageState extends State<DigiFitPage> {
       data: [0.1, 0.5, 0.3, 0.6, 0.7],
     )
   ];
-  String title = 'Treadmill';
+  List<String> indoor = ['Treadmill', 'S1'];
+  List<String> outdoor = ['Running', 'S2'];
+  List<String> highImpact = ['Biking', 'S3'];
+  List<String> lowImpact = ['Walking', 'S4'];
+  String otherValue = 'Indoor';
+  int listNumForIndoor = 0;
+  int listNumForOutdoor = 0;
+  int listNumForHighImpact = 0;
+  int listNumForLowImpact = 0;
   Icon dietIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
   Icon journalIcon = Icon(Icons.analytics_outlined, color: Colors.white);
   var _height;
@@ -48,7 +59,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   Widget updateViewBasedOnTab(int i) {
     if (Provider.of(context).auth.showDigiFitQuestionnaire) {
-    openQuestionnaire();
+      openQuestionnaire();
     }
     if (i == 0) {
       return CupertinoPageScaffold(
@@ -65,15 +76,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
               ],
               onValueChanged: (value) {
                 setState(() {
-                  if (value.value == 'Indoor') {
-                    title = 'Treadmill';
-                  } else if (value.value == 'Outdoor') {
-                    title = 'Running';
-                  } else if (value.value == 'High-Impact') {
-                    title = 'Biking';
-                  } else if (value.value == 'Low-Impact') {
-                    title = 'Walking';
-                  }
+                  otherValue = value.value;
                 });
               },
               backgroundColor: primaryColor,
@@ -86,7 +89,13 @@ class _DigiFitPageState extends State<DigiFitPage> {
             ),
             SizedBox(height: 25),
             Text(
-              title,
+              otherValue == 'Indoor'
+                  ? indoor[listNumForIndoor]
+                  : otherValue == 'Outdoor'
+                      ? outdoor[listNumForOutdoor]
+                      : otherValue == 'High-Impact'
+                          ? highImpact[listNumForHighImpact]
+                          : lowImpact[listNumForLowImpact],
               style: TextStyle(
                   color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
             ),
@@ -110,7 +119,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (context) => SecondRoute(title)),
+                  CupertinoPageRoute(
+                      builder: (context) => SecondRoute(otherValue)),
                 );
               },
             )
@@ -283,6 +293,37 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 },
                 child: Icon(
                   CupertinoIcons.back,
+                  color: CupertinoColors.white,
+                  size: 30,
+                ),
+              ),
+              trailing: GestureDetector(
+                onTap: () {
+                  print('Too Coolio for Schoolio');
+                  setState(() {
+                    if (otherValue == 'Indoor') {
+                      listNumForIndoor++;
+                    } else if (otherValue == 'Outdoor') {
+                      listNumForOutdoor++;
+                    } else if (otherValue == 'High-Impact') {
+                      listNumForHighImpact++;
+                    } else if (otherValue == 'Low-Impact') {
+                      listNumForLowImpact++;
+                    }
+
+                    if (listNumForIndoor == indoor.length) {
+                      listNumForIndoor = 0;
+                    } else if (listNumForOutdoor == outdoor.length) {
+                      listNumForOutdoor = 0;
+                    } else if (listNumForHighImpact == highImpact.length) {
+                      listNumForHighImpact = 0;
+                    } else if (listNumForLowImpact == lowImpact.length) {
+                      listNumForLowImpact = 0;
+                    }
+                  });
+                },
+                child: Icon(
+                  CupertinoIcons.refresh,
                   color: CupertinoColors.white,
                   size: 30,
                 ),
