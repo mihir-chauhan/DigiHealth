@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:DigiHealth/digifit_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -25,6 +27,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   var exercisePercentage = ValueNotifier<List<String>>(new List<String>());
   bool hasShownGraphs = false;
   List<double> percentageList;
+
   setupGraphs() async {
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
@@ -102,8 +105,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   List<String> indoor = [
     'Push-Ups',
-    'Plank'
-        'Curl-Ups',
+    'Plank',
+    'Curl-Ups',
     'Sit-Ups',
     'Jumping Jacks',
     'Treadmill',
@@ -141,7 +144,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
     'Bowling',
     'Dancing',
   ];
-  List<String> highImpact = ['Hiking',
+  List<String> highImpact = [
+    'Hiking',
     'Volleyball',
     'Squats',
     'Running',
@@ -155,7 +159,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
     'Jump Rope',
     'Gymnastics',
     'Burpees',
-    'Soccer',];
+    'Soccer',
+  ];
   List<String> lowImpact = [
     'Swimming',
     'Lunges',
@@ -174,14 +179,15 @@ class _DigiFitPageState extends State<DigiFitPage> {
     'Total Resistance Xercise'
   ];
   String otherValue = 'Indoor';
-  int listNumForIndoor = 0;
-  int listNumForOutdoor = 0;
-  int listNumForHighImpact = 0;
-  int listNumForLowImpact = 0;
+  int listNumForIndoor = new Random().nextInt(15);
+  int listNumForOutdoor = new Random().nextInt(15);
+  int listNumForHighImpact = new Random().nextInt(15);
+  int listNumForLowImpact = new Random().nextInt(15);
   Icon dietIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
   Icon journalIcon = Icon(Icons.analytics_outlined, color: Colors.white);
   var _height;
   var _width;
+
   void updateTabBarController(int i) {
     setState(() {
       dietIcon = (i == 0)

@@ -9,6 +9,7 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DigiDietPage extends StatefulWidget {
   DigiDietPage();
@@ -151,9 +152,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .child("breakfast")
           .once()
           .then((snapshot) {
-            setState(() {
-              breakfastList = List<String>.from(snapshot.value as List<dynamic>);
-            });
+        setState(() {
+          breakfastList = List<String>.from(snapshot.value as List<dynamic>);
+        });
       });
 
       ref
@@ -162,9 +163,10 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .child("breakfastLink")
           .once()
           .then((snapshot) {
-            setState(() {
-              breakfastLinkList = List<String>.from(snapshot.value as List<dynamic>);
-            });
+        setState(() {
+          breakfastLinkList =
+              List<String>.from(snapshot.value as List<dynamic>);
+        });
       });
 
       ref
@@ -173,9 +175,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .child("lunch")
           .once()
           .then((snapshot) {
-            setState(() {
-              lunchList = List<String>.from(snapshot.value as List<dynamic>);
-            });
+        setState(() {
+          lunchList = List<String>.from(snapshot.value as List<dynamic>);
+        });
       });
 
       ref
@@ -184,9 +186,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .child("lunchLink")
           .once()
           .then((snapshot) {
-            setState(() {
-              lunchLinkList = List<String>.from(snapshot.value as List<dynamic>);
-            });
+        setState(() {
+          lunchLinkList = List<String>.from(snapshot.value as List<dynamic>);
+        });
       });
 
       ref
@@ -195,9 +197,9 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .child("dinner")
           .once()
           .then((snapshot) {
-            setState(() {
-              dinnerList = List<String>.from(snapshot.value as List<dynamic>);
-            });
+        setState(() {
+          dinnerList = List<String>.from(snapshot.value as List<dynamic>);
+        });
       });
 
       ref
@@ -310,7 +312,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(breakfastList[dayofweek * 3],
+                      child: AutoSizeText(breakfastList[dayofweek],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -319,6 +321,29 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontWeight: FontWeight.w200)),
                     ),
                   ),
+                ),
+                Wrap(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32.0, top: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: CupertinoButton(
+                          padding: EdgeInsets.all(8.0),
+                            color: Colors.orange,
+                            child: Text('Show Recipe',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              _launchURL(breakfastLinkList[dayofweek]);
+                            },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
@@ -336,7 +361,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(lunchList[dayofweek * 3 + 1],
+                      child: AutoSizeText(lunchList[dayofweek],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -345,6 +370,29 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontWeight: FontWeight.w200)),
                     ),
                   ),
+                ),
+                Wrap(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32.0, top: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: CupertinoButton(
+                            padding: EdgeInsets.all(8.0),
+                            color: Colors.orange,
+                            child: Text('Show Recipe',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              _launchURL(lunchLinkList[dayofweek]);
+                            }
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
@@ -362,7 +410,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText(dinnerList[dayofweek * 3 + 2],
+                      child: AutoSizeText(dinnerList[dayofweek],
                           maxLines: 2,
                           style: TextStyle(
                               fontSize: 20,
@@ -371,6 +419,29 @@ class _DigiDietPageState extends State<DigiDietPage> {
                               fontWeight: FontWeight.w200)),
                     ),
                   ),
+                ),
+                Wrap(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32.0, top: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: CupertinoButton(
+                            padding: EdgeInsets.all(8.0),
+                            color: Colors.orange,
+                            child: Text('Show Recipe',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              _launchURL(dinnerLinkList[dayofweek]);
+                            }
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -520,6 +591,14 @@ class _DigiDietPageState extends State<DigiDietPage> {
           ),
         ),
       );
+    }
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
