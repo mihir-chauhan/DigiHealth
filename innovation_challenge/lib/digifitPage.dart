@@ -19,8 +19,6 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-
-
   final List<Feature> features = [
     Feature(
       title: "Calories Burnt",
