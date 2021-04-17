@@ -32,10 +32,10 @@ class AuthService {
         .document(email).setData({
       "Name": name,
       "Diet Plan": "Not Set",
-      "Calories Burned": 0,
-      "Points": 0,
-      "Exercise Time": 0
+      "Points": 0
     });
+    
+    databaseReference.collection("User Data").document(email).collection("Exercise Logs");
 
     madeNewAccount = true;
     showDigiDietQuestionnaire = true;

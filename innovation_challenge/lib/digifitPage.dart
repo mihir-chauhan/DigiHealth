@@ -10,6 +10,7 @@ import 'package:draw_graph/models/feature.dart';
 import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
 import 'package:multi_charts/multi_charts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -358,6 +359,7 @@ class _SecondRouteState extends State<SecondRoute> {
   int minutesTwoMarker = 0;
   bool isRunningStopWatch = true;
   bool stopStopWatch = false;
+  int timeCounter = 0;
 
   bool startButtonEnabled = true;
   bool stopButtonEnabled = false;
@@ -374,12 +376,15 @@ class _SecondRouteState extends State<SecondRoute> {
       calorieCounter = (((calorieCounter + 2.1) * 100).round()) / 100;
     } else if (widget.exerciseName == 'Walking') {
       calorieCounter = (((calorieCounter + 1) * 100).round()) / 100;
+    } else {
+      calorieCounter = (((calorieCounter + 1.5) * 100).round()) / 100;
     }
   }
 
   void popupInSeconds() async {
     await Future.delayed(Duration(seconds: 1), () {
       if (isRunningStopWatch == true) {
+        timeCounter++;
         popupInSeconds();
         if (counterForCaloriesTenSecond < 10) {
           counterForCaloriesTenSecond++;
@@ -435,6 +440,7 @@ class _SecondRouteState extends State<SecondRoute> {
         trailing: GestureDetector(
           onTap: () async {
             isRunningStopWatch = false;
+            writeExerciseDataToFirestoreLog();
             Navigator.of(context).pop();
           },
           child: Icon(
@@ -542,6 +548,7 @@ class _SecondRouteState extends State<SecondRoute> {
                         secondsTwoMarker = 0;
                         minutesTwoMarker = 0;
                         minutesMarker = 0;
+                        timeCounter = 0;
                       });
                     },
             ),
@@ -549,5 +556,29 @@ class _SecondRouteState extends State<SecondRoute> {
         ],
       ),
     );
+  }
+
+  void writeExerciseDataToFirestoreLog() async {
+    final FirebaseUser user =
+    await Provider.of(context).auth.firebaseAuth.currentUser();
+    final databaseReference = Firestore.instance;
+
+    await databaseReference
+        .collection("User Data")
+        .document(user.email)
+        .collection("Exercise Logs")
+        .add({
+      "Calories Burned": calorieCounter,
+      "Points Earned": calorieCounter*10,
+      "Type of Exercise": widget.exerciseName,
+      "Seconds of Exercise": timeCounter
+    });
+    await databaseReference
+        .collection("User Data").document(user.email).get().then<dynamic>(( DocumentSnapshot snapshot) async {
+      int newPoints = (snapshot.data["Points"] + calorieCounter*10).round();
+      print(newPoints);
+      databaseReference.collection("User Data").document(user.email).updateData({"Points": newPoints});
+    });
+
   }
 }
