@@ -20,22 +20,159 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  final List<Feature> features = [
-    Feature(
-      title: "Calories Burnt",
-      color: Colors.blue,
-      data: [0.2, 0.3, 0.4, 0.7, 0.9],
-    ),
-    Feature(
-      title: "Time Exercised",
-      color: Colors.red,
-      data: [0.1, 0.5, 0.3, 0.6, 0.7],
-    )
+  var caloriesBurnt = ValueNotifier<List<double>>(new List<double>());
+  var timeExercised = ValueNotifier<List<double>>(new List<double>());
+  var exercisePercentage = ValueNotifier<List<String>>(new List<String>());
+  bool hasShownGraphs = false;
+  List<double> percentageList;
+  setupGraphs() async {
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
+    Firestore.instance
+        //setsup arraylist
+        .collection('User Data')
+        .document(user.email)
+        .collection('Exercise Logs')
+        .orderBy('Timestamp', descending: false)
+        .getDocuments()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.documents.forEach((doc) {
+        caloriesBurnt.value.add(doc['Calories Burned'] / 10);
+        timeExercised.value.add(doc['Seconds of Exercise'] / 100);
+        exercisePercentage.value.add(doc['Type of Exercise']);
+        features = [
+          Feature(
+            title: "Calories Burnt",
+            color: Colors.red,
+            data: caloriesBurnt.value,
+          ),
+          Feature(
+            title: "Time Exercised",
+            color: Colors.blue,
+            data: timeExercised.value,
+          ),
+        ];
+      });
+    }).then((value) {
+      setState(() {
+        percentageList = percentagesOfExercises();
+      });
+    });
+  }
+
+  List<double> percentagesOfExercises() {
+    var indoor = 0;
+    var outdoor = 0;
+    var highImpact = 0;
+    var lowImpact = 0;
+    var total = 0;
+    for (int i = 0; i < exercisePercentage.value.length; i++) {
+      if (exercisePercentage.value[i] == 'Indoor') {
+        indoor++;
+      } else if (exercisePercentage.value[i] == 'Outdoor') {
+        outdoor++;
+      } else if (exercisePercentage.value[i] == 'High-Impact') {
+        highImpact++;
+      } else if (exercisePercentage.value[i] == 'Low-Impact') {
+        lowImpact++;
+      }
+    }
+
+    total = indoor + outdoor + lowImpact + highImpact;
+    double percentageOfIndoor = (((indoor / total) * 1000).round()) / 10;
+    double percentageOfOutdoor = (((outdoor / total) * 1000).round()) / 10;
+    double percentageOfHighImpact =
+        (((highImpact / total) * 1000).round()) / 10;
+    double percentageOfLowImpact = (((100 -
+                    percentageOfOutdoor -
+                    percentageOfHighImpact -
+                    percentageOfIndoor) *
+                10)
+            .round()) /
+        10;
+    return [
+      percentageOfIndoor,
+      percentageOfOutdoor,
+      percentageOfHighImpact,
+      percentageOfLowImpact
+    ];
+  }
+
+  List<Feature> features;
+
+  List<String> indoor = [
+    'Push-Ups',
+    'Plank'
+        'Curl-Ups',
+    'Sit-Ups',
+    'Jumping Jacks',
+    'Treadmill',
+    'Crunches',
+    'Squats',
+    'Pull-Ups',
+    'Weight-Lifting',
+    'Lunges',
+    'Yoga',
+    'Mountain Climbers',
+    'Jog in Place',
+    'Bicycle',
+    'Scissor Kick',
   ];
-  List<String> indoor = ['Treadmill', 'S1'];
-  List<String> outdoor = ['Running', 'S2'];
-  List<String> highImpact = ['Biking', 'S3'];
-  List<String> lowImpact = ['Walking', 'S4'];
+  List<String> outdoor = [
+    'Walking',
+    'Hiking',
+    'Swimming',
+    'Running',
+    'Badminton',
+    'Tennis',
+    'Baseball',
+    'Handball',
+    'Biking',
+    'Basketball',
+    'Ice skating',
+    'Roller Skating',
+    'Volleyball',
+    'Horse Riding',
+    'Soccer',
+    'Golf',
+    'Frisbee',
+    'Football',
+    'Hockey',
+    'Bowling',
+    'Dancing',
+  ];
+  List<String> highImpact = ['Hiking',
+    'Volleyball',
+    'Squats',
+    'Running',
+    'Bicycle Crunch',
+    'Aerobics',
+    'HIIT Workout',
+    'Racquetball',
+    'Long Jumps',
+    'Tennis',
+    'Tricep Dips',
+    'Jump Rope',
+    'Gymnastics',
+    'Burpees',
+    'Soccer',];
+  List<String> lowImpact = [
+    'Swimming',
+    'Lunges',
+    'Elliptical',
+    'Foam Roaller Stretching',
+    'Upper Body Stretches',
+    'Breathing Exercises',
+    'Pilates',
+    'Curl-Ups',
+    'Walking',
+    'Squats',
+    'Sitting Stretches',
+    'Jog in Place',
+    'Golf',
+    'Rowing',
+    'Total Resistance Xercise'
+  ];
   String otherValue = 'Indoor';
   int listNumForIndoor = 0;
   int listNumForOutdoor = 0;
@@ -57,6 +194,11 @@ class _DigiFitPageState extends State<DigiFitPage> {
   }
 
   Widget updateViewBasedOnTab(int i) {
+    if (!hasShownGraphs) {
+      hasShownGraphs = true;
+      setupGraphs();
+    }
+    print(percentageList);
     if (Provider.of(context).auth.showDigiFitQuestionnaire) {
       openQuestionnaire();
     }
@@ -87,7 +229,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
               unselectedItemTextLightThemeColor: Colors.black,
             ),
             SizedBox(height: 25),
-            Text(
+            AutoSizeText(
               otherValue == 'Indoor'
                   ? indoor[listNumForIndoor]
                   : otherValue == 'Outdoor'
@@ -95,6 +237,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       : otherValue == 'High-Impact'
                           ? highImpact[listNumForHighImpact]
                           : lowImpact[listNumForLowImpact],
+              maxLines: 1,
               style: TextStyle(
                   color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
             ),
@@ -179,7 +322,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     child: LineGraph(
                       features: features,
                       size: Size(320, 300),
-                      labelX: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20'],
+                      labelX: ['1', '5', '10', '15', '20'],
                       labelY: ['20', '40', '60', '80', '100'],
                       showDescription: true,
                       graphColor: Colors.white60,
@@ -206,12 +349,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: PieChart(
-                      values: [
-                        23,
-                        39,
-                        24,
-                        14,
-                      ],
+                      values: percentageList,
                       labels: [
                         "Indoor",
                         "Outdoor",
@@ -227,18 +365,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     ),
                   ),
                 ),
-                Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: AutoSizeText(
-                            "Rate of Improvement Per Day: 13.4%",
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                                fontFamily: 'Nunito',
-                                fontWeight: FontWeight.w400)))),
               ],
             ),
           ),
@@ -298,7 +424,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
               ),
               trailing: GestureDetector(
                 onTap: () {
-                  print('Too Coolio for Schoolio');
                   setState(() {
                     if (otherValue == 'Indoor') {
                       listNumForIndoor++;
@@ -440,10 +565,10 @@ class _SecondRouteState extends State<SecondRoute> {
         trailing: GestureDetector(
           onTap: () async {
             isRunningStopWatch = false;
-            if(timeCounter >= 10) {
+            if (timeCounter >= 10) {
               writeExerciseDataToFirestoreLog();
             }
-             Navigator.of(context).pop();
+            Navigator.of(context).pop();
           },
           child: Icon(
             Icons.done,
@@ -562,7 +687,7 @@ class _SecondRouteState extends State<SecondRoute> {
 
   void writeExerciseDataToFirestoreLog() async {
     final FirebaseUser user =
-    await Provider.of(context).auth.firebaseAuth.currentUser();
+        await Provider.of(context).auth.firebaseAuth.currentUser();
     final databaseReference = Firestore.instance;
 
     await databaseReference
@@ -571,17 +696,21 @@ class _SecondRouteState extends State<SecondRoute> {
         .collection("Exercise Logs")
         .add({
       "Calories Burned": calorieCounter,
-      "Points Earned": calorieCounter*10,
+      "Points Earned": calorieCounter * 10,
       "Type of Exercise": widget.exerciseName,
       "Seconds of Exercise": timeCounter,
       "Timestamp": Timestamp.now()
     });
     await databaseReference
-        .collection("User Data").document(user.email).get().then<dynamic>(( DocumentSnapshot snapshot) async {
-      int newPoints = (snapshot.data["Points"] + calorieCounter*10).round();
-      print(newPoints);
-      databaseReference.collection("User Data").document(user.email).updateData({"Points": newPoints});
+        .collection("User Data")
+        .document(user.email)
+        .get()
+        .then<dynamic>((DocumentSnapshot snapshot) async {
+      int newPoints = (snapshot.data["Points"] + calorieCounter * 10).round();
+      databaseReference
+          .collection("User Data")
+          .document(user.email)
+          .updateData({"Points": newPoints});
     });
-
   }
 }
