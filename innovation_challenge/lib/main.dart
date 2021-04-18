@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       child: CupertinoApp(
           debugShowCheckedModeBanner: false,
           theme: CupertinoThemeData(
+            brightness: Brightness.dark,
             textTheme: CupertinoTextThemeData(
                 navLargeTitleTextStyle: TextStyle(
                   fontWeight: FontWeight.bold,

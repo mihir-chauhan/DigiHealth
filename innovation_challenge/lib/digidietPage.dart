@@ -1,4 +1,3 @@
-import 'package:DigiHealth/digidiet_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:draw_graph/draw_graph.dart';
@@ -144,16 +143,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
 
-    Firestore.instance.collection('User Data').document(user.email).get().then<dynamic>((DocumentSnapshot snapshot) {
-      if(snapshot.data["Diet Questionnaire"] == false) {
-        openQuestionnaire();
-      } else {
-        getData(user);
-      }
-    });
-  }
-
-  void getData(FirebaseUser user) async {
     final ref = firebaseRTDatabaseRef.reference();
     Firestore.instance
         .collection('User Data')
@@ -884,19 +873,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
       "Weight": weight,
       "Height": height,
       "Timestamp": Timestamp.now()
-    });
-  }
-
-  void openQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 1000), () {
-      if (!hasShownQuestionnaire) {
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (context) => DigiDietQuestionnairePage()));
-        hasShownQuestionnaire = true;
-        Provider.of(context).auth.showDigiDietQuestionnaire = false;
-      }
     });
   }
 

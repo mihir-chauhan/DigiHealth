@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import 'package:DigiHealth/digifit_questionnaire.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,17 +37,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
         .firebaseAuth
         .currentUser();
 
-    Firestore.instance.collection('User Data').document(user.email).get().then<
-        dynamic>((DocumentSnapshot snapshot) {
-      if (snapshot.data["Fitness Questionnaire"] == false) {
-        openQuestionnaire();
-      } else {
-        getData(user);
-      }
-    });
-  }
-
-  void getData(FirebaseUser user) {
       Firestore.instance
         //setsup arraylist
         .collection('User Data')
@@ -422,21 +409,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
         ),
       );
     }
-  }
-
-  bool hasShownQuestionnaire = false;
-
-  void openQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 1000), () {
-      if (!hasShownQuestionnaire) {
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (context) => DigiFitQuestionnairePage()));
-        hasShownQuestionnaire = true;
-        Provider.of(context).auth.showDigiFitQuestionnaire = false;
-      }
-    });
   }
 
   @override

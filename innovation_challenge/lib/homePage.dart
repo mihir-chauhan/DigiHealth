@@ -1,9 +1,12 @@
 import 'package:DigiHealth/provider_widget.dart';
+import 'package:DigiHealth/questionnairePage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,7 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final List<String> titles = [
     "DigiFit",
     "DigiDiet",
@@ -34,26 +36,35 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  bool openedQuestionnaire = false;
+
   @override
   Widget build(BuildContext context) {
     if (Provider.of(context).auth.madeNewAccount) {
-        popupInSeconds(1000);
+      popupInSeconds(600);
+    } else {
+      if(!openedQuestionnaire) {
+        openQuestionnaire();
+        openedQuestionnaire = true;
+      }
     }
+
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
-            transitionBetweenRoutes: false,
-            heroTag: "homePage",
-            middle: Text("Home",
-                style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
-            backgroundColor: secondaryColor,
+          transitionBetweenRoutes: false,
+          heroTag: "homePage",
+          middle: Text("Home",
+              style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
+          backgroundColor: secondaryColor,
           leading: GestureDetector(
             child: Icon(
               Icons.circle,
               color: secondaryColor,
             ),
-          ),),
+          ),
+        ),
         child: Scaffold(
           backgroundColor: primaryColor,
           body: SafeArea(
@@ -67,13 +78,15 @@ class _HomePageState extends State<HomePage> {
                       images: images,
                       // required
                       textStyle: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Nunito'),
                       // optional
                       onPageChanged: (page) {
                         // optional
                       },
                       onSelectedItem: (index) {
-                        if(index == 0) {
+                        if (index == 0) {
                           Navigator.pushNamed(context, '/digifit');
                         } else {
                           Navigator.pushNamed(context, '/digidiet');
@@ -91,52 +104,77 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
+  void openQuestionnaire() async {
+    final FirebaseUser user =
+        await Provider.of(context).auth.firebaseAuth.currentUser();
+    Firestore.instance
+        .collection('User Data')
+        .document(user.email)
+        .get()
+        .then<dynamic>((DocumentSnapshot snapshot) {
+      if (snapshot.data["Questionnaire"] == false) {
+        launchQuestionnaire();
+      }
+    });
+  }
+
+  void launchQuestionnaire() async {
+    await Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => QuestionnairePage()));
+    });
+  }
+
   bool hasShownDialog = false;
+
   void popupInSeconds(int time) async {
     await Future.delayed(Duration(milliseconds: time), () {
       if (!hasShownDialog) {
         showCupertinoDialog(
             context: context,
             builder: (_) => Container(
-                child: NetworkGiffyDialog(
-                  image: Image.asset("welcome.gif"),
-                  title: Text("Welcome to DigiHealth!",
+                  child: NetworkGiffyDialog(
+                    image: Image.asset("welcome.gif"),
+                    title: Text("Welcome to DigiHealth!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w600)),
+                    description: Text(
+                      "Choose a workout or get diet suggestions from intelligent AI, encourage others with the chat, and view your all-time stats!",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black,
+                          fontSize: 14,
+                          color: Colors.black87,
                           fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w600)),
-                  description: Text(
-                    "Choose a workout or get diet suggestions from intelligent AI, encourage others with the chat, and view your all-time stats!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w400),
+                          fontWeight: FontWeight.w400),
+                    ),
+                    entryAnimation: EntryAnimation.DEFAULT,
+                    onOkButtonPressed: () {},
+                    buttonCancelText: Text(
+                      "I'm Ready!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w300),
+                    ),
+                    buttonCancelColor: primaryColor,
+                    onlyCancelButton: true,
+                    onCancelButtonPressed: () {
+                      Navigator.of(context).pop();
+                      openQuestionnaire();
+                    },
                   ),
-                  entryAnimation: EntryAnimation.DEFAULT,
-                  onOkButtonPressed: () {},
-                  buttonCancelText: Text(
-                    "I'm Ready!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w300),
-                  ),
-                  buttonCancelColor: primaryColor,
-                  onlyCancelButton: true,
-                ),
-              )
-
-            );
+                ));
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }
     });
   }
 }
-

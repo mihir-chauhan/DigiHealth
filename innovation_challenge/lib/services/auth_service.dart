@@ -5,8 +5,6 @@ class AuthService {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   bool madeNewAccount = false;
-  bool showDigiDietQuestionnaire = false;
-  bool showDigiFitQuestionnaire = false;
 
   Stream<String> get onAuthStateChanged => firebaseAuth.onAuthStateChanged.map(
         (FirebaseUser user) => user?.uid,
@@ -33,15 +31,12 @@ class AuthService {
       "Name": name,
       "Diet Plan": "Not Set",
       "Points": 0,
-      "Diet Questionnaire": false,
-      "Fitness Questionnaire": false
+      "Questionnaire": false,
     });
     
     databaseReference.collection("User Data").document(email).collection("Exercise Logs");
 
     madeNewAccount = true;
-    showDigiDietQuestionnaire = true;
-    showDigiFitQuestionnaire = true;
     return currentUser.uid;
   }
 
@@ -49,8 +44,6 @@ class AuthService {
   Future<String> signInWithEmailAndPassword(
       String email, String password) async {
     madeNewAccount = false;
-    showDigiDietQuestionnaire = false;
-    showDigiFitQuestionnaire = false;
     return (await firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password))
         .uid;
