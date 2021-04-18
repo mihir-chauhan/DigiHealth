@@ -251,20 +251,23 @@ class _DigiFitPageState extends State<DigiFitPage> {
               unselectedItemTextLightThemeColor: Colors.black,
             ),
             SizedBox(height: 25),
-            AutoSizeText(
-              otherValue == 'Indoor'
-                  ? indoor[listNumForIndoor]
-                  : otherValue == 'Outdoor'
-                      ? outdoor[listNumForOutdoor]
-                      : otherValue == 'High-Impact'
-                          ? highImpact[listNumForHighImpact]
-                          : lowImpact[listNumForLowImpact],
-              maxLines: 1,
-              style: TextStyle(
-                  color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: AutoSizeText(
+                otherValue == 'Indoor'
+                    ? indoor[listNumForIndoor]
+                    : otherValue == 'Outdoor'
+                        ? outdoor[listNumForOutdoor]
+                        : otherValue == 'High-Impact'
+                            ? highImpact[listNumForHighImpact]
+                            : lowImpact[listNumForLowImpact],
+                maxLines: 1,
+                style: TextStyle(
+                    color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
+              ),
             ),
             SizedBox(
-              height: 25,
+              height: 10,
             ),
             CupertinoButton(
               child: Container(
