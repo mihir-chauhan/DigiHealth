@@ -19,6 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = new TextEditingController();
   String messageToSend = "";
   final List<MessageWidget> _messageList = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +136,10 @@ class _ChatPageState extends State<ChatPage> {
           }
         });
       }
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(seconds: 0),
+      );
     }).asFuture();
   }
 
@@ -180,7 +185,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget generateChatListView() {
-    final ScrollController _scrollController = ScrollController();
     return Container(
       child: Column(
         children: [
