@@ -12,6 +12,7 @@ import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:DigiHealth/recipeWebViewPage.dart';
 
 class DigiDietPage extends StatefulWidget {
   DigiDietPage();
@@ -853,11 +854,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
   }
 
   _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+          builder: (context) => RecipeWebViewPage(url)),
+    );
   }
 
   void writeDietDataToFirestoreLog(double lbm, double bmi,
