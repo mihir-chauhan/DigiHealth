@@ -625,7 +625,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                   .round()) /
                                   100;
                               weightList.add(weight/300);
-                              bmiList.add(bmi);
+                              bmiList.add(bmi/30);
                               bmiHeightfeatures = [
                                 Feature(
                                   title: "BMI",

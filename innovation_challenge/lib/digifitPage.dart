@@ -394,7 +394,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                         "High-Impact",
                         "Low-Impact",
                       ],
-                      labelColor: Colors.white,
+                      labelColor: Colors.transparent,
                       legendTextColor: Colors.white,
                       textScaleFactor: 0.07,
                       curve: Curves.easeInOutExpo,
