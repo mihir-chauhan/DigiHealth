@@ -11,7 +11,6 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:DigiHealth/recipeWebViewPage.dart';
 
 class DigiDietPage extends StatefulWidget {

@@ -58,6 +58,10 @@ class _DigiDietQuestionnairePageState extends State<DigiDietQuestionnairePage> {
                     .collection("User Data")
                     .document(user.email)
                     .updateData({"Diet Plan": dietName});
+                await databaseReference
+                    .collection("User Data")
+                    .document(user.email)
+                    .updateData({"Diet Question 1": question1Selection, "Diet Question 2": question2Selection, "Diet Question 3": question3Selection, "Diet Question 4": question4Selection, "Diet Question 5": question5Selection});
                 showCupertinoDialog(
                     context: context,
                     builder: (BuildContext context) => CupertinoAlertDialog(

@@ -1,3 +1,6 @@
+import 'package:DigiHealth/provider_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -20,6 +23,8 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
 
   @override
   Widget build(BuildContext context) {
+    var _context = context;
+
     _height = MediaQuery.of(context).size.height;
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -43,9 +48,31 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                     question3Selection != -1 &&
                     question4Selection != -1 &&
                     question5Selection != -1) {
-                  setState(() {
-                    hideResult = false;
-                  });
+                  final FirebaseUser user =
+                  await Provider.of(context).auth.firebaseAuth.currentUser();
+                  final databaseReference = Firestore.instance;
+
+                  await databaseReference
+                      .collection("User Data")
+                      .document(user.email)
+                      .updateData({"Fitness Question 1": question1Selection, "Fitness Question 2": question2Selection, "Fitness Question 3": question3Selection, "Fitness Question 4": question4Selection, "Fitness Question 5": question5Selection});
+
+                  showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) => CupertinoAlertDialog(
+                            title: new Text("Thanks!"),
+                            content: new Text("Have Fun Exercising!"),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                isDefaultAction: true,
+                                child: Text("Start Exercising!"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(_context).pop();
+                                },
+                              )
+                            ],
+                          ));
                 }
               },
               child: Icon(
@@ -80,7 +107,19 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                               "I want to exercise sometimes?",
                             ],
                             onSelected: (String selected) {
-                              question1Selection = 0;
+                              if (selected
+                                  .contains("No Pain No Gain!")) {
+                                question1Selection = 0;
+                              } else if (selected.contains(
+                                  "I want to go to the gym many\ntimes a week.")) {
+                                question1Selection = 1;
+                              } else if (selected.contains(
+                                  "I'm looking to start my fitness\nadventure.")) {
+                                question1Selection = 2;
+                              } else if (selected.contains(
+                                  "I want to exercise sometimes?")) {
+                                question1Selection = 3;
+                              }
                             },
                             labelStyle: TextStyle(
                                 color: Colors.white,
@@ -111,7 +150,19 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                               "What is exercise?",
                             ],
                             onSelected: (String selected) {
-                              question2Selection = 0;
+                              if (selected
+                                  .contains("GYM IS LIFE!")) {
+                                question2Selection = 0;
+                              } else if (selected.contains(
+                                  "I occasionally gym out.")) {
+                                question2Selection = 1;
+                              } else if (selected.contains(
+                                  "I only exercise when I'm forced to.")) {
+                                question2Selection = 2;
+                              } else if (selected.contains(
+                                  "What is exercise?")) {
+                                question2Selection = 3;
+                              }
                             },
                             labelStyle: TextStyle(
                                 color: Colors.white,
@@ -142,7 +193,19 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                               "I don't exercise often enough to\nhave a type.",
                             ],
                             onSelected: (String selected) {
-                              question3Selection = 0;
+                              if (selected
+                                  .contains("I'm fine with anything.")) {
+                                question3Selection = 0;
+                              } else if (selected.contains(
+                                  "I need that burn.")) {
+                                question3Selection = 1;
+                              } else if (selected.contains(
+                                  "Slow and steady wins the race.")) {
+                                question3Selection = 2;
+                              } else if (selected.contains(
+                                  "I don't exercise often enough to\nhave a type.")) {
+                                question3Selection = 3;
+                              }
                             },
                             labelStyle: TextStyle(
                                 color: Colors.white,
@@ -173,7 +236,19 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                               "6-7",
                             ],
                             onSelected: (String selected) {
-                              question4Selection = 0;
+                              if (selected
+                                  .contains("3-4")) {
+                                question4Selection = 0;
+                              } else if (selected.contains(
+                                  "4-5")) {
+                                question4Selection = 1;
+                              } else if (selected.contains(
+                                  "5-6")) {
+                                question4Selection = 2;
+                              } else if (selected.contains(
+                                  "6-7")) {
+                                question4Selection = 3;
+                              }
                             },
                             labelStyle: TextStyle(
                                 color: Colors.white,
@@ -201,14 +276,38 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                               "0-50",
                               "50-100",
                               "100-150",
-                              "150-250",
+                              "150-200",
                               "200-250",
-                              "250-300"
+                              "250-300",
                                   "300-500",
                               "500-1000",
                             ],
                             onSelected: (String selected) {
-                              question5Selection = 0;
+                              if (selected
+                                  .contains("0-50")) {
+                                question5Selection = 0;
+                              } else if (selected.contains(
+                                  "50-100")) {
+                                question5Selection = 1;
+                              } else if (selected.contains(
+                                  "100-150")) {
+                                question5Selection = 2;
+                              } else if (selected.contains(
+                                  "150-200")) {
+                                question5Selection = 3;
+                              } else if (selected.contains(
+                                  "200-250")) {
+                                question5Selection = 4;
+                              } else if (selected.contains(
+                                  "250-300")) {
+                                question5Selection = 5;
+                              } else if (selected.contains(
+                                  "300-500")) {
+                                question5Selection = 6;
+                              } else if (selected.contains(
+                                  "500-1000")) {
+                                question5Selection = 7;
+                              }
                             },
                             labelStyle: TextStyle(
                                 color: Colors.white,
