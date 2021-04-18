@@ -1,6 +1,7 @@
 import 'package:DigiHealth/chatPage.dart';
 import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';
+import 'package:DigiHealth/profilePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +17,7 @@ class _MainPageControllerState extends State<MainPageController> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+  Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class _MainPageControllerState extends State<MainPageController> {
               BottomNavigationBarItem(icon: homeIcon),
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
+              BottomNavigationBarItem(icon: profileIcon),
             ],
             onTap: (i) async {
               updateTabBarController(i);
@@ -37,9 +40,8 @@ class _MainPageControllerState extends State<MainPageController> {
             return ChatPage();
           } else if (i == 2) {
             return LeaderboardPage();
-          }
-          else {
-            return Container();
+          } else {
+            return ProfilePage();
           }
         });
   }
@@ -64,6 +66,9 @@ class _MainPageControllerState extends State<MainPageController> {
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);
+      profileIcon = (i == 3)
+          ? Icon(Icons.person, color: Colors.white)
+          : Icon(Icons.person_outlined, color: Colors.white);
     });
   }
 }

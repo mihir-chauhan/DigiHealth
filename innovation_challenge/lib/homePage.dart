@@ -104,18 +104,22 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
+  bool alreadyCalledOpenQuestionnaire = false;
   void openQuestionnaire() async {
-    final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
-    Firestore.instance
-        .collection('User Data')
-        .document(user.email)
-        .get()
-        .then<dynamic>((DocumentSnapshot snapshot) {
-      if (snapshot.data["Questionnaire"] == false) {
-        launchQuestionnaire();
-      }
-    });
+    if(!alreadyCalledOpenQuestionnaire) {
+      final FirebaseUser user =
+      await Provider.of(context).auth.firebaseAuth.currentUser();
+      Firestore.instance
+          .collection('User Data')
+          .document(user.email)
+          .get()
+          .then<dynamic>((DocumentSnapshot snapshot) {
+        if (snapshot.data["Questionnaire"] == false) {
+          launchQuestionnaire();
+        }
+      });
+      alreadyCalledOpenQuestionnaire = true;
+    }
   }
 
   void launchQuestionnaire() async {
