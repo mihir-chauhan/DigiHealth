@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 500), () {
+    await Future.delayed(Duration(milliseconds: 1000), () {
       Navigator.push(
           context,
           CupertinoPageRoute(
@@ -172,7 +172,6 @@ class _HomePageState extends State<HomePage> {
                     onlyCancelButton: true,
                     onCancelButtonPressed: () {
                       Navigator.of(context).pop();
-                      openQuestionnaire();
                     },
                   ),
                 ));
