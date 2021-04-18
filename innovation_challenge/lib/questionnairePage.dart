@@ -139,7 +139,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                               .contains("I'm looking to shred fat fast!")) {
                             question1Selection = 0;
                           } else if (selected.contains(
-                              "I’d like to lose some weight and be\nhealthier.")) {
+                              "I’d like to lose some weight and\nbe healthier.")) {
                             question1Selection = 1;
                           } else if (selected.contains(
                               "I’m really looking for balance and\nlong-term health.")) {
