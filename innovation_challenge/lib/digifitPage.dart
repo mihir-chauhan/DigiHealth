@@ -33,8 +33,24 @@ class _DigiFitPageState extends State<DigiFitPage> {
     timeExercised.value.clear();
     exercisePercentage.value.clear();
     final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
-    Firestore.instance
+    await Provider
+        .of(context)
+        .auth
+        .firebaseAuth
+        .currentUser();
+
+    Firestore.instance.collection('User Data').document(user.email).get().then<
+        dynamic>((DocumentSnapshot snapshot) {
+      if (snapshot.data["Fitness Questionnaire"] == false) {
+        openQuestionnaire();
+      } else {
+        getData(user);
+      }
+    });
+  }
+
+  void getData(FirebaseUser user) {
+      Firestore.instance
         //setsup arraylist
         .collection('User Data')
         .document(user.email)
@@ -220,9 +236,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
     if (!hasShownGraphs) {
       hasShownGraphs = true;
       setupGraphs();
-    }
-    if (Provider.of(context).auth.showDigiFitQuestionnaire) {
-      openQuestionnaire();
     }
     if (i == 0) {
       return CupertinoPageScaffold(
@@ -447,7 +460,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               heroTag: "digifitPage",
-              middle: Text("DigiFit " + (i == 0 ? "Fitness Tracker" : "Stats"),
+              middle: Text((i == 0 ? "Fitness Tracker" : "Stats"),
                   style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
               backgroundColor: secondaryColor,
               leading: GestureDetector(
@@ -455,7 +468,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   Navigator.pop(context);
                 },
                 child: Icon(
-                  CupertinoIcons.back,
+                  Icons.home_rounded,
                   color: CupertinoColors.white,
                   size: 30,
                 ),
@@ -485,7 +498,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   });
                 },
                 child: Icon(
-                  CupertinoIcons.refresh,
+                  Icons.refresh,
                   color: CupertinoColors.white,
                   size: 30,
                 ),

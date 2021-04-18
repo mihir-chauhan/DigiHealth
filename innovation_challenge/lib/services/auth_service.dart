@@ -32,7 +32,9 @@ class AuthService {
         .document(email).setData({
       "Name": name,
       "Diet Plan": "Not Set",
-      "Points": 0
+      "Points": 0,
+      "Diet Questionnaire": false,
+      "Fitness Questionnaire": false
     });
     
     databaseReference.collection("User Data").document(email).collection("Exercise Logs");

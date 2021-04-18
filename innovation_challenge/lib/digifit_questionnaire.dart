@@ -55,7 +55,7 @@ class _DigiFitQuestionnairePageState extends State<DigiFitQuestionnairePage> {
                   await databaseReference
                       .collection("User Data")
                       .document(user.email)
-                      .updateData({"Fitness Question 1": question1Selection, "Fitness Question 2": question2Selection, "Fitness Question 3": question3Selection, "Fitness Question 4": question4Selection, "Fitness Question 5": question5Selection});
+                      .updateData({"Fitness Question 1": question1Selection, "Fitness Question 2": question2Selection, "Fitness Question 3": question3Selection, "Fitness Question 4": question4Selection, "Fitness Question 5": question5Selection, "Fitness Questionnaire": true});
 
                   showCupertinoDialog(
                       context: context,

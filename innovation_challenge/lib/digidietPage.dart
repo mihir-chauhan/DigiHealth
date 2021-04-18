@@ -116,7 +116,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               heroTag: "digidietPage",
-              middle: Text("DigiDiet " + (i == 0 ? "Meal Planner" : "Stats"),
+              middle: Text((i == 0 ? "Meal Planner" : "Statistics"),
                   style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
               backgroundColor: secondaryColor,
               leading: GestureDetector(
@@ -124,7 +124,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   Navigator.pop(context);
                 },
                 child: Icon(
-                  CupertinoIcons.back,
+                  Icons.home_rounded,
                   color: CupertinoColors.white,
                   size: 30,
                 ),
@@ -143,6 +143,17 @@ class _DigiDietPageState extends State<DigiDietPage> {
   void updateMealPlanBasedOnDiet() async {
     final FirebaseUser user =
         await Provider.of(context).auth.firebaseAuth.currentUser();
+
+    Firestore.instance.collection('User Data').document(user.email).get().then<dynamic>((DocumentSnapshot snapshot) {
+      if(snapshot.data["Diet Questionnaire"] == false) {
+        openQuestionnaire();
+      } else {
+        getData(user);
+      }
+    });
+  }
+
+  void getData(FirebaseUser user) async {
     final ref = firebaseRTDatabaseRef.reference();
     Firestore.instance
         .collection('User Data')
@@ -172,7 +183,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .then((snapshot) {
         setState(() {
           breakfastLinkList =
-              List<String>.from(snapshot.value as List<dynamic>);
+          List<String>.from(snapshot.value as List<dynamic>);
         });
       });
 
@@ -225,7 +236,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
     lbmList = new List<double>();
     fatList = new List<double>();
     Firestore.instance
-        //setsup arraylist
         .collection('User Data')
         .document(user.email)
         .collection('Health Logs')
@@ -322,9 +332,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
   ];
 
   Widget updateViewBasedOnTab(int i, context) {
-    if (Provider.of(context).auth.showDigiDietQuestionnaire) {
-      openQuestionnaire();
-    }
     if (breakfastList[0] == "Loading") {
       updateMealPlanBasedOnDiet();
     }
