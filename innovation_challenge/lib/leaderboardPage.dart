@@ -121,7 +121,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             onTap: () async {},
             child: Icon(
               Icons.center_focus_strong_rounded,
-              color: CupertinoColors.white,
+              color: secondaryColor,
               size: 30,
             ),
           )),

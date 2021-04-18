@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/mainPageController.dart';
 import 'package:DigiHealth/signUpPage.dart';
+import 'package:flutter/services.dart';
 import 'welcomePage.dart';
 import 'provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
@@ -14,6 +15,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
     return Provider(
       auth: AuthService(),
       child: CupertinoApp(

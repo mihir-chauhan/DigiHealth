@@ -161,7 +161,7 @@ class _SignUpPageState extends State<SignUpPage> {
       textFields.add(CupertinoTextField(
         style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
         onChanged: (String value) => _name = value,
-        placeholder: "Name",
+        placeholder: "Display Name (4-10 char)",
         placeholderStyle: TextStyle(color: hintColor),
         cursorColor: Colors.black87,
         keyboardType: TextInputType.name,
