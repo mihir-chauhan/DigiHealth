@@ -432,7 +432,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               heroTag: "digifitPage",
-              middle: Text((i == 0 ? "Fitness Tracker" : "Stats"),
+              middle: Text((i == 0 ? "Fitness Tracker" : "Statistics"),
                   style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
               backgroundColor: secondaryColor,
               leading: GestureDetector(
