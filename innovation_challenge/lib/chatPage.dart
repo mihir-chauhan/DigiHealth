@@ -213,7 +213,7 @@ class _ChatPageState extends State<ChatPage> {
                               placeholder: "Message",
                               placeholderStyle: TextStyle(color: hintColor),
                               cursorColor: Colors.black87,
-                              keyboardType: TextInputType.name,
+                              keyboardType: TextInputType.text,
                               decoration: BoxDecoration(
                                 color: textColor,
                                 borderRadius: BorderRadius.circular(9),

@@ -730,7 +730,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Your Lean Body Mass Stats",
+                      child: AutoSizeText("Your Weight and BMI Stats",
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 30,
@@ -762,7 +762,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Your Weight and BMI Stats",
+                      child: AutoSizeText("Your Lean Body Mass Stats",
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 30,
