@@ -25,6 +25,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   var exercisePercentage = ValueNotifier<List<String>>(new List<String>());
   bool hasShownGraphs = false;
   List<double> percentageList = [];
+  int highestSecondsForGraph = 0;
 
   setupGraphs() async {
     caloriesBurnt.value.clear();
@@ -46,8 +47,11 @@ class _DigiFitPageState extends State<DigiFitPage> {
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        caloriesBurnt.value.add(doc['Calories Burned'] / 10);
-        timeExercised.value.add(doc['Seconds of Exercise'] / 100);
+        caloriesBurnt.value.add(doc['Calories Burned']/1.0);
+        timeExercised.value.add(doc['Seconds of Exercise']/1.0);
+        if(doc['Seconds of Exercise'] > highestSecondsForGraph) {
+          highestSecondsForGraph = doc['Seconds of Exercise'];
+        }
         exercisePercentage.value.add(doc['Type of Exercise']);
         features = [
           Feature(
@@ -63,7 +67,32 @@ class _DigiFitPageState extends State<DigiFitPage> {
         ];
       });
     }).then((value) {
+      List<double> timeExerciseScaled = new List<double>();
+      for(int i = 0; i < timeExercised.value.length; i++) {
+        timeExerciseScaled.add(timeExercised.value.elementAt(i) / highestSecondsForGraph);
+      }
+      timeExercised.value = timeExerciseScaled;
+
+      List<double> caloriesBurntScaled = new List<double>();
+      for(int i = 0; i < caloriesBurnt.value.length; i++) {
+        caloriesBurntScaled.add(caloriesBurnt.value.elementAt(i) / (highestSecondsForGraph*0.25));
+      }
+      caloriesBurnt.value = caloriesBurntScaled;
+
+
       setState(() {
+        features = [
+          Feature(
+            title: "Calories Burnt",
+            color: Colors.red,
+            data: caloriesBurnt.value,
+          ),
+          Feature(
+            title: "Time Exercised",
+            color: Colors.blue,
+            data: timeExercised.value,
+          ),
+        ];
         percentageList = percentagesOfExercises();
       });
     });
@@ -348,7 +377,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       features: features,
                       size: Size(320, 300),
                       labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['20%', '40%', '60%', '80%', '100%'],
+                      labelY: ['', '', '', '', ''],
                       showDescription: true,
                       graphColor: Colors.white60,
                     ),
