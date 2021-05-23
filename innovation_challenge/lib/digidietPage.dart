@@ -172,7 +172,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .then((snapshot) {
         setState(() {
           breakfastLinkList =
-          List<String>.from(snapshot.value as List<dynamic>);
+              List<String>.from(snapshot.value as List<dynamic>);
         });
       });
 
@@ -232,10 +232,10 @@ class _DigiDietPageState extends State<DigiDietPage> {
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        bmiList.add(doc['Body Mass Index']/30);
-        weightList.add(doc['Weight']/300);
-        lbmList.add(doc['Lean Body Mass']/80);
-        fatList.add(doc['Fat Concentration']/100);
+        bmiList.add(doc['Body Mass Index'] / 30);
+        weightList.add(doc['Weight'] / 300);
+        lbmList.add(doc['Lean Body Mass'] / 80);
+        fatList.add(doc['Fat Concentration'] / 100);
         setState(() {
           bmi = doc['Body Mass Index'];
           heightController.text = (doc['Height']).toString();
@@ -345,19 +345,52 @@ class _DigiDietPageState extends State<DigiDietPage> {
                   onDateChange: (date) {
                     setState(() {
                       var now = DateTime.now();
+                      displayingOne() {
+                        int numberOfDays = 30;
+                        if (nameOfMonthFromMonthNumber(date.month) ==
+                                'January' ||
+                            nameOfMonthFromMonthNumber(date.month) == 'March' ||
+                            nameOfMonthFromMonthNumber(date.month) == 'May' ||
+                            nameOfMonthFromMonthNumber(date.month) == 'July' ||
+                            nameOfMonthFromMonthNumber(
+                                    date.month) ==
+                                'August' ||
+                            nameOfMonthFromMonthNumber(date.month) ==
+                                'October' ||
+                            nameOfMonthFromMonthNumber(date.month) ==
+                                'December') {
+                          numberOfDays = 31;
+                        } else if (nameOfMonthFromMonthNumber(date.month) ==
+                            'February') {
+                          numberOfDays = 28;
+                          if (date.year % 4 == 0) {
+                            numberOfDays = 29;
+                          }
+                        }
+                        int plusDay = numberOfDays - now.day;
+                        dayofweek = date.day + plusDay;
+                        mealPlannerDay = nameOfDayFromWeekday(date.weekday) +
+                            ", " +
+                            nameOfMonthFromMonthNumber(date.month) +
+                            " " +
+                            date.day.toString();
+                      }
+
                       if (now.day == date.day) {
                         mealPlannerDay = "Today";
                         dayofweek = 0;
                       } else if (now.day + 1 == date.day) {
                         mealPlannerDay = "Tomorrow";
                         dayofweek = 1;
-                      } else {
+                      } else if (now.day < date.day) {
                         dayofweek = date.day - now.day;
                         mealPlannerDay = nameOfDayFromWeekday(date.weekday) +
                             ", " +
                             nameOfMonthFromMonthNumber(date.month) +
                             " " +
                             date.day.toString();
+                      } else {
+                        displayingOne();
                       }
                     });
                   },
@@ -612,16 +645,16 @@ class _DigiDietPageState extends State<DigiDietPage> {
                           onPressed: () async {
                             setState(() {
                               lbm = ((((0.407 * (weight * 0.4536)) +
-                                  (0.267 * (height * 2.54)) -
-                                  19.2) *
-                                  100)
-                                  .round()) /
+                                              (0.267 * (height * 2.54)) -
+                                              19.2) *
+                                          100)
+                                      .round()) /
                                   100;
                               bmi = ((weight / (height * height) * 703 * 100)
-                                  .round()) /
+                                      .round()) /
                                   100;
-                              weightList.add(weight/300);
-                              bmiList.add(bmi/30);
+                              weightList.add(weight / 300);
+                              bmiList.add(bmi / 30);
                               bmiHeightfeatures = [
                                 Feature(
                                   title: "BMI",
@@ -639,8 +672,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                   ((((weight - lbm) / weight) * 1000).round()) /
                                       10;
 
-                              lbmList.add(lbm/80);
-                              fatList.add(fatConcentration/100);
+                              lbmList.add(lbm / 80);
+                              fatList.add(fatConcentration / 100);
                               lbmFatFeatures = [
                                 Feature(
                                   title: "Lean Body Mass",
@@ -851,8 +884,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
   _launchURL(String url) async {
     Navigator.push(
       context,
-      CupertinoPageRoute(
-          builder: (context) => RecipeWebViewPage(url)),
+      CupertinoPageRoute(builder: (context) => RecipeWebViewPage(url)),
     );
   }
 
