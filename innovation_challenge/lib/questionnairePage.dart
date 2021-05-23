@@ -8,8 +8,7 @@ import 'package:grouped_buttons/grouped_buttons.dart';
 
 class QuestionnairePage extends StatefulWidget {
   @override
-  _QuestionnairePageState createState() =>
-      _QuestionnairePageState();
+  _QuestionnairePageState createState() => _QuestionnairePageState();
 }
 
 class _QuestionnairePageState extends State<QuestionnairePage> {
@@ -132,7 +131,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                           "I'm looking to shred fat fast!",
                           "I’d like to lose some weight and\nbe healthier.",
                           "I’m really looking for balance and\nlong-term health.",
-                          "I want to improve my health in a\nway that’s also sustainable.",
+                          "I want to improve my health in a\nway that’s also sustainable."
                         ],
                         onSelected: (String selected) {
                           if (selected
@@ -175,7 +174,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                           "I'm ready to go the full nine\nyards on my eating habits.",
                           "I can put in the hard work but\nI also need my cheat days.",
                           "I don’t mind making sacrifices\nwhen it’s important.",
-                          "I’m really not looking to go too\nfar outside my comfort zone.",
+                          "I’m really not looking to go too\nfar outside my comfort zone."
                         ],
                         onSelected: (String selected) {
                           if (selected.contains(
@@ -258,15 +257,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       RadioButtonGroup(
                         labels: <String>[
                           "Yes! In every glorious form!",
-                          "There are healthy carbs, right?",
+                          "I like the occasional carb here\n and there.",
                           "No way, I want my body burning\nclean fuel.",
                         ],
                         onSelected: (String selected) {
                           if (selected
                               .contains("Yes! In every glorious form!")) {
                             question4Selection = 0;
-                          } else if (selected
-                              .contains("There are healthy carbs, right?")) {
+                          } else if (selected.contains(
+                              "I like the occasional carb here\n and there.")) {
                             question4Selection = 1;
                           } else if (selected.contains(
                               "No way, I want my body burning\nclean fuel.")) {
@@ -335,23 +334,23 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       ),
                       RadioButtonGroup(
                         labels: <String>[
-                          "No Pain No Gain!",
-                          "I want to go to the gym many\ntimes a week.",
-                          "I'm looking to start my fitness\nadventure.",
-                          "I want to exercise sometimes?",
+                          "I want to exercise every day.",
+                          "I want to go to the gym more\nthan 3 times a week",
+                          "I want to start exercising more.",
+                          "I want to exercise without a rigid\n schedule",
                         ],
                         onSelected: (String selected) {
                           if (selected
-                              .contains("No Pain No Gain!")) {
+                              .contains("I want to exercise every day.")) {
                             fitquestion1Selection = 0;
                           } else if (selected.contains(
-                              "I want to go to the gym many\ntimes a week.")) {
+                              "I want to go to the gym more\nthan 3 times a week")) {
                             fitquestion1Selection = 1;
-                          } else if (selected.contains(
-                              "I'm looking to start my fitness\nadventure.")) {
+                          } else if (selected
+                              .contains("I want to start exercising more.")) {
                             fitquestion1Selection = 2;
                           } else if (selected.contains(
-                              "I want to exercise sometimes?")) {
+                              "I want to exercise without a rigid\n schedule")) {
                             fitquestion1Selection = 3;
                           }
                         },
@@ -378,23 +377,21 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       ),
                       RadioButtonGroup(
                         labels: <String>[
-                          "GYM IS LIFE!",
-                          "I occasionally gym out.",
-                          "I only exercise when I'm forced to.",
+                          "I go to the gym daily.",
+                          "I follow a schedule, but don't\nexercise daily",
+                          "I exercise, but not too often.",
                           "What is exercise?",
                         ],
                         onSelected: (String selected) {
-                          if (selected
-                              .contains("GYM IS LIFE!")) {
+                          if (selected.contains("I go to the gym daily.")) {
                             fitquestion2Selection = 0;
                           } else if (selected.contains(
-                              "I occasionally gym out.")) {
+                              "I follow a schedule, but don't\nexercise daily")) {
                             fitquestion2Selection = 1;
-                          } else if (selected.contains(
-                              "I only exercise when I'm forced to.")) {
+                          } else if (selected
+                              .contains("I exercise, but not too often.")) {
                             fitquestion2Selection = 2;
-                          } else if (selected.contains(
-                              "What is exercise?")) {
+                          } else if (selected.contains("What is exercise?")) {
                             fitquestion2Selection = 3;
                           }
                         },
@@ -421,20 +418,19 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       ),
                       RadioButtonGroup(
                         labels: <String>[
-                          "I'm fine with anything.",
-                          "I need that burn.",
-                          "Slow and steady wins the race.",
+                          "I love everything.",
+                          "I like most exercise, but not all.",
+                          "I like slower-paced exercise.",
                           "I don't exercise often enough to\nhave a type.",
                         ],
                         onSelected: (String selected) {
-                          if (selected
-                              .contains("I'm fine with anything.")) {
+                          if (selected.contains("I'm love everything.")) {
                             fitquestion3Selection = 0;
-                          } else if (selected.contains(
-                              "I need that burn.")) {
+                          } else if (selected
+                              .contains("I like most exercise, but not all.")) {
                             fitquestion3Selection = 1;
-                          } else if (selected.contains(
-                              "Slow and steady wins the race.")) {
+                          } else if (selected
+                              .contains("I like slower-paced exercise.")) {
                             fitquestion3Selection = 2;
                           } else if (selected.contains(
                               "I don't exercise often enough to\nhave a type.")) {
@@ -470,17 +466,13 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                           "6-7",
                         ],
                         onSelected: (String selected) {
-                          if (selected
-                              .contains("3-4")) {
+                          if (selected.contains("3-4")) {
                             fitquestion4Selection = 0;
-                          } else if (selected.contains(
-                              "4-5")) {
+                          } else if (selected.contains("4-5")) {
                             fitquestion4Selection = 1;
-                          } else if (selected.contains(
-                              "5-6")) {
+                          } else if (selected.contains("5-6")) {
                             fitquestion4Selection = 2;
-                          } else if (selected.contains(
-                              "6-7")) {
+                          } else if (selected.contains("6-7")) {
                             fitquestion4Selection = 3;
                           }
                         },
@@ -517,29 +509,21 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                           "500-1000",
                         ],
                         onSelected: (String selected) {
-                          if (selected
-                              .contains("0-50")) {
+                          if (selected.contains("0-50")) {
                             fitquestion5Selection = 0;
-                          } else if (selected.contains(
-                              "50-100")) {
+                          } else if (selected.contains("50-100")) {
                             fitquestion5Selection = 1;
-                          } else if (selected.contains(
-                              "100-150")) {
+                          } else if (selected.contains("100-150")) {
                             fitquestion5Selection = 2;
-                          } else if (selected.contains(
-                              "150-200")) {
+                          } else if (selected.contains("150-200")) {
                             fitquestion5Selection = 3;
-                          } else if (selected.contains(
-                              "200-250")) {
+                          } else if (selected.contains("200-250")) {
                             fitquestion5Selection = 4;
-                          } else if (selected.contains(
-                              "250-300")) {
+                          } else if (selected.contains("250-300")) {
                             fitquestion5Selection = 5;
-                          } else if (selected.contains(
-                              "300-500")) {
+                          } else if (selected.contains("300-500")) {
                             fitquestion5Selection = 6;
-                          } else if (selected.contains(
-                              "500-1000")) {
+                          } else if (selected.contains("500-1000")) {
                             fitquestion5Selection = 7;
                           }
                         },
