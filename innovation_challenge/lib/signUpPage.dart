@@ -69,16 +69,18 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void submit() async {
     if (validate()) {
-      Navigator.of(context, rootNavigator: true).push(
-        new CupertinoPageRoute(
-          builder: (context) => LoadingScreen(),
-        ),
-      );
       try {
         final auth = Provider.of(context).auth;
         if (authFormType == AuthFormType.signIn) {
           await auth.signInWithEmailAndPassword(_email, _password);
           // Navigator.of(context).pushReplacementNamed('/home');
+          Navigator.of(context, rootNavigator: true).push(
+            new CupertinoPageRoute(
+              builder: (context) => LoadingScreen(),
+            ),
+          );
+          await Future.delayed(const Duration(milliseconds: 500), () {});
+
           Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute(builder: (context) => HomeController()),
@@ -89,6 +91,13 @@ class _SignUpPageState extends State<SignUpPage> {
         } else {
           await auth.createUserWithEmailAndPassword(_email, _password, _name);
           // Navigator.of(context).pushReplacementNamed('/home');
+          Navigator.of(context, rootNavigator: true).push(
+            new CupertinoPageRoute(
+              builder: (context) => LoadingScreen(),
+            ),
+          );
+          await Future.delayed(const Duration(milliseconds: 500), () {});
+
           Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute(builder: (context) => HomeController()),
