@@ -7,7 +7,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'provider_widget.dart';
 import 'package:DigiHealth/appPrefs.dart';
 
-bool error = false;
 enum AuthFormType { signIn, signUp }
 
 class SignUpPage extends StatefulWidget {
@@ -25,7 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   _SignUpPageState({this.authFormType});
 
-  String _email, _password, _name;
+  String _email = "", _password = "", _name = "", _error;
   final formKey = GlobalKey<FormState>();
 
   void switchFormState(String state) {
@@ -42,65 +41,66 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   bool validate() {
-    final form = formKey.currentState;
-    form.save();
-
-    if (EmailValidator.validate(_email) == null &&
-        PasswordValidator.validate(_password) == null) {
-      if (authFormType == AuthFormType.signUp) {
-        if (NameValidator.validate(_name) == null) {
-          error = false;
-          return true;
-        }
-        error = true;
+    if (authFormType == AuthFormType.signUp) {
+      if (NameValidator.validate(_name) != null) {
+        setState(() {
+          _error = NameValidator.validate(_name);
+        });
         return false;
       }
-      error = false;
-      return true;
     }
-    error = true;
-    return false;
+
+    if (EmailInputValidator.validate(_email) != null) {
+      setState(() {
+        _error = EmailInputValidator.validate(_email);
+      });
+      return false;
+    }
+
+    if (PasswordValidator.validate(_password) != null) {
+      setState(() {
+        _error = PasswordValidator.validate(_password);
+      });
+      return false;
+    }
+
+    return true;
   }
 
   void submit() async {
-    if (validate() && !error) {
+    if (validate()) {
       Navigator.of(context, rootNavigator: true).push(
         new CupertinoPageRoute(
           builder: (context) => LoadingScreen(),
         ),
       );
-
-      await Future.delayed(const Duration(milliseconds: 500), () {});
-
       try {
-        final auth = Provider
-            .of(context)
-            .auth;
+        final auth = Provider.of(context).auth;
         if (authFormType == AuthFormType.signIn) {
           await auth.signInWithEmailAndPassword(_email, _password);
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute(builder: (context) => HomeController()),
-                (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
           );
 
           Navigator.pushNamed(context, '/home');
         } else {
-          await auth.createUserWithEmailAndPassword(
-              _email, _password, _name);
+          await auth.createUserWithEmailAndPassword(_email, _password, _name);
           // Navigator.of(context).pushReplacementNamed('/home');
           Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute(builder: (context) => HomeController()),
-                (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
           );
         }
       } catch (e) {
         print("Form Submit Error (signUpPage.dart): $e");
+        setState(() {
+          _error = e.message;
+        });
       }
-    } else {
-
     }
   }
 
@@ -109,17 +109,19 @@ class _SignUpPageState extends State<SignUpPage> {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
 
-    return CupertinoPageScaffold(
-      child: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
-        child: Container(
+    return Scaffold(
+        body: SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
+      child: Container(
         color: primaryColor,
         height: _height,
         width: _width,
         child: SafeArea(
           child: Column(
             children: [
-              SizedBox(height: _height * 0.05),
+              SizedBox(height: _height * 0.025),
+              showAlert(),
+              SizedBox(height: _height * 0.025),
               buildHeaderText(),
               SizedBox(height: _height * 0.05),
               Padding(
@@ -134,7 +136,44 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       ),
-      ),
+    ));
+  }
+
+  Widget showAlert() {
+    if (_error != null) {
+      print("error opened: $_error");
+      return Container(
+            color: Colors.amberAccent,
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Icon(Icons.error_outline),
+                ),
+                Expanded(
+                  child: AutoSizeText(
+                    _error,
+                    maxLines: 3,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _error = null;
+                      });
+                    },
+                  ),
+                )
+              ],
+            ),
+          );
+    }
+    return SizedBox(
+      height: 0,
     );
   }
 
@@ -149,7 +188,11 @@ class _SignUpPageState extends State<SignUpPage> {
       _headerText,
       maxLines: 1,
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 35, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w200),
+      style: TextStyle(
+          fontSize: 35,
+          color: Colors.white,
+          fontFamily: 'Nunito',
+          fontWeight: FontWeight.w200),
     );
   }
 
@@ -159,12 +202,16 @@ class _SignUpPageState extends State<SignUpPage> {
     //if we're in the sign up state add name
     if (authFormType == AuthFormType.signUp) {
       textFields.add(CupertinoTextField(
-        style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+        style: TextStyle(
+            fontSize: 22,
+            color: Colors.black87,
+            fontFamily: 'Nunito',
+            fontWeight: FontWeight.w300),
         onChanged: (String value) => _name = value,
         placeholder: "Display Name (4-10 char)",
         placeholderStyle: TextStyle(color: hintColor),
         cursorColor: Colors.black87,
-        keyboardType: TextInputType.name,
+        keyboardType: TextInputType.text,
         decoration: BoxDecoration(
             color: textColor, borderRadius: BorderRadius.circular(9)),
       ));
@@ -173,7 +220,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
     // add email & password
     textFields.add(CupertinoTextField(
-      style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+      style: TextStyle(
+          fontSize: 22,
+          color: Colors.black87,
+          fontFamily: 'Nunito',
+          fontWeight: FontWeight.w300),
       onChanged: (String value) => _email = value,
       placeholder: "Email",
       placeholderStyle: TextStyle(color: hintColor),
@@ -184,7 +235,11 @@ class _SignUpPageState extends State<SignUpPage> {
     ));
     textFields.add(SizedBox(height: 20));
     textFields.add(CupertinoTextField(
-        style: TextStyle(fontSize: 22, color: Colors.black87, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+        style: TextStyle(
+            fontSize: 22,
+            color: Colors.black87,
+            fontFamily: 'Nunito',
+            fontWeight: FontWeight.w300),
         onChanged: (value) => _password = value,
         cursorColor: Colors.black87,
         placeholder: "Password",
@@ -219,7 +274,11 @@ class _SignUpPageState extends State<SignUpPage> {
           borderRadius: BorderRadius.all(Radius.circular(30)),
           child: Text(
             _submitButtonText,
-            style: TextStyle(fontSize: 28, color: primaryColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+            style: TextStyle(
+                fontSize: 28,
+                color: primaryColor,
+                fontFamily: 'Nunito',
+                fontWeight: FontWeight.w300),
           ),
           onPressed: submit,
         ),
@@ -228,7 +287,11 @@ class _SignUpPageState extends State<SignUpPage> {
       CupertinoButton(
         child: Text(
           _switchButton,
-          style: TextStyle(fontSize: 25, color: Colors.white, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+          style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontFamily: 'Nunito',
+              fontWeight: FontWeight.w300),
         ),
         onPressed: () {
           switchFormState(_newFormState);
@@ -258,7 +321,11 @@ class LoadingScreen extends StatelessWidget {
               ),
               Text(
                 "Loading",
-                style: TextStyle(fontSize: 20, color: textColor, fontFamily: 'Nunito', fontWeight: FontWeight.w300),
+                style: TextStyle(
+                    fontSize: 20,
+                    color: textColor,
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w300),
               )
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -55,19 +56,29 @@ class AuthService {
   }
 }
 
-class EmailValidator {
+class NameValidator {
   static String validate(String value) {
-    if (value?.isEmpty ?? true) {
-      return "Email can't be empty";
+    print("asdfasdfadsf  " + value);
+    if(value.isEmpty) {
+      return "Name can't be empty";
+    }
+    if(value.length < 2) {
+      return "Name must be at least 2 characters long";
+    }
+    if(value.length > 20) {
+      return "Name must be less than 20 characters long";
     }
     return null;
   }
 }
 
-class NameValidator {
+class EmailInputValidator {
   static String validate(String value) {
-    if (value?.isEmpty ?? true) {
-      return "Name can't be empty";
+    if(value.isEmpty) {
+      return "Email can't be empty";
+    }
+    if(!EmailValidator.validate(value)) {//RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+      return "Invalid email address";
     }
     return null;
   }
@@ -75,8 +86,11 @@ class NameValidator {
 
 class PasswordValidator {
   static String validate(String value) {
-    if (value?.isEmpty ?? true) {
+    if(value.isEmpty) {
       return "Password can't be empty";
+    }
+    if(value.length < 8) {
+      return "Password must be at least 8 characters long";
     }
     return null;
   }
