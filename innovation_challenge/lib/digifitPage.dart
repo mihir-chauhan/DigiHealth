@@ -11,6 +11,12 @@ import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitness/fitness.dart';
+
+enum PermissionStatus {
+  granted,
+  denied,
+}
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -26,19 +32,65 @@ class _DigiFitPageState extends State<DigiFitPage> {
   bool hasShownGraphs = false;
   List<double> percentageList = [];
   int highestSecondsForGraph = 0;
+  PermissionStatus _status = PermissionStatus.denied;
+  List<DataPoint> _dataPoints = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _hasPermission();
+  }
+
+  void _hasPermission() async {
+    final result = await Fitness.hasPermission();
+    print('[hasPermission]::$result');
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _status = result ? PermissionStatus.granted : PermissionStatus.denied;
+    });
+    if (_status != PermissionStatus.granted) {
+      return;
+    }
+  }
+
+  void _requestPermission() async {
+    final result = await Fitness.requestPermission();
+    print('[requestPermission]::$result');
+
+    _hasPermission();
+  }
+
+  void _read({
+    TimeRange timeRange,
+    int bucketByTime = 1,
+    TimeUnit timeUnit = TimeUnit.days,
+  }) async {
+    final results = await Fitness.read(
+      timeRange: timeRange,
+      bucketByTime: bucketByTime,
+      timeUnit: timeUnit,
+    );
+    print('[READ]::$results');
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _dataPoints = results;
+    });
+  }
 
   setupGraphs() async {
     caloriesBurnt.value.clear();
     timeExercised.value.clear();
     exercisePercentage.value.clear();
     final FirebaseUser user =
-    await Provider
-        .of(context)
-        .auth
-        .firebaseAuth
-        .currentUser();
+        await Provider.of(context).auth.firebaseAuth.currentUser();
 
-      Firestore.instance
+    Firestore.instance
         //setsup arraylist
         .collection('User Data')
         .document(user.email)
@@ -47,9 +99,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
         .getDocuments()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        caloriesBurnt.value.add(doc['Calories Burned']/1.0);
-        timeExercised.value.add(doc['Seconds of Exercise']/1.0);
-        if(doc['Seconds of Exercise'] > highestSecondsForGraph) {
+        caloriesBurnt.value.add(doc['Calories Burned'] / 1.0);
+        timeExercised.value.add(doc['Seconds of Exercise'] / 1.0);
+        if (doc['Seconds of Exercise'] > highestSecondsForGraph) {
           highestSecondsForGraph = doc['Seconds of Exercise'];
         }
         exercisePercentage.value.add(doc['Type of Exercise']);
@@ -68,17 +120,18 @@ class _DigiFitPageState extends State<DigiFitPage> {
       });
     }).then((value) {
       List<double> timeExerciseScaled = new List<double>();
-      for(int i = 0; i < timeExercised.value.length; i++) {
-        timeExerciseScaled.add(timeExercised.value.elementAt(i) / highestSecondsForGraph);
+      for (int i = 0; i < timeExercised.value.length; i++) {
+        timeExerciseScaled
+            .add(timeExercised.value.elementAt(i) / highestSecondsForGraph);
       }
       timeExercised.value = timeExerciseScaled;
 
       List<double> caloriesBurntScaled = new List<double>();
-      for(int i = 0; i < caloriesBurnt.value.length; i++) {
-        caloriesBurntScaled.add(caloriesBurnt.value.elementAt(i) / (highestSecondsForGraph*0.25));
+      for (int i = 0; i < caloriesBurnt.value.length; i++) {
+        caloriesBurntScaled.add(
+            caloriesBurnt.value.elementAt(i) / (highestSecondsForGraph * 0.25));
       }
       caloriesBurnt.value = caloriesBurntScaled;
-
 
       setState(() {
         features = [
@@ -246,8 +299,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
     });
   }
 
-
-
   Widget updateViewBasedOnTab(int i) {
     if (!hasShownGraphs) {
       hasShownGraphs = true;
@@ -313,11 +364,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 ),
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => SecondRoute(otherValue)),
-                );
+                _status == PermissionStatus.granted
+                    ? _read()
+                    : _requestPermission();
               },
             )
           ],
@@ -395,43 +444,49 @@ class _DigiFitPageState extends State<DigiFitPage> {
                               fontFamily: 'Nunito',
                               fontWeight: FontWeight.w400))),
                 ),
-                (percentageList.length == 0) ? Container(height: 320,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: AutoSizeText("No Data",
-                      maxLines: 1,
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400)),
-                ),) : Container(
-                  height: 320,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: PieChart(
-                      values: percentageList,
-                      labels: [
-                        "Indoor",
-                        "Outdoor",
-                        "High-Impact",
-                        "Low-Impact",
-                      ],
-                      labelColor: Colors.transparent,
-                      legendTextColor: Colors.white,
-                      textScaleFactor: 0.07,
-                      curve: Curves.easeInOutExpo,
-                      legendPosition: LegendPosition.Bottom,
-                      separateFocusedValue: true,
-                    ),
-                  ),
-                ),
+                (percentageList.length == 0)
+                    ? Container(
+                        height: 320,
+                        decoration: BoxDecoration(
+                            color: tertiaryColor,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: AutoSizeText("No Data",
+                              maxLines: 1,
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontWeight: FontWeight.w400)),
+                        ),
+                      )
+                    : Container(
+                        height: 320,
+                        decoration: BoxDecoration(
+                            color: tertiaryColor,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PieChart(
+                            values: percentageList,
+                            labels: [
+                              "Indoor",
+                              "Outdoor",
+                              "High-Impact",
+                              "Low-Impact",
+                            ],
+                            labelColor: Colors.transparent,
+                            legendTextColor: Colors.white,
+                            textScaleFactor: 0.07,
+                            curve: Curves.easeInOutExpo,
+                            legendPosition: LegendPosition.Bottom,
+                            separateFocusedValue: true,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),

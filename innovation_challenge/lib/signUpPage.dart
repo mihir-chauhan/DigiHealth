@@ -21,8 +21,10 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   AuthFormType authFormType;
-
   _SignUpPageState({this.authFormType});
+  var redrawObject;
+  var redrawSecondObject;
+  var redrawThirdObject;
 
   String _email = "", _password = "", _name = "", _error;
   final formKey = GlobalKey<FormState>();
@@ -152,34 +154,34 @@ class _SignUpPageState extends State<SignUpPage> {
     if (_error != null) {
       print("error opened: $_error");
       return Container(
-            color: Colors.amberAccent,
-            padding: EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Icon(Icons.error_outline),
-                ),
-                Expanded(
-                  child: AutoSizeText(
-                    _error,
-                    maxLines: 3,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _error = null;
-                      });
-                    },
-                  ),
-                )
-              ],
+        color: Colors.amberAccent,
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Icon(Icons.error_outline),
             ),
-          );
+            Expanded(
+              child: AutoSizeText(
+                _error,
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _error = null;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      );
     }
     return SizedBox(
       height: 0,
@@ -211,6 +213,7 @@ class _SignUpPageState extends State<SignUpPage> {
     //if we're in the sign up state add name
     if (authFormType == AuthFormType.signUp) {
       textFields.add(CupertinoTextField(
+        key: redrawObject,
         style: TextStyle(
             fontSize: 22,
             color: Colors.black87,
@@ -229,12 +232,15 @@ class _SignUpPageState extends State<SignUpPage> {
 
     // add email & password
     textFields.add(CupertinoTextField(
+      key: redrawSecondObject,
       style: TextStyle(
           fontSize: 22,
           color: Colors.black87,
           fontFamily: 'Nunito',
           fontWeight: FontWeight.w300),
-      onChanged: (String value) => _email = value,
+      onChanged: (String value) {
+        _email = value;
+      },
       placeholder: "Email",
       placeholderStyle: TextStyle(color: hintColor),
       cursorColor: Colors.black87,
@@ -244,12 +250,15 @@ class _SignUpPageState extends State<SignUpPage> {
     ));
     textFields.add(SizedBox(height: 20));
     textFields.add(CupertinoTextField(
+        key: redrawThirdObject,
         style: TextStyle(
             fontSize: 22,
             color: Colors.black87,
             fontFamily: 'Nunito',
             fontWeight: FontWeight.w300),
-        onChanged: (value) => _password = value,
+        onChanged: (value) {
+          _password = value;
+        },
         cursorColor: Colors.black87,
         placeholder: "Password",
         placeholderStyle: TextStyle(color: hintColor),
@@ -304,6 +313,9 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         onPressed: () {
           switchFormState(_newFormState);
+          redrawObject = UniqueKey();
+          redrawSecondObject = UniqueKey();
+          redrawThirdObject = UniqueKey();
         },
       )
     ];
