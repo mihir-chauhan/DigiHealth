@@ -51,6 +51,7 @@ dependencies:
   webview_flutter: ^0.3.0
   email_validator: ^1.0.6
   fitness: ^0.1.1
+  health: ^3.0.4
 
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
