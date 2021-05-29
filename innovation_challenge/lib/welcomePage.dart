@@ -30,17 +30,21 @@ class WelcomePage extends StatelessWidget {
                   'images/DigiHealthBanner.png',
                 ),
                 SizedBox(height: _height * 0.05),
-                TypewriterAnimatedTextKit(
-                  text: [
-                    "Health like never before",
+                AnimatedTextKit(
+                  animatedTexts: [
+                    TypewriterAnimatedText(
+                      "Health like never before",
+                      textStyle: TextStyle(
+                          fontSize: 30.0,
+                          fontFamily: "Barlow"
+                      ),
+                      textAlign: TextAlign.start,
+                      speed: Duration(milliseconds: 100),
+                    ),
                   ],
-                  textStyle: TextStyle(
-                      fontSize: 30.0,
-                      fontFamily: "Barlow"
-                  ),
-                  textAlign: TextAlign.start,
-                  speed: Duration(milliseconds: 100),
                   pause: Duration(milliseconds: 1000),
+                  displayFullTextOnTap: true,
+                  stopPauseOnTap: true,
                 ),
                 SizedBox(height: _height * 0.1),
                 CupertinoButton(

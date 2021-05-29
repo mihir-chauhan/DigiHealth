@@ -140,17 +140,16 @@ class _DigiDietPageState extends State<DigiDietPage> {
   List<double> fatList;
 
   void updateMealPlanBasedOnDiet() async {
-    final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
 
     final ref = firebaseRTDatabaseRef.reference();
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection('User Data')
-        .document(user.email)
+        .doc(user.email)
         .get()
         .then<dynamic>((DocumentSnapshot snapshot) {
       setState(() {
-        nameOfDiet = snapshot.data["Diet Plan"];
+        nameOfDiet = snapshot["Diet Plan"];
       });
 
       ref
@@ -220,18 +219,18 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
       });
     });
-    bmiList = new List<double>();
-    weightList = new List<double>();
-    lbmList = new List<double>();
-    fatList = new List<double>();
-    Firestore.instance
+    bmiList = <double>[];
+    weightList = <double>[];
+    lbmList = <double>[];
+    fatList = <double>[];
+    FirebaseFirestore.instance
         .collection('User Data')
-        .document(user.email)
+        .doc(user.email)
         .collection('Health Logs')
         .orderBy('Timestamp', descending: false)
-        .getDocuments()
+        .get()
         .then((QuerySnapshot querySnapshot) {
-      querySnapshot.documents.forEach((doc) {
+      querySnapshot.docs.forEach((doc) {
         bmiList.add(doc['Body Mass Index'] / 30);
         weightList.add(doc['Weight'] / 300);
         lbmList.add(doc['Lean Body Mass'] / 80);
@@ -890,13 +889,12 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   void writeDietDataToFirestoreLog(double lbm, double bmi,
       double fatConcentration, double weight, double height) async {
-    final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
-    final databaseReference = Firestore.instance;
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    final databaseReference = FirebaseFirestore.instance;
 
     await databaseReference
         .collection("User Data")
-        .document(user.email)
+        .doc(user.email)
         .collection("Health Logs")
         .add({
       "Lean Body Mass": lbm,

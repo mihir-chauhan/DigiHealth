@@ -59,19 +59,18 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   fitquestion3Selection != -1 &&
                   fitquestion4Selection != -1 &&
                   fitquestion5Selection != -1) {
-                final FirebaseUser user =
-                    await Provider.of(context).auth.firebaseAuth.currentUser();
-                final databaseReference = Firestore.instance;
+                final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+                final databaseReference = FirebaseFirestore.instance;
 
                 dietName = dietRecommendationFromAnswers();
                 await databaseReference
                     .collection("User Data")
-                    .document(user.email)
-                    .updateData({"Diet Plan": dietName});
+                    .doc(user.email)
+                    .update({"Diet Plan": dietName});
                 await databaseReference
                     .collection("User Data")
-                    .document(user.email)
-                    .updateData({
+                    .doc(user.email)
+                    .update({
                   "Diet Question 1": question1Selection,
                   "Diet Question 2": question2Selection,
                   "Diet Question 3": question3Selection,

@@ -107,14 +107,13 @@ class _HomePageState extends State<HomePage> {
   bool alreadyCalledOpenQuestionnaire = false;
   void openQuestionnaire() async {
     if(!alreadyCalledOpenQuestionnaire) {
-      final FirebaseUser user =
-      await Provider.of(context).auth.firebaseAuth.currentUser();
-      Firestore.instance
+      final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      FirebaseFirestore.instance
           .collection('User Data')
-          .document(user.email)
+          .doc(user.email)
           .get()
           .then<dynamic>((DocumentSnapshot snapshot) {
-        if (snapshot.data["Questionnaire"] == false) {
+        if (snapshot["Questionnaire"] == false) {
           launchQuestionnaire();
         }
       });

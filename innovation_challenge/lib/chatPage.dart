@@ -18,7 +18,7 @@ class _ChatPageState extends State<ChatPage> {
 
   final TextEditingController _controller = new TextEditingController();
   String messageToSend = "";
-  final List<MessageWidget> _messageList = [];
+  final List<Message> _messageList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -92,34 +92,29 @@ class _ChatPageState extends State<ChatPage> {
             )),
         child: Scaffold(
           backgroundColor: primaryColor,
-          resizeToAvoidBottomPadding: false,
+          resizeToAvoidBottomInset: false,
           body: SafeArea(child: generateChatListView()),
         ));
   }
 
   populateChatListView(String chatRoom) async {
-    final FirebaseUser user =
-    await Provider
-        .of(context)
-        .auth
-        .firebaseAuth
-        .currentUser();
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
 
     String message;
 
-    final databaseReference = Firestore.instance;
+    final databaseReference = FirebaseFirestore.instance;
     await databaseReference
         .collection("Chat")
-        .document("Chat Rooms")
+        .doc("Chat Rooms")
         .collection(chatRoom)
         .orderBy('created', descending: false)
         .snapshots()
         .listen((data) {
       _messageList.clear();
-      for (int i = 0; i < data.documents.length; i++) {
-        data.documents
+      for (int i = 0; i < data.docs.length; i++) {
+        data.docs
             .elementAt(i)
-            .data
+            .data()
             .forEach((key, value) {
           if (key.toString().contains("message")) {
             message = value.toString();
@@ -140,17 +135,16 @@ class _ChatPageState extends State<ChatPage> {
 
   sendChatMessage(String message, String chatRoom) async {
     messageToSend = "";
-    final FirebaseUser user =
-    await Provider.of(context).auth.firebaseAuth.currentUser();
-    final databaseReference = Firestore.instance;
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    final databaseReference = FirebaseFirestore.instance;
     if (message.endsWith("!#clear#!")) {
       databaseReference
           .collection("Chat")
-          .document("Chat Rooms")
+          .doc("Chat Rooms")
           .collection(chatRoom)
-          .getDocuments()
+          .get()
           .then((snapshot) {
-        for (DocumentSnapshot ds in snapshot.documents) {
+        for (DocumentSnapshot ds in snapshot.docs) {
           ds.reference.delete();
         }
       });
@@ -170,7 +164,7 @@ class _ChatPageState extends State<ChatPage> {
 
     await databaseReference
         .collection("Chat")
-        .document("Chat Rooms")
+        .doc("Chat Rooms")
         .collection(chatRoom)
         .add({
       "message": message,
@@ -250,9 +244,9 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  MessageWidget createMessageWidget(
+  Message createMessageWidget(
       String text, OwnerType ownerType, String ownerName) {
-    return MessageWidget(
+    return Message(
         content: text,
         fontSize: 18.0,
         fontFamily: 'Nunito',

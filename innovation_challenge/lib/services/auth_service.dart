@@ -7,8 +7,8 @@ class AuthService {
 
   bool madeNewAccount = false;
 
-  Stream<String> get onAuthStateChanged => firebaseAuth.onAuthStateChanged.map(
-        (FirebaseUser user) => user?.uid,
+  Stream<String> get onAuthStateChanged => firebaseAuth.authStateChanges().map(
+        (User user) => user?.uid,
   );
 
   // Email & Password Sign Up
@@ -20,25 +20,23 @@ class AuthService {
     );
 
     // Update the username
-    var userUpdateInfo = UserUpdateInfo();
-    userUpdateInfo.displayName = name;
-    await currentUser.updateProfile(userUpdateInfo);
-    await currentUser.reload();
+    await currentUser.user.updateProfile(displayName: name);
+    await currentUser.user.reload();
 
-    final databaseReference = Firestore.instance;
+    final databaseReference = FirebaseFirestore.instance;
     await databaseReference
         .collection("User Data")
-        .document(email).setData({
+        .doc(email).set({
       "Name": name,
       "Diet Plan": "Not Set",
       "Points": 0,
       "Questionnaire": false,
     });
     
-    databaseReference.collection("User Data").document(email).collection("Exercise Logs");
+    databaseReference.collection("User Data").doc(email).collection("Exercise Logs");
 
     madeNewAccount = true;
-    return currentUser.uid;
+    return currentUser.user.uid;
   }
 
   // Email & Password Sign In
@@ -46,8 +44,7 @@ class AuthService {
       String email, String password) async {
     madeNewAccount = false;
     return (await firebaseAuth.signInWithEmailAndPassword(
-        email: email, password: password))
-        .uid;
+        email: email, password: password)).user.uid;
   }
 
   // Sign Out

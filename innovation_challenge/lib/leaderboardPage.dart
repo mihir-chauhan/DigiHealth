@@ -18,15 +18,15 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   int i = 50;
 
   setupLeaderboardRankings() async {
-    leaderboardName = ValueNotifier<List<String>>(new List<String>());
-    leaderboardPoints = ValueNotifier<List<int>>(new List<int>());
-    Firestore.instance
+    leaderboardName = ValueNotifier<List<String>>(<String>[]);
+    leaderboardPoints = ValueNotifier<List<int>>(<int>[]);
+    FirebaseFirestore.instance
         //setsup arraylist
         .collection('User Data')
         .orderBy('Points', descending: true)
-        .getDocuments()
+        .get()
         .then((QuerySnapshot querySnapshot) {
-      querySnapshot.documents.forEach((doc) {
+      querySnapshot.docs.forEach((doc) {
         leaderboardName.value.add(doc['Name']);
         leaderboardPoints.value.add(doc['Points']);
         leaderboardName.notifyListeners();

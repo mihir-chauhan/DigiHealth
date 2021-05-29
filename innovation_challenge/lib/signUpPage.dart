@@ -12,7 +12,7 @@ enum AuthFormType { signIn, signUp }
 class SignUpPage extends StatefulWidget {
   final AuthFormType authFormType;
 
-  SignUpPage({Key key, @required this.authFormType}) : super(key: key);
+  SignUpPage({Key key, this.authFormType}) : super(key: key);
 
   @override
   _SignUpPageState createState() =>

@@ -21,9 +21,9 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  var caloriesBurnt = ValueNotifier<List<double>>(new List<double>());
-  var timeExercised = ValueNotifier<List<double>>(new List<double>());
-  var exercisePercentage = ValueNotifier<List<String>>(new List<String>());
+  var caloriesBurnt = ValueNotifier<List<double>>(<double>[]);
+  var timeExercised = ValueNotifier<List<double>>(<double>[]);
+  var exercisePercentage = ValueNotifier<List<String>>(<String>[]);
   bool hasShownGraphs = false;
   List<double> percentageList = [];
   int highestSecondsForGraph = 0;
@@ -60,18 +60,17 @@ class _DigiFitPageState extends State<DigiFitPage> {
     caloriesBurnt.value.clear();
     timeExercised.value.clear();
     exercisePercentage.value.clear();
-    final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
 
-    Firestore.instance
+    FirebaseFirestore.instance
         //setsup arraylist
         .collection('User Data')
-        .document(user.email)
+        .doc(user.email)
         .collection('Exercise Logs')
         .orderBy('Timestamp', descending: false)
-        .getDocuments()
+        .get()
         .then((QuerySnapshot querySnapshot) {
-      querySnapshot.documents.forEach((doc) {
+      querySnapshot.docs.forEach((doc) {
         caloriesBurnt.value.add(doc['Calories Burned'] / 1.0);
         timeExercised.value.add(doc['Seconds of Exercise'] / 1.0);
         if (doc['Seconds of Exercise'] > highestSecondsForGraph) {
@@ -92,14 +91,14 @@ class _DigiFitPageState extends State<DigiFitPage> {
         ];
       });
     }).then((value) {
-      List<double> timeExerciseScaled = new List<double>();
+      List<double> timeExerciseScaled = <double>[];
       for (int i = 0; i < timeExercised.value.length; i++) {
         timeExerciseScaled
             .add(timeExercised.value.elementAt(i) / highestSecondsForGraph);
       }
       timeExercised.value = timeExerciseScaled;
 
-      List<double> caloriesBurntScaled = new List<double>();
+      List<double> caloriesBurntScaled = <double>[];
       for (int i = 0; i < caloriesBurnt.value.length; i++) {
         caloriesBurntScaled.add(
             caloriesBurnt.value.elementAt(i) / (highestSecondsForGraph * 0.25));

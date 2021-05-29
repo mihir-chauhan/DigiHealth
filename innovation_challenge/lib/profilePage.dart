@@ -96,8 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void setEmailNameText() async {
-    final FirebaseUser user =
-        await Provider.of(context).auth.firebaseAuth.currentUser();
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     setState(() {
       username = user.displayName;
       email = user.email;
