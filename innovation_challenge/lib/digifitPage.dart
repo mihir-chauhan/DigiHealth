@@ -13,11 +13,6 @@ import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitness/fitness.dart';
 
-enum PermissionStatus {
-  granted,
-  denied,
-}
-
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
 
@@ -32,8 +27,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
   bool hasShownGraphs = false;
   List<double> percentageList = [];
   int highestSecondsForGraph = 0;
-  PermissionStatus _status = PermissionStatus.denied;
-  List<DataPoint> _dataPoints = [];
 
   @override
   void initState() {
@@ -44,43 +37,23 @@ class _DigiFitPageState extends State<DigiFitPage> {
   void _hasPermission() async {
     final result = await Fitness.hasPermission();
     print('[hasPermission]::$result');
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _status = result ? PermissionStatus.granted : PermissionStatus.denied;
-    });
-    if (_status != PermissionStatus.granted) {
-      return;
-    }
   }
 
   void _requestPermission() async {
     final result = await Fitness.requestPermission();
     print('[requestPermission]::$result');
-
-    _hasPermission();
   }
-
-  void _read({
-    TimeRange timeRange,
-    int bucketByTime = 1,
-    TimeUnit timeUnit = TimeUnit.days,
-  }) async {
-    final results = await Fitness.read(
-      timeRange: timeRange,
-      bucketByTime: bucketByTime,
-      timeUnit: timeUnit,
+  void _read() {
+    final now = DateTime.now();
+    final results = Fitness.read(
+      timeRange: TimeRange(
+        start: now.subtract(const Duration(days: 7)),
+        end: now,
+      ),
+      bucketByTime: 1,
+      timeUnit: TimeUnit.days,
     );
     print('[READ]::$results');
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _dataPoints = results;
-    });
   }
 
   setupGraphs() async {
@@ -364,9 +337,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 ),
               ),
               onPressed: () {
-                _status == PermissionStatus.granted
-                    ? _read()
-                    : _requestPermission();
+                 _requestPermission();
               },
             )
           ],
