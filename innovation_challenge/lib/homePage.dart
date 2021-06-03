@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
         openedQuestionnaire = true;
       }
     }
+    WidgetsFlutterBinding.ensureInitialized();
     launchQuestionnaire();
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -108,10 +109,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             DropdownAlert(
-              warningBackground: poorColor,
+              warningBackground: tertiaryColor,
               errorBackground: badColor,
+              warningImage: "images/challenge.png",
               duration: 300,
-              delayDismiss: 5000,
+              delayDismiss: 0,
               titleStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
               contentStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
             )
@@ -137,8 +139,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 1000), () {
-      AlertController.show("Good Work!", "You have reached your daily step goal!", TypeAlert.success);
+    await Future.delayed(Duration(milliseconds: 3000), () {
+      AlertController.show("New Challenges Await!", "You have new challenges under DigiFit!", TypeAlert.warning);
 
       // Navigator.push(
       //     context,
