@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "343036519175-urvvo2jrfgd5119o70l8e1341kjr3p4g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.innovation_challenge",
+            "certificate_hash": "9ed3fd79d05a7683bce3822f09e117b37d96fa5d"
+          }
+        },
+        {
           "client_id": "343036519175-f9ue9uck8ebbd7r2cmmv40if4pfo03kg.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -30,6 +38,13 @@
             {
               "client_id": "343036519175-f9ue9uck8ebbd7r2cmmv40if4pfo03kg.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "343036519175-1jmrhfi00fcmsgqgkhdv0mfm14vang2a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ipaycheck.innovationChallenge"
+              }
             }
           ]
         }

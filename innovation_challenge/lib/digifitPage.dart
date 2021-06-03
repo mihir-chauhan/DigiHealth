@@ -11,7 +11,7 @@ import 'package:category_picker/category_picker.dart';
 import 'package:category_picker/category_picker_item.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fitness/fitness.dart';
+import 'package:health_kit/health_kit.dart';
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -27,33 +27,69 @@ class _DigiFitPageState extends State<DigiFitPage> {
   bool hasShownGraphs = false;
   List<double> percentageList = [];
   int highestSecondsForGraph = 0;
+  var total = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _hasPermission();
   }
 
-  void _hasPermission() async {
-    final result = await Fitness.hasPermission();
-    print('[hasPermission]::$result');
+  Future<bool> readPermissionsForHealthKit() async {
+    try {
+      final responses = await HealthKit.hasPermissions([DataType.STEP_COUNT]);
+
+      if (!responses) {
+        final value = await HealthKit.requestPermissions([DataType.STEP_COUNT]);
+
+        return value;
+      } else {
+        return true;
+      }
+    } on UnsupportedException catch (e) {
+      // thrown in case e.dataType is unsupported
+      print("Error:::::::::::::::::: $e");
+      return false;
+    }
   }
 
-  void _requestPermission() async {
-    final result = await Fitness.requestPermission();
-    print('[requestPermission]::$result');
-  }
-  void _read() {
-    final now = DateTime.now();
-    final results = Fitness.read(
-      timeRange: TimeRange(
-        start: now.subtract(const Duration(days: 7)),
-        end: now,
-      ),
-      bucketByTime: 1,
-      timeUnit: TimeUnit.days,
-    );
-    print('[READ]::$results');
+  void getYesterdayStep() async {
+    var permissionsGiven = await readPermissionsForHealthKit();
+
+    print("Permission Status: $permissionsGiven");
+    if (true) {
+      var current = DateTime.now();
+
+      var dateFrom = DateTime.now().subtract(Duration(
+        hours: current.hour + 24,
+        minutes: current.minute,
+        seconds: current.second,
+      ));
+      var dateTo = dateFrom.add(Duration(
+        hours: 23,
+        minutes: 59,
+        seconds: 59,
+      ));
+
+      print('dateFrom: $dateFrom');
+      print('dateTo: $dateTo');
+
+      try {
+        var results = await HealthKit.read(
+          DataType.STEP_COUNT,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+        );
+        if (results != null) {
+          for (var result in results) {
+            total += result.value;
+          }
+        }
+        setState(() {});
+        print('value: $total');
+      } on Exception catch (ex) {
+        print('Exception in getYesterdayStep: $ex');
+      }
+    }
   }
 
   setupGraphs() async {
@@ -336,7 +372,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 ),
               ),
               onPressed: () {
-                 _requestPermission();
+                getYesterdayStep();
               },
             )
           ],
