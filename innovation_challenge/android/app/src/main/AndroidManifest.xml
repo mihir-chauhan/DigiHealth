@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="innovation_challenge"
+        android:label="DigiHealth"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

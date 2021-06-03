@@ -48,6 +48,15 @@ dependencies:
   webview_flutter: ^2.0.8
   email_validator: ^2.0.1
   health_kit: ^0.0.3
+  conditional_questions: ^2.0.0
+  flutter_dropdown_alert: ^1.0.2
+  intro_slider: ^2.4.3
+  horizontal_card_pager: ^1.1.1
+  percent_indicator: ^3.0.1
+  keyboard_actions: ^3.4.0
+  showcaseview: ^0.1.6
+  line_icons: ^2.0.0
+  heatmap_calendar: ^1.2.8
 
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"

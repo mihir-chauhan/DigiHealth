@@ -42,9 +42,8 @@ class WelcomePage extends StatelessWidget {
                       speed: Duration(milliseconds: 100),
                     ),
                   ],
+                  repeatForever: true,
                   pause: Duration(milliseconds: 1000),
-                  displayFullTextOnTap: true,
-                  stopPauseOnTap: true,
                 ),
                 SizedBox(height: _height * 0.1),
                 CupertinoButton(

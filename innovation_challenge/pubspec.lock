@@ -113,6 +113,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  conditional_questions:
+    dependency: "direct main"
+    description:
+      name: conditional_questions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   crypto:
     dependency: transitive
     description:
@@ -265,6 +272,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_dropdown_alert:
+    dependency: "direct main"
+    description:
+      name: flutter_dropdown_alert
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -310,6 +324,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.3"
+  heatmap_calendar:
+    dependency: "direct main"
+    description:
+      name: heatmap_calendar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.8"
+  horizontal_card_pager:
+    dependency: "direct main"
+    description:
+      name: horizontal_card_pager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   http:
     dependency: transitive
     description:
@@ -338,6 +366,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.17.0"
+  intro_slider:
+    dependency: "direct main"
+    description:
+      name: intro_slider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.4.3"
   js:
     dependency: transitive
     description:
@@ -345,6 +380,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3"
+  keyboard_actions:
+    dependency: "direct main"
+    description:
+      name: keyboard_actions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.4.0"
+  line_icons:
+    dependency: "direct main"
+    description:
+      name: line_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   lists:
     dependency: "direct main"
     description:
@@ -394,6 +443,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.11.0"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
   petitparser:
     dependency: transitive
     description:
@@ -422,6 +478,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
+  showcaseview:
+    dependency: "direct main"
+    description:
+      name: showcaseview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.6"
   sky_engine:
     dependency: transitive
     description: flutter

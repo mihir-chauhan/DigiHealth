@@ -3,6 +3,9 @@ import 'package:DigiHealth/questionnairePage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dropdown_alert/alert_controller.dart';
+import 'package:flutter_dropdown_alert/dropdown_alert.dart';
+import 'package:flutter_dropdown_alert/model/data_alert.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:vertical_card_pager/vertical_card_pager.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -48,7 +51,7 @@ class _HomePageState extends State<HomePage> {
         openedQuestionnaire = true;
       }
     }
-
+    launchQuestionnaire();
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
@@ -65,42 +68,54 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        child: Scaffold(
-          backgroundColor: primaryColor,
-          body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    child: VerticalCardPager(
-                      titles: titles,
-                      // required
-                      images: images,
-                      // required
-                      textStyle: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Nunito'),
-                      // optional
-                      onPageChanged: (page) {
-                        // optional
-                      },
-                      onSelectedItem: (index) {
-                        if (index == 0) {
-                          Navigator.pushNamed(context, '/digifit');
-                        } else {
-                          Navigator.pushNamed(context, '/digidiet');
-                        }
-                      },
-                      initialPage: 0,
-                      // optional
-                      align: ALIGN.CENTER, // optional
+        child: Stack(
+          children: [
+            Scaffold(
+              backgroundColor: primaryColor,
+              body: SafeArea(
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        child: VerticalCardPager(
+                          titles: titles,
+                          // required
+                          images: images,
+                          // required
+                          textStyle: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'Nunito'),
+                          // optional
+                          onPageChanged: (page) {
+                            // optional
+                          },
+                          onSelectedItem: (index) {
+                            if (index == 0) {
+                              Navigator.pushNamed(context, '/digifit');
+                            } else {
+                              Navigator.pushNamed(context, '/digidiet');
+                            }
+                          },
+                          initialPage: 0,
+                          // optional
+                          align: ALIGN.CENTER, // optional
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            DropdownAlert(
+              warningBackground: poorColor,
+              errorBackground: badColor,
+              duration: 300,
+              delayDismiss: 5000,
+              titleStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
+              contentStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
+            )
+          ],
         ));
   }
 
@@ -123,10 +138,12 @@ class _HomePageState extends State<HomePage> {
 
   void launchQuestionnaire() async {
     await Future.delayed(Duration(milliseconds: 1000), () {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (context) => QuestionnairePage()));
+      AlertController.show("Good Work!", "You have reached your daily step goal!", TypeAlert.success);
+
+      // Navigator.push(
+      //     context,
+      //     CupertinoPageRoute(
+      //         builder: (context) => QuestionnairePage()));
     });
   }
 

@@ -7,11 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:draw_graph/models/feature.dart';
-import 'package:category_picker/category_picker.dart';
-import 'package:category_picker/category_picker_item.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_kit/health_kit.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:heatmap_calendar/heatmap_calendar.dart';
+import 'package:heatmap_calendar/time_utils.dart';
+import 'package:horizontal_card_pager/card_item.dart';
+import 'package:horizontal_card_pager/horizontal_card_pager.dart';
+import 'package:line_icons/line_icons.dart';
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -210,81 +214,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
     ),
   ];
 
-  List<String> indoor = [
-    'Push-Ups',
-    'Plank',
-    'Curl-Ups',
-    'Sit-Ups',
-    'Jumping Jacks',
-    'Treadmill',
-    'Crunches',
-    'Squats',
-    'Pull-Ups',
-    'Weight-Lifting',
-    'Lunges',
-    'Yoga',
-    'Mountain Climbers',
-    'Jog in Place',
-    'Bicycle',
-    'Scissor Kick',
-  ];
-  List<String> outdoor = [
-    'Walking',
-    'Hiking',
-    'Swimming',
-    'Running',
-    'Badminton',
-    'Tennis',
-    'Baseball',
-    'Handball',
-    'Biking',
-    'Basketball',
-    'Ice skating',
-    'Roller Skating',
-    'Volleyball',
-    'Horse Riding',
-    'Soccer',
-    'Golf',
-    'Frisbee',
-    'Football',
-    'Hockey',
-    'Bowling',
-    'Dancing',
-  ];
-  List<String> highImpact = [
-    'Hiking',
-    'Volleyball',
-    'Squats',
-    'Running',
-    'Bicycle Crunch',
-    'Aerobics',
-    'HIIT Workout',
-    'Racquetball',
-    'Long Jumps',
-    'Tennis',
-    'Tricep Dips',
-    'Jump Rope',
-    'Gymnastics',
-    'Burpees',
-    'Soccer',
-  ];
-  List<String> lowImpact = [
-    'Swimming',
-    'Lunges',
-    'Elliptical',
-    'Foam Roaller Stretching',
-    'Upper Body Stretches',
-    'Breathing Exercises',
-    'Pilates',
-    'Curl-Ups',
-    'Walking',
-    'Squats',
-    'Sitting Stretches',
-    'Jog in Place',
-    'Golf',
-    'Rowing',
-    'Total Resistance Xercise'
-  ];
   String otherValue = 'Indoor';
   int listNumForIndoor = new Random().nextInt(15);
   int listNumForOutdoor = new Random().nextInt(15);
@@ -313,71 +242,97 @@ class _DigiFitPageState extends State<DigiFitPage> {
       setupGraphs();
     }
     if (i == 0) {
-      return CupertinoPageScaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: primaryColor,
-        child: Column(
-          children: [
-            CategoryPicker(
-              items: [
-                CategoryPickerItem(value: 'Indoor'),
-                CategoryPickerItem(value: 'Outdoor'),
-                CategoryPickerItem(value: 'High-Impact'),
-                CategoryPickerItem(value: 'Low-Impact'),
+      return Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: primaryColor,
+          body: Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                HorizontalCardPager(
+                  onSelectedItem: (page) {
+                    print("selected : $page");
+                    if(page == 0) {
+                      getYesterdayStep();
+                    }
+                  },
+                  initialPage: 1,
+                  items: [
+                    IconTitleCardItem(
+                      text: "Heart",
+                      iconData: Icon(LineIcons.heartbeat).icon,
+                    ),
+                    IconTitleCardItem(
+                      text: "Steps",
+                      iconData: Icon(LineIcons.shoePrints).icon,
+                    ),
+                    IconTitleCardItem(
+                      text: "Calories",
+                      iconData: Icon(LineIcons.fire).icon,
+                    )
+                  ],
+                ),
+
+                SizedBox(height: _height * 0.05),
+                HeatMapCalendar(
+                  input: {
+                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 3))): 5,
+                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 2))): 35,
+                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 1))): 14,
+                    TimeUtils.removeTime(DateTime.now()): 5,
+                  },
+                  colorThresholds: {
+                    1: Colors.green[100],
+                    10: Colors.green[300],
+                    30: Colors.green[500]
+                  },
+
+                  weekDaysLabels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+                  monthsLabels: [
+                    "",
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                  ],
+                  squareSize: 16.0,
+                  textOpacity: 0.7,
+                  labelTextColor: Colors.white,
+                  dayTextColor: Colors.white,
+                ),
+                SizedBox(height: _height * 0.05),
+                CircularPercentIndicator(
+                  radius: 120.0,
+                  lineWidth: 13.0,
+                  animation: true,
+                  percent: 0.7,
+                  header: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                      "Today's Step Count",
+                      style: TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 20),
+                    ),
+                  ),
+                  center: Text(
+                    "500",
+                    style: TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 25),
+                  ),
+                  circularStrokeCap: CircularStrokeCap.round,
+                  progressColor: goodColor,
+                  backgroundColor: tertiaryColor,
+                ),
+
               ],
-              onValueChanged: (value) {
-                setState(() {
-                  otherValue = value.value;
-                });
-              },
-              backgroundColor: primaryColor,
-              selectedItemColor: tertiaryColor,
-              unselectedItemBorderColor: Colors.black,
-              selectedItemTextDarkThemeColor: Colors.white,
-              selectedItemTextLightThemeColor: Colors.white,
-              unselectedItemTextDarkThemeColor: Colors.black,
-              unselectedItemTextLightThemeColor: Colors.black,
             ),
-            SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: AutoSizeText(
-                otherValue == 'Indoor'
-                    ? indoor[listNumForIndoor]
-                    : otherValue == 'Outdoor'
-                        ? outdoor[listNumForOutdoor]
-                        : otherValue == 'High-Impact'
-                            ? highImpact[listNumForHighImpact]
-                            : lowImpact[listNumForLowImpact],
-                maxLines: 1,
-                style: TextStyle(
-                    color: Colors.white, fontFamily: 'Nunito', fontSize: 60),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            CupertinoButton(
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.width * 0.5,
-                decoration: new BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  color: Colors.green,
-                  size: MediaQuery.of(context).size.width * 0.5,
-                ),
-              ),
-              onPressed: () {
-                getYesterdayStep();
-              },
-            )
-          ],
-        ),
-      );
+          ));
     } else {
       return new Scaffold(
         backgroundColor: primaryColor,
@@ -535,47 +490,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   size: 30,
                 ),
               ),
-              trailing: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (otherValue == 'Indoor') {
-                      listNumForIndoor++;
-                    } else if (otherValue == 'Outdoor') {
-                      listNumForOutdoor++;
-                    } else if (otherValue == 'High-Impact') {
-                      listNumForHighImpact++;
-                    } else if (otherValue == 'Low-Impact') {
-                      listNumForLowImpact++;
-                    }
-
-                    if (listNumForIndoor == indoor.length) {
-                      listNumForIndoor = 0;
-                    } else if (listNumForOutdoor == outdoor.length) {
-                      listNumForOutdoor = 0;
-                    } else if (listNumForHighImpact == highImpact.length) {
-                      listNumForHighImpact = 0;
-                    } else if (listNumForLowImpact == lowImpact.length) {
-                      listNumForLowImpact = 0;
-                    }
-                  });
-                },
-                child: Icon(
-                  Icons.refresh,
-                  color: CupertinoColors.white,
-                  size: 30,
-                ),
-              ),
             ),
             child: updateViewBasedOnTab(i),
           );
         });
   }
-
-  List<Color> activityColor = [
-    //outdoor is orange, indoor is blue
-    outdoorExerciseColor,
-    tertiaryColor,
-    outdoorExerciseColor,
-    tertiaryColor
-  ];
 }
