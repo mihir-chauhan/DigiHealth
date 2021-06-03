@@ -139,14 +139,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 3000), () {
+    // await Future.delayed(Duration(milliseconds: 3000), () {
       AlertController.show("New Challenges Await!", "You have new challenges under DigiFit!", TypeAlert.warning);
 
       // Navigator.push(
       //     context,
       //     CupertinoPageRoute(
       //         builder: (context) => QuestionnairePage()));
-    });
+    // });
   }
 
   bool hasShownDialog = false;
