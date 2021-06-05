@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +29,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
   String mealPlannerDay = "Today";
   int dayofweek = 0;
   String nameOfDiet = "Loading";
+  DateTime timeOfCreation;
+  int differenceInIndex;
   List<String> breakfastList = [
     "Loading",
     "Loading",
@@ -93,6 +96,66 @@ class _DigiDietPageState extends State<DigiDietPage> {
     "Loading",
     "Loading",
   ];
+  final FocusNode _nodeText1 = FocusNode();
+  final FocusNode _nodeText2 = FocusNode();
+
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
+      keyboardBarColor: Colors.grey[200],
+      nextFocus: false,
+      actions: [
+        KeyboardActionsItem(
+          focusNode: _nodeText1,
+          toolbarButtons: [
+            (node) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: () => node.unfocus(),
+                  child: Container(
+                    color: primaryColor,
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Done",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+          ],
+        ),
+        KeyboardActionsItem(
+          focusNode: _nodeText2,
+          toolbarButtons: [
+            (node) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: () => node.unfocus(),
+                  child: Container(
+                    color: primaryColor,
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Done",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+          ],
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +213,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
         .then<dynamic>((DocumentSnapshot snapshot) {
       setState(() {
         nameOfDiet = snapshot["Diet Plan"];
+        timeOfCreation = user.metadata.creationTime;
+        print(timeOfCreation.toString());
       });
 
       ref
@@ -159,6 +224,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
           .once()
           .then((snapshot) {
         setState(() {
+          differenceInIndex =
+              DateTime.now().difference(timeOfCreation).inDays % 30;
           breakfastList = List<String>.from(snapshot.value as List<dynamic>);
         });
       });
@@ -377,12 +444,13 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
                       if (now.day == date.day) {
                         mealPlannerDay = "Today";
-                        dayofweek = 0;
+                        dayofweek = differenceInIndex % 30;
                       } else if (now.day + 1 == date.day) {
                         mealPlannerDay = "Tomorrow";
-                        dayofweek = 1;
+                        dayofweek = (differenceInIndex + 1) % 30;
                       } else if (now.day < date.day) {
-                        dayofweek = date.day - now.day;
+                        dayofweek =
+                            (differenceInIndex + (date.day - now.day)) % 30;
                         mealPlannerDay = nameOfDayFromWeekday(date.weekday) +
                             ", " +
                             nameOfMonthFromMonthNumber(date.month) +
@@ -567,312 +635,321 @@ class _DigiDietPageState extends State<DigiDietPage> {
     } else {
       return new Scaffold(
         backgroundColor: primaryColor,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Container(
-                  width: _width,
-                  height: _height * 0.0025,
-                  color: secondaryColor,
-                ),
-                Center(
-                    child: Text("Input Your Metrics",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w200))),
-                Container(
-                  width: _width,
-                  height: _height * 0.0025,
-                  color: secondaryColor,
-                ),
-                Container(height: _height * 0.01),
-                CupertinoTextField(
-                  controller: weightController,
-                  style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.black87,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w300),
-                  onChanged: (String value) => weight = double.parse(value),
-                  placeholder: "Weight (pounds)",
-                  placeholderStyle: TextStyle(color: hintColor),
-                  cursorColor: Colors.black87,
-                  keyboardType: TextInputType.number,
-                  decoration: BoxDecoration(
-                      color: textColor, borderRadius: BorderRadius.circular(9)),
-                ),
-                Container(height: _height * 0.01),
-                CupertinoTextField(
-                  controller: heightController,
-                  style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.black87,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w300),
-                  onChanged: (String value) => height = double.parse(value),
-                  placeholder: "Height (inches)",
-                  placeholderStyle: TextStyle(color: hintColor),
-                  cursorColor: Colors.black87,
-                  keyboardType: TextInputType.number,
-                  decoration: BoxDecoration(
-                      color: textColor, borderRadius: BorderRadius.circular(9)),
-                ),
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Wrap(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: CupertinoButton(
-                          padding: EdgeInsets.only(
-                              left: 20.0, right: 20.0, top: 8.0, bottom: 8.0),
-                          color: Colors.orange,
-                          child: Text('Enter',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Nunito',
-                                  fontSize: 17.0,
-                                  fontWeight: FontWeight.bold)),
-                          onPressed: () async {
-                            setState(() {
-                              lbm = ((((0.407 * (weight * 0.4536)) +
-                                              (0.267 * (height * 2.54)) -
-                                              19.2) *
-                                          100)
-                                      .round()) /
-                                  100;
-                              bmi = ((weight / (height * height) * 703 * 100)
-                                      .round()) /
-                                  100;
-                              weightList.add(weight / 300);
-                              bmiList.add(bmi / 30);
-                              bmiHeightfeatures = [
-                                Feature(
-                                  title: "BMI",
-                                  color: Colors.red,
-                                  data: bmiList,
-                                ),
-                                Feature(
-                                  title: "Weight",
-                                  color: Colors.blue,
-                                  data: weightList,
-                                ),
-                              ];
-
-                              fatConcentration = 100 -
-                                  ((((weight - lbm) / weight) * 1000).round()) /
-                                      10;
-
-                              lbmList.add(lbm / 80);
-                              fatList.add(fatConcentration / 100);
-                              lbmFatFeatures = [
-                                Feature(
-                                  title: "Lean Body Mass",
-                                  color: Colors.red,
-                                  data: lbmList,
-                                ),
-                                Feature(
-                                  title: "Fat Percentage",
-                                  color: Colors.blue,
-                                  data: fatList,
-                                ),
-                              ];
-                              heightController.clear();
-                              weightController.clear();
-
-                              writeDietDataToFirestoreLog(
-                                  lbm, bmi, fatConcentration, weight, height);
-                            });
-
-                            showCupertinoDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    CupertinoAlertDialog(
-                                      title: new Text("Your Calculated Metric"),
-                                      content: new Text(
-                                          "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Percentage $fatConcentration%"),
-                                      actions: <Widget>[
-                                        CupertinoDialogAction(
-                                          isDefaultAction: true,
-                                          child: Text("Okay"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        )
-                                      ],
-                                    ));
-                          }),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: _height * 0.01,
-                ),
-                Container(
-                  width: _width,
-                  height: _height * 0.0025,
-                  color: secondaryColor,
-                ),
-                Center(
-                    child: Text("Your Diet Stats",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w200))),
-                Container(
-                  width: _width,
-                  height: _height * 0.0025,
-                  color: secondaryColor,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Diet Option",
+        body: KeyboardActions(
+          config: _buildConfig(context),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: _height * 0.01,
+                  ),
+                  Container(
+                    width: _width,
+                    height: _height * 0.0025,
+                    color: secondaryColor,
+                  ),
+                  Center(
+                      child: Text("Input Your Metrics",
                           style: TextStyle(
                               fontSize: 30,
                               color: Colors.white,
                               fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(nameOfDiet,
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200)),
-                    ),
+                              fontWeight: FontWeight.w200))),
+                  Container(
+                    width: _width,
+                    height: _height * 0.0025,
+                    color: secondaryColor,
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Your Weight and BMI Stats",
-                          maxLines: 1,
+                  Container(height: _height * 0.01),
+                  CupertinoTextField(
+                    focusNode: _nodeText1,
+                    controller: weightController,
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.black87,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w300),
+                    onChanged: (String value) => weight = double.parse(value),
+                    placeholder: "Weight (pounds)",
+                    placeholderStyle: TextStyle(color: hintColor),
+                    cursorColor: Colors.black87,
+                    keyboardType: TextInputType.number,
+                    decoration: BoxDecoration(
+                        color: textColor,
+                        borderRadius: BorderRadius.circular(9)),
+                  ),
+                  Container(height: _height * 0.01),
+                  CupertinoTextField(
+                    focusNode: _nodeText2,
+                    controller: heightController,
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.black87,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w300),
+                    onChanged: (String value) => height = double.parse(value),
+                    placeholder: "Height (inches)",
+                    placeholderStyle: TextStyle(color: hintColor),
+                    cursorColor: Colors.black87,
+                    keyboardType: TextInputType.number,
+                    decoration: BoxDecoration(
+                        color: textColor,
+                        borderRadius: BorderRadius.circular(9)),
+                  ),
+                  SizedBox(
+                    height: _height * 0.01,
+                  ),
+                  Wrap(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: CupertinoButton(
+                            padding: EdgeInsets.only(
+                                left: 20.0, right: 20.0, top: 8.0, bottom: 8.0),
+                            color: Colors.orange,
+                            child: Text('Enter',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              setState(() {
+                                lbm = ((((0.407 * (weight * 0.4536)) +
+                                                (0.267 * (height * 2.54)) -
+                                                19.2) *
+                                            100)
+                                        .round()) /
+                                    100;
+                                bmi = ((weight / (height * height) * 703 * 100)
+                                        .round()) /
+                                    100;
+                                weightList.add(weight / 300);
+                                bmiList.add(bmi / 30);
+                                bmiHeightfeatures = [
+                                  Feature(
+                                    title: "BMI",
+                                    color: Colors.red,
+                                    data: bmiList,
+                                  ),
+                                  Feature(
+                                    title: "Weight",
+                                    color: Colors.blue,
+                                    data: weightList,
+                                  ),
+                                ];
+
+                                fatConcentration = 100 -
+                                    ((((weight - lbm) / weight) * 1000)
+                                            .round()) /
+                                        10;
+
+                                lbmList.add(lbm / 80);
+                                fatList.add(fatConcentration / 100);
+                                lbmFatFeatures = [
+                                  Feature(
+                                    title: "Lean Body Mass",
+                                    color: Colors.red,
+                                    data: lbmList,
+                                  ),
+                                  Feature(
+                                    title: "Fat Percentage",
+                                    color: Colors.blue,
+                                    data: fatList,
+                                  ),
+                                ];
+                                heightController.clear();
+                                weightController.clear();
+
+                                writeDietDataToFirestoreLog(
+                                    lbm, bmi, fatConcentration, weight, height);
+                              });
+
+                              showCupertinoDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      CupertinoAlertDialog(
+                                        title:
+                                            new Text("Your Calculated Metric"),
+                                        content: new Text(
+                                            "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Percentage $fatConcentration%"),
+                                        actions: <Widget>[
+                                          CupertinoDialogAction(
+                                            isDefaultAction: true,
+                                            child: Text("Okay"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          )
+                                        ],
+                                      ));
+                            }),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: _height * 0.01,
+                  ),
+                  Container(
+                    width: _width,
+                    height: _height * 0.0025,
+                    color: secondaryColor,
+                  ),
+                  Center(
+                      child: Text("Your Diet Stats",
                           style: TextStyle(
                               fontSize: 30,
                               color: Colors.white,
                               fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 350,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30.0,
-                    ),
-                    child: LineGraph(
-                      features: bmiHeightfeatures,
-                      size: Size(320, 300),
-                      labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['20%', '40%', '60%', '80%', '100%'],
-                      showDescription: true,
-                      graphColor: Colors.white60,
-                    ),
+                              fontWeight: FontWeight.w200))),
+                  Container(
+                    width: _width,
+                    height: _height * 0.0025,
+                    color: secondaryColor,
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Your Lean Body Mass Stats",
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 350,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30.0,
-                    ),
-                    child: LineGraph(
-                      features: lbmFatFeatures,
-                      size: Size(320, 300),
-                      labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['20%', '40%', '60%', '80%', '100%'],
-                      showDescription: true,
-                      graphColor: Colors.white60,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Consumption per Food Group",
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  height: 320,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: RadarChart(
-                      values: [5, 10, 3, 5, 6, 9],
-                      labels: [
-                        "Protein",
-                        "Carbs",
-                        "Dairy",
-                        "Fruits",
-                        "Veggies",
-                        "Grains",
-                      ],
-                      maxValue: 10,
-                      fillColor: Colors.blue,
-                      strokeColor: Colors.white,
-                      labelColor: Colors.white,
-                      textScaleFactor: 0.06,
-                      curve: Curves.easeInOutExpo,
-                    ),
-                  ),
-                ),
-                Padding(
+                  Padding(
                     padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                     child: Align(
                         alignment: Alignment.centerLeft,
-                        child: AutoSizeText(
-                            "Body Mass Index: " + bmi.toString(),
+                        child: Text("Diet Option",
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(nameOfDiet,
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w200)),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Your Weight and BMI Stats",
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 30,
                                 color: Colors.white,
                                 fontFamily: 'Nunito',
-                                fontWeight: FontWeight.w400)))),
-              ],
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 350,
+                    decoration: BoxDecoration(
+                        color: tertiaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 30.0,
+                      ),
+                      child: LineGraph(
+                        features: bmiHeightfeatures,
+                        size: Size(320, 300),
+                        labelX: ['1', '5', '10', '15', '20'],
+                        labelY: ['20%', '40%', '60%', '80%', '100%'],
+                        showDescription: true,
+                        graphColor: Colors.white60,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Your Lean Body Mass Stats",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 350,
+                    decoration: BoxDecoration(
+                        color: tertiaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 30.0,
+                      ),
+                      child: LineGraph(
+                        features: lbmFatFeatures,
+                        size: Size(320, 300),
+                        labelX: ['1', '5', '10', '15', '20'],
+                        labelY: ['20%', '40%', '60%', '80%', '100%'],
+                        showDescription: true,
+                        graphColor: Colors.white60,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Consumption per Food Group",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  Container(
+                    height: 320,
+                    decoration: BoxDecoration(
+                        color: tertiaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RadarChart(
+                        values: [5, 10, 3, 5, 6, 9],
+                        labels: [
+                          "Protein",
+                          "Carbs",
+                          "Dairy",
+                          "Fruits",
+                          "Veggies",
+                          "Grains",
+                        ],
+                        maxValue: 10,
+                        fillColor: Colors.blue,
+                        strokeColor: Colors.white,
+                        labelColor: Colors.white,
+                        textScaleFactor: 0.06,
+                        curve: Curves.easeInOutExpo,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: AutoSizeText(
+                              "Body Mass Index: " + bmi.toString(),
+                              maxLines: 1,
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontWeight: FontWeight.w400)))),
+                ],
+              ),
             ),
           ),
         ),

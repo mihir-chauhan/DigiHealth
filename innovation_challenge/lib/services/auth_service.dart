@@ -9,7 +9,7 @@ class AuthService {
 
   Stream<String> get onAuthStateChanged => firebaseAuth.authStateChanges().map(
         (User user) => user?.uid,
-  );
+      );
 
   // Email & Password Sign Up
   Future<String> createUserWithEmailAndPassword(
@@ -24,16 +24,17 @@ class AuthService {
     await currentUser.user.reload();
 
     final databaseReference = FirebaseFirestore.instance;
-    await databaseReference
-        .collection("User Data")
-        .doc(email).set({
+    await databaseReference.collection("User Data").doc(email).set({
       "Name": name,
       "Diet Plan": "Not Set",
       "Points": 0,
       "Questionnaire": false,
     });
-    
-    databaseReference.collection("User Data").doc(email).collection("Exercise Logs");
+
+    databaseReference
+        .collection("User Data")
+        .doc(email)
+        .collection("Exercise Logs");
 
     madeNewAccount = true;
     return currentUser.user.uid;
@@ -44,7 +45,9 @@ class AuthService {
       String email, String password) async {
     madeNewAccount = false;
     return (await firebaseAuth.signInWithEmailAndPassword(
-        email: email, password: password)).user.uid;
+            email: email, password: password))
+        .user
+        .uid;
   }
 
   // Sign Out
@@ -56,13 +59,13 @@ class AuthService {
 class NameValidator {
   static String validate(String value) {
     print("asdfasdfadsf  " + value);
-    if(value.isEmpty) {
+    if (value.isEmpty) {
       return "Name can't be empty";
     }
-    if(value.length < 2) {
+    if (value.length < 2) {
       return "Name must be at least 2 characters long";
     }
-    if(value.length > 20) {
+    if (value.length > 20) {
       return "Name must be less than 20 characters long";
     }
     return null;
@@ -71,10 +74,11 @@ class NameValidator {
 
 class EmailInputValidator {
   static String validate(String value) {
-    if(value.isEmpty) {
+    if (value.isEmpty) {
       return "Email can't be empty";
     }
-    if(!EmailValidator.validate(value)) {//RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+    if (!EmailValidator.validate(value)) {
+      //RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
       return "Invalid email address";
     }
     return null;
@@ -83,10 +87,10 @@ class EmailInputValidator {
 
 class PasswordValidator {
   static String validate(String value) {
-    if(value.isEmpty) {
+    if (value.isEmpty) {
       return "Password can't be empty";
     }
-    if(value.length < 8) {
+    if (value.length < 8) {
       return "Password must be at least 8 characters long";
     }
     return null;

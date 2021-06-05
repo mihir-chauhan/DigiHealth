@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
     if (Provider.of(context).auth.madeNewAccount) {
       popupInSeconds(600);
     } else {
-      if(!openedQuestionnaire) {
+      if (!openedQuestionnaire) {
         openQuestionnaire();
         openedQuestionnaire = true;
       }
@@ -115,7 +115,8 @@ class _HomePageState extends State<HomePage> {
               duration: 300,
               delayDismiss: 0,
               titleStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
-              contentStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
+              contentStyle:
+                  TextStyle(color: Colors.white, fontFamily: 'Nunito'),
             )
           ],
         ));
@@ -123,7 +124,7 @@ class _HomePageState extends State<HomePage> {
 
   bool alreadyCalledOpenQuestionnaire = false;
   void openQuestionnaire() async {
-    if(!alreadyCalledOpenQuestionnaire) {
+    if (!alreadyCalledOpenQuestionnaire) {
       final User user = Provider.of(context).auth.firebaseAuth.currentUser;
       FirebaseFirestore.instance
           .collection('User Data')
@@ -139,14 +140,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    // await Future.delayed(Duration(milliseconds: 3000), () {
-      AlertController.show("New Challenges Await!", "You have new challenges under DigiFit!", TypeAlert.warning);
+    await Future.delayed(Duration(milliseconds: 3000), () {
+      AlertController.show("New Challenges Await!",
+          "You have new challenges under DigiFit!", TypeAlert.warning);
 
-      // Navigator.push(
-      //     context,
-      //     CupertinoPageRoute(
-      //         builder: (context) => QuestionnairePage()));
-    // });
+      Navigator.push(context,
+          CupertinoPageRoute(builder: (context) => QuestionnairePage()));
+    });
   }
 
   bool hasShownDialog = false;
