@@ -1,5 +1,7 @@
 import 'package:DigiHealth/digidietPage.dart';
 import 'package:DigiHealth/digifitPage.dart';
+import 'package:DigiHealth/introScreen.dart';
+import 'package:DigiHealth/questionnairePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +50,7 @@ class MyApp extends StatelessWidget {
               color: const Color(0x242424),
             )),
           ),
-          home: HomeController(),
+          home: IntroScreen(),
           routes: <String, WidgetBuilder>{
             '/signUp': (BuildContext context) =>
                 SignUpPage(authFormType: AuthFormType.signUp),
@@ -57,6 +59,7 @@ class MyApp extends StatelessWidget {
             '/home': (BuildContext context) => HomeController(),
             '/digifit': (BuildContext context) => DigiFitPage(),
             '/digidiet': (BuildContext context) => DigiDietPage(),
+            '/welcome': (BuildContext context) => WelcomePage(),
           }),
     );
   }
@@ -71,7 +74,7 @@ class HomeController extends StatelessWidget {
       builder: (context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final bool signedIn = snapshot.hasData;
-          return signedIn ? MainPageController() : WelcomePage();
+          return signedIn ? MainPageController() : IntroScreen();
         }
         return CupertinoActivityIndicator();
       },
