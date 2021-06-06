@@ -57,7 +57,7 @@ dependencies:
   showcaseview: ^0.1.6
   line_icons: ^2.0.0
   heatmap_calendar: ^1.2.8
-
+  slide_countdown_clock: ^1.0.3
 flutter_icons:
   image_path: "assets/DigiHealthLogo.png"
   image_path_android: "assets/DigiHealthLogoAndroid.png"

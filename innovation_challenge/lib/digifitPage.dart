@@ -1,21 +1,19 @@
-import 'dart:math';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:draw_graph/draw_graph.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
-import 'package:draw_graph/models/feature.dart';
-import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_kit/health_kit.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:heatmap_calendar/heatmap_calendar.dart';
-import 'package:heatmap_calendar/time_utils.dart';
 import 'package:horizontal_card_pager/card_item.dart';
 import 'package:horizontal_card_pager/horizontal_card_pager.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:lists/lists.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:slide_countdown_clock/slide_countdown_clock.dart';
 
 class DigiFitPage extends StatefulWidget {
   DigiFitPage();
@@ -25,25 +23,56 @@ class DigiFitPage extends StatefulWidget {
 }
 
 class _DigiFitPageState extends State<DigiFitPage> {
-  var caloriesBurnt = ValueNotifier<List<double>>(<double>[]);
-  var timeExercised = ValueNotifier<List<double>>(<double>[]);
-  var exercisePercentage = ValueNotifier<List<String>>(<String>[]);
-  bool hasShownGraphs = false;
-  List<double> percentageList = [];
-  int highestSecondsForGraph = 0;
-  var total = 0.0;
+  num total;
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
+    return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(
+            backgroundColor: secondaryColor,
+            items: [
+              BottomNavigationBarItem(icon: activityIcon),
+              BottomNavigationBarItem(icon: statsIcon),
+            ],
+            onTap: (i) async {
+              updateTabBarController(i);
+            }),
+        tabBuilder: (context, i) {
+          return CupertinoPageScaffold(
+            resizeToAvoidBottomInset: false,
+            backgroundColor: primaryColor,
+            navigationBar: CupertinoNavigationBar(
+              transitionBetweenRoutes: false,
+              heroTag: "digifitPage",
+              middle: Text((i == 0 ? "Fitness Tracker" : "Challenges"),
+                  style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
+              backgroundColor: secondaryColor,
+              leading: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Icon(
+                  Icons.home_rounded,
+                  color: CupertinoColors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+            child: updateViewBasedOnTab(i),
+          );
+        });
   }
 
   Future<bool> readPermissionsForHealthKit() async {
     try {
-      final responses = await HealthKit.hasPermissions([DataType.STEP_COUNT]);
+      final responses = await HealthKit.hasPermissions(
+          [DataType.STEP_COUNT, DataType.ENERGY, DataType.HEART_RATE]);
 
       if (!responses) {
-        final value = await HealthKit.requestPermissions([DataType.STEP_COUNT]);
+        final value = await HealthKit.requestPermissions(
+            [DataType.STEP_COUNT, DataType.ENERGY, DataType.HEART_RATE]);
 
         return value;
       } else {
@@ -51,286 +80,319 @@ class _DigiFitPageState extends State<DigiFitPage> {
       }
     } on UnsupportedException catch (e) {
       // thrown in case e.dataType is unsupported
-      print("Error:::::::::::::::::: $e");
+      print("Error: DigiFit: readPermissionsForHealthKit $e");
       return false;
     }
   }
 
-  void getYesterdayStep() async {
+  Future<SparseList<num>> getHealthData(
+      DateTime dateFrom, DataType dataType) async {
     var permissionsGiven = await readPermissionsForHealthKit();
 
     print("Permission Status: $permissionsGiven");
     if (true) {
-      var current = DateTime.now();
-
-      var dateFrom = DateTime.now().subtract(Duration(
-        hours: current.hour + 24,
-        minutes: current.minute,
-        seconds: current.second,
-      ));
-      var dateTo = dateFrom.add(Duration(
-        hours: 23,
-        minutes: 59,
-        seconds: 59,
-      ));
+      var dateTo = DateTime.now();
 
       print('dateFrom: $dateFrom');
       print('dateTo: $dateTo');
-
       try {
         var results = await HealthKit.read(
-          DataType.STEP_COUNT,
+          dataType,
           dateFrom: dateFrom,
           dateTo: dateTo,
         );
         if (results != null) {
+          SparseList<num> listOfHealthData = new SparseList();
           for (var result in results) {
-            total += result.value;
+            print("Results: $result.value");
+            listOfHealthData.add(result.value);
           }
+          print('value: ' + listOfHealthData.toString());
+          return listOfHealthData;
         }
-        setState(() {});
-        print('value: $total');
       } on Exception catch (ex) {
         print('Exception in getYesterdayStep: $ex');
       }
+      return new SparseList();
     }
   }
 
-  setupGraphs() async {
-    caloriesBurnt.value.clear();
-    timeExercised.value.clear();
-    exercisePercentage.value.clear();
+  SparseList heartData;
+
+  writeLatestFitnessData() async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
 
+    DateTime lastOpenedDate;
     FirebaseFirestore.instance
-        //setsup arraylist
         .collection('User Data')
         .doc(user.email)
-        .collection('Exercise Logs')
-        .orderBy('Timestamp', descending: false)
         .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        caloriesBurnt.value.add(doc['Calories Burned'] / 1.0);
-        timeExercised.value.add(doc['Seconds of Exercise'] / 1.0);
-        if (doc['Seconds of Exercise'] > highestSecondsForGraph) {
-          highestSecondsForGraph = doc['Seconds of Exercise'];
+        .then((DocumentSnapshot snapshot) {
+      Timestamp stamp = snapshot["Previous Use Date"];
+      lastOpenedDate = stamp.toDate();
+    }).then((value) async {
+      print("Restore? " +
+          DateTime.now().difference(lastOpenedDate).inDays.toString());
+      if (DateTime.now().difference(lastOpenedDate).inDays > 7) {
+        print("Not restoring data");
+      } else if (DateTime.now().difference(lastOpenedDate).inDays == 0) {
+        print("Updating today's data");
+        SparseList stepData =
+            await getHealthData(lastOpenedDate, DataType.STEP_COUNT);
+        print("Got step Data: " + stepData.toString());
+
+        SparseList calorieData =
+            await getHealthData(lastOpenedDate, DataType.ENERGY);
+        print("Got calorie Data: " + calorieData.toString());
+
+        SparseList heartData =
+            await getHealthData(lastOpenedDate, DataType.HEART_RATE);
+        print("Got heart Data: " + heartData.toString());
+
+        if (stepData.length > 0) {
+          num steps = stepData.elementAt(0);
+          print("-- Date: " +
+              lastOpenedDate.toString() +
+              ", month: " +
+              nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+              ", Steps: $steps");
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('DigiFit Data')
+              .doc(nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+                  ", " +
+                  lastOpenedDate.day.toString())
+              .update({"Steps": steps});
         }
-        exercisePercentage.value.add(doc['Type of Exercise']);
-        features = [
-          Feature(
-            title: "Calories Burnt",
-            color: Colors.red,
-            data: caloriesBurnt.value,
-          ),
-          Feature(
-            title: "Time Exercised",
-            color: Colors.blue,
-            data: timeExercised.value,
-          ),
-        ];
-      });
-    }).then((value) {
-      List<double> timeExerciseScaled = <double>[];
-      for (int i = 0; i < timeExercised.value.length; i++) {
-        timeExerciseScaled
-            .add(timeExercised.value.elementAt(i) / highestSecondsForGraph);
-      }
-      timeExercised.value = timeExerciseScaled;
 
-      List<double> caloriesBurntScaled = <double>[];
-      for (int i = 0; i < caloriesBurnt.value.length; i++) {
-        caloriesBurntScaled.add(
-            caloriesBurnt.value.elementAt(i) / (highestSecondsForGraph * 0.25));
-      }
-      caloriesBurnt.value = caloriesBurntScaled;
+        if (calorieData.length > 0) {
+          num calories = calorieData.elementAt(0);
+          print("-- Date: " +
+              lastOpenedDate.toString() +
+              ", month: " +
+              nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+              ", Calories: $calories");
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('DigiFit Data')
+              .doc(nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+                  ", " +
+                  lastOpenedDate.day.toString())
+              .update({"Calories": calories});
+        }
 
-      setState(() {
-        features = [
-          Feature(
-            title: "Calories Burnt",
-            color: Colors.red,
-            data: caloriesBurnt.value,
-          ),
-          Feature(
-            title: "Time Exercised",
-            color: Colors.blue,
-            data: timeExercised.value,
-          ),
-        ];
-        percentageList = percentagesOfExercises();
-      });
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .update({"Previous Use Date": DateTime.now()});
+      } else {
+        print("Writing data until today");
+        SparseList stepData =
+            await getHealthData(lastOpenedDate, DataType.STEP_COUNT);
+        print("Got step Data: " + stepData.toString());
+
+        SparseList calorieData =
+            await getHealthData(lastOpenedDate, DataType.ENERGY);
+        print("Got calorie Data: " + calorieData.toString());
+
+        heartData = await getHealthData(lastOpenedDate, DataType.HEART_RATE);
+        print("Got heart Data: " + heartData.toString());
+
+        if (stepData.length > 0) {
+          for (int i = 0;
+              i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
+              i++) {
+            DateTime newDate = lastOpenedDate.add(Duration(days: i));
+            num steps = stepData.elementAt(i);
+            print("$i -- Date: " +
+                newDate.toString() +
+                ", month: " +
+                nameOfMonthFromMonthNumber(newDate.month) +
+                ", Steps: $steps");
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .collection('DigiFit Data')
+                .doc(nameOfMonthFromMonthNumber(newDate.month) +
+                    ", " +
+                    newDate.day.toString())
+                .update({"Steps": steps});
+          }
+        }
+
+        if (calorieData.length > 0) {
+          for (int i = 0;
+              i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
+              i++) {
+            DateTime newDate = lastOpenedDate.add(Duration(days: i));
+            num calories = calorieData.elementAt(i);
+            print("$i -- Date: " +
+                newDate.toString() +
+                ", month: " +
+                nameOfMonthFromMonthNumber(newDate.month) +
+                ", Steps: $calories");
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .collection('DigiFit Data')
+                .doc(nameOfMonthFromMonthNumber(newDate.month) +
+                    ", " +
+                    newDate.day.toString())
+                .update({"Calories": calories});
+          }
+        }
+
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .update({"Previous Use Date": DateTime.now()});
+      }
     });
   }
 
-  List<double> percentagesOfExercises() {
-    var indoor = 0;
-    var outdoor = 0;
-    var highImpact = 0;
-    var lowImpact = 0;
-    var total = 0;
-    for (int i = 0; i < exercisePercentage.value.length; i++) {
-      if (exercisePercentage.value[i] == 'Indoor') {
-        indoor++;
-      } else if (exercisePercentage.value[i] == 'Outdoor') {
-        outdoor++;
-      } else if (exercisePercentage.value[i] == 'High-Impact') {
-        highImpact++;
-      } else if (exercisePercentage.value[i] == 'Low-Impact') {
-        lowImpact++;
-      }
-    }
-
-    total = indoor + outdoor + lowImpact + highImpact;
-    double percentageOfIndoor = (((indoor / total) * 1000).round()) / 10;
-    double percentageOfOutdoor = (((outdoor / total) * 1000).round()) / 10;
-    double percentageOfHighImpact =
-        (((highImpact / total) * 1000).round()) / 10;
-    double percentageOfLowImpact = (((100 -
-                    percentageOfOutdoor -
-                    percentageOfHighImpact -
-                    percentageOfIndoor) *
-                10)
-            .round()) /
-        10;
-    return [
-      percentageOfIndoor,
-      percentageOfOutdoor,
-      percentageOfHighImpact,
-      percentageOfLowImpact
-    ];
-  }
-
-  List<Feature> features = [
-    Feature(
-      title: "Calories Burnt",
-      color: Colors.red,
-      data: [0],
-    ),
-    Feature(
-      title: "Time Exercised",
-      color: Colors.blue,
-      data: [0],
-    ),
-  ];
-
-  String otherValue = 'Indoor';
-  int listNumForIndoor = new Random().nextInt(15);
-  int listNumForOutdoor = new Random().nextInt(15);
-  int listNumForHighImpact = new Random().nextInt(15);
-  int listNumForLowImpact = new Random().nextInt(15);
-  Icon dietIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
-  Icon journalIcon = Icon(Icons.analytics_outlined, color: Colors.white);
+  Icon activityIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
+  Icon statsIcon = Icon(Icons.emoji_events_outlined, color: Colors.white);
   var _height;
   var _width;
 
   void updateTabBarController(int i) {
-    setupGraphs();
     setState(() {
-      dietIcon = (i == 0)
+      activityIcon = (i == 0)
           ? Icon(Icons.whatshot_rounded, color: Colors.white)
           : Icon(Icons.whatshot_outlined, color: Colors.white);
-      journalIcon = (i == 1)
-          ? Icon(Icons.analytics_rounded, color: Colors.white)
-          : Icon(Icons.analytics_outlined, color: Colors.white);
+      statsIcon = (i == 1)
+          ? Icon(Icons.emoji_events_sharp, color: Colors.white)
+          : Icon(Icons.emoji_events_outlined, color: Colors.white);
     });
   }
 
+  bool showMonthlyData = true;
+  int currentDataPage = 1;
+  Duration time = DateTime(2021, 7, 1).difference(DateTime.now());
+  bool hasWrittenLatestFitnessData = false;
+
+  List<FlSpot> stepYear = [];
+
+  List<FlSpot> stepMonth = [];
+
+  List<FlSpot> calorieYear = [];
+
+  List<FlSpot> calorieMonth = [];
+
+  List<FlSpot> heartDay = [];
+
+  double todaySteps = 0;
+  double stepGoal = 1;
+  double todayCalories = 0;
+  double calorieGoal = 1;
+
   Widget updateViewBasedOnTab(int i) {
-    if (!hasShownGraphs) {
-      hasShownGraphs = true;
-      setupGraphs();
+    if (!hasWrittenLatestFitnessData) {
+      // writeLatestFitnessData();
+      FirebaseFirestore.instance
+          .collection('User Data')
+          .doc("blade@run.ner").get()
+          .then<dynamic>((DocumentSnapshot snapshot) {
+            setState(() {
+              stepGoal = snapshot["Step Goal"] + 0.0;
+              calorieGoal = snapshot["Calorie Goal"] + 0.0;
+            });
+          }).then((value) {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc("blade@run.ner")
+            .collection('DigiFit Data')
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            print("Reading Graph Data " +
+                (doc.id.toString().replaceAll(
+                    nameOfMonthFromMonthNumber(DateTime.now().month) + ", ",
+                    "")) +
+                ", " +
+                doc["Steps"].toString());
+            if (doc.id
+                .toString()
+                .contains(nameOfMonthFromMonthNumber(DateTime.now().month))) {
+              setState(() {
+                todaySteps = doc["Steps"] + 0.0;
+                stepMonth.add(new FlSpot(
+                    (int.parse(doc.id.toString().replaceAll(
+                        nameOfMonthFromMonthNumber(DateTime.now().month) +
+                            ", ",
+                        "")) /
+                        1.0),
+                    (doc["Steps"] / 18000.0) * 9.0));
+              });
+              setState(() {
+                todayCalories = doc["Calories"] + 0.0;
+                calorieMonth.add(new FlSpot(
+                    (int.parse(doc.id.toString().replaceAll(
+                        nameOfMonthFromMonthNumber(DateTime.now().month) +
+                            ", ",
+                        "")) /
+                        1.0),
+                    ((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0));
+              });
+            }
+          });
+        });
+      });
+
+
+      hasWrittenLatestFitnessData = true;
     }
+
     if (i == 0) {
       return Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: primaryColor,
-          body: Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: [
-                HorizontalCardPager(
-                  onSelectedItem: (page) {
-                    print("selected : $page");
-                    if(page == 0) {
-                      getYesterdayStep();
-                    }
-                  },
-                  initialPage: 1,
-                  items: [
-                    IconTitleCardItem(
-                      text: "Heart",
-                      iconData: Icon(LineIcons.heartbeat).icon,
-                    ),
-                    IconTitleCardItem(
-                      text: "Steps",
-                      iconData: Icon(LineIcons.shoePrints).icon,
-                    ),
-                    IconTitleCardItem(
-                      text: "Calories",
-                      iconData: Icon(LineIcons.fire).icon,
-                    )
-                  ],
-                ),
-
-                SizedBox(height: _height * 0.05),
-                HeatMapCalendar(
-                  input: {
-                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 3))): 5,
-                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 2))): 35,
-                    TimeUtils.removeTime(DateTime.now().subtract(Duration(days: 1))): 14,
-                    TimeUtils.removeTime(DateTime.now()): 5,
-                  },
-                  colorThresholds: {
-                    1: Colors.green[100],
-                    10: Colors.green[300],
-                    30: Colors.green[500]
-                  },
-
-                  weekDaysLabels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                  monthsLabels: [
-                    "",
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ],
-                  squareSize: 16.0,
-                  textOpacity: 0.7,
-                  labelTextColor: Colors.white,
-                  dayTextColor: Colors.white,
-                ),
-                SizedBox(height: _height * 0.05),
-                CircularPercentIndicator(
-                  radius: 120.0,
-                  lineWidth: 13.0,
-                  animation: true,
-                  percent: 0.7,
-                  header: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Text(
-                      "Today's Step Count",
-                      style: TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 20),
-                    ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  HorizontalCardPager(
+                    onPageChanged: (page) {
+                      int previousDataPage = currentDataPage;
+                      currentDataPage = page <= 0.25
+                          ? 0
+                          : (page <= 1.25 && page >= 0.75)
+                              ? 1
+                              : page >= 1.75
+                                  ? 2
+                                  : currentDataPage;
+                      if (previousDataPage != currentDataPage) {
+                        print("currentPage: $currentDataPage");
+                        setState(() {
+                          currentDataPage = currentDataPage;
+                        });
+                      }
+                      // if (page == 0) {
+                      //   getYesterdayStep();
+                      // }
+                    },
+                    initialPage: 1,
+                    items: [
+                      IconTitleCardItem(
+                        text: "Heart",
+                        iconData: Icon(LineIcons.heartbeat).icon,
+                      ),
+                      IconTitleCardItem(
+                        text: "Steps",
+                        iconData: Icon(LineIcons.shoePrints).icon,
+                      ),
+                      IconTitleCardItem(
+                        text: "Calories",
+                        iconData: Icon(LineIcons.fire).icon,
+                      )
+                    ],
                   ),
-                  center: Text(
-                    "500",
-                    style: TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 25),
-                  ),
-                  circularStrokeCap: CircularStrokeCap.round,
-                  progressColor: goodColor,
-                  backgroundColor: tertiaryColor,
-                ),
-
-              ],
+                  buildFitDataPage()
+                ],
+              ),
             ),
           ));
     } else {
@@ -350,7 +412,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   color: secondaryColor,
                 ),
                 Center(
-                    child: Text("Your Fitness Stats",
+                    child: Text("This Week's Challenges",
                         style: TextStyle(
                             fontSize: 30,
                             color: Colors.white,
@@ -361,93 +423,42 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   height: _height * 0.0025,
                   color: secondaryColor,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Improvement Over Time",
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 350,
-                  decoration: BoxDecoration(
-                      color: tertiaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30.0,
+                SizedBox(height: _height * 0.0125),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Expiry: ",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w700)),
+                    SlideCountdownClock(
+                      duration: time,
+                      //Duration(days: 1, minutes: 0),
+                      slideDirection: SlideDirection.Up,
+                      separator: ":",
+                      textStyle: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w700),
+                      shouldShowDays: true,
                     ),
-                    child: LineGraph(
-                      features: features,
-                      size: Size(320, 300),
-                      labelX: ['1', '5', '10', '15', '20'],
-                      labelY: ['', '', '', '', ''],
-                      showDescription: true,
-                      graphColor: Colors.white60,
-                    ),
-                  ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText("Average Type of Exercise Done",
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w400))),
-                ),
-                (percentageList.length == 0)
-                    ? Container(
-                        height: 320,
-                        decoration: BoxDecoration(
-                            color: tertiaryColor,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: AutoSizeText("No Data",
-                              maxLines: 1,
-                              style: TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                  fontFamily: 'Nunito',
-                                  fontWeight: FontWeight.w400)),
-                        ),
-                      )
-                    : Container(
-                        height: 320,
-                        decoration: BoxDecoration(
-                            color: tertiaryColor,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: PieChart(
-                            values: percentageList,
-                            labels: [
-                              "Indoor",
-                              "Outdoor",
-                              "High-Impact",
-                              "Low-Impact",
-                            ],
-                            labelColor: Colors.transparent,
-                            legendTextColor: Colors.white,
-                            textScaleFactor: 0.07,
-                            curve: Curves.easeInOutExpo,
-                            legendPosition: LegendPosition.Bottom,
-                            separateFocusedValue: true,
-                          ),
-                        ),
-                      ),
+                Column(
+                  children: [
+                    buildChallengeCard(
+                        challengeName: "Daily Step Challenge",
+                        imageSource:
+                            "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/silver_medal1.png?alt=media&token=1732d107-83a1-4f7a-bbc4-e69f85cdbd50",
+                        difficulty: "Easy",
+                        goal: "Reach 4000 steps every day in a row for a week",
+                        finishDate: DateTime(2021, 7, 1),
+                        points: 350)
+                  ],
+                )
               ],
             ),
           ),
@@ -456,43 +467,823 @@ class _DigiFitPageState extends State<DigiFitPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    _height = MediaQuery.of(context).size.height;
-    _width = MediaQuery.of(context).size.width;
-    return CupertinoTabScaffold(
-        tabBar: CupertinoTabBar(
-            backgroundColor: secondaryColor,
-            items: [
-              BottomNavigationBarItem(icon: dietIcon),
-              BottomNavigationBarItem(icon: journalIcon),
-            ],
-            onTap: (i) async {
-              updateTabBarController(i);
-            }),
-        tabBuilder: (context, i) {
-          return CupertinoPageScaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: primaryColor,
-            navigationBar: CupertinoNavigationBar(
-              transitionBetweenRoutes: false,
-              heroTag: "digifitPage",
-              middle: Text((i == 0 ? "Fitness Tracker" : "Statistics"),
-                  style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
-              backgroundColor: secondaryColor,
-              leading: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Icon(
-                  Icons.home_rounded,
-                  color: CupertinoColors.white,
-                  size: 30,
-                ),
+  Widget buildChallengeCard(
+      {String challengeName,
+      String imageSource,
+      String difficulty,
+      String goal,
+      DateTime finishDate,
+      int points}) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      color: secondaryColor,
+      shadowColor: Colors.black54,
+      child: Wrap(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                Image.network(imageSource),
+                SizedBox(height: _height * 0.0125),
+                Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: AutoSizeText(challengeName,
+                        maxLines: 1,
+                        maxFontSize: 30,
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200))),
+                SizedBox(height: _height * 0.0125),
+                Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    child: AutoSizeText(goal,
+                        maxLines: 2,
+                        maxFontSize: 22,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200))),
+                SizedBox(height: _height * 0.0125),
+                Text("Complexity: $difficulty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w200)),
+                Text("Points: $points",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w200))
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildFitDataPage() {
+    if (currentDataPage == 0) {
+      return Column(
+        children: [
+          SizedBox(height: _height * 0.05),
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18)),
+              color: const Color(0xff81e5cd),
+              child: Stack(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Text(
+                          'Weekly Heart Data',
+                          style: TextStyle(
+                              color: const Color(0xff0f4a3c),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: BarChart(
+                              mainBarData(),
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 250),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
-            child: updateViewBasedOnTab(i),
+          ),
+          SizedBox(height: _height * 0.01),
+        ],
+      );
+    } else if (currentDataPage == 1) {
+      return new Column(
+        children: [
+          SizedBox(height: _height * 0.05),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Text(
+              "Today's Step Goal: $todaySteps of $stepGoal",
+              style: TextStyle(
+                  color: Colors.white, fontFamily: 'Nunito', fontSize: 20),
+            ),
+          ),
+          new LinearPercentIndicator(
+            // radius: 120.0,
+            lineHeight: 25.0,
+            animation: true,
+            percent: (todaySteps / stepGoal) > 1.0 ? 1 : (todaySteps / stepGoal),
+            progressColor: goodColor,
+            backgroundColor: tertiaryColor,
+          ),
+          SizedBox(height: _height * 0.05),
+          Stack(
+            children: <Widget>[
+              AspectRatio(
+                aspectRatio: 1.70,
+                child: Container(
+                  decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(18),
+                      ),
+                      color: Color(0xff232d37)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        right: 18.0, left: 12.0, top: 24, bottom: 12),
+                    child: LineChart(
+                      stepMonthData(stepMonth),
+                      // showMonthlyData
+                      //     ? stepMonthData(stepMonth)
+                      //     : stepYearData(stepYear),
+                      swapAnimationDuration:
+                          Duration(milliseconds: 750), // Optional
+                      swapAnimationCurve: Curves.linear,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 60,
+                height: 34,
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      showMonthlyData = !showMonthlyData;
+                    });
+                  },
+                  child: Text(
+                    // showMonthlyData ? 'Month' : 'Year',
+                    "Month",
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: _height * 0.01),
+        ],
+      );
+    } else {
+      return new Column(
+        children: [
+          SizedBox(height: _height * 0.05),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Text(
+              "Today's Calorie Goal: $todayCalories of $calorieGoal",
+              style: TextStyle(
+                  color: Colors.white, fontFamily: 'Nunito', fontSize: 20),
+            ),
+          ),
+          new LinearPercentIndicator(
+            // radius: 120.0,
+            lineHeight: 25.0,
+            animation: true,
+            percent: (todayCalories / calorieGoal) > 1.0 ? 1 : (todayCalories / calorieGoal),
+            progressColor: goodColor,
+            backgroundColor: tertiaryColor,
+          ),
+          SizedBox(height: _height * 0.05),
+          Stack(
+            children: <Widget>[
+              AspectRatio(
+                aspectRatio: 1.70,
+                child: Container(
+                  decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(18),
+                      ),
+                      color: Color(0xff232d37)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        right: 18.0, left: 12.0, top: 24, bottom: 12),
+                    child: LineChart(
+                      // showMonthlyData
+                      //     ? calorieMonthData(calorieMonth)
+                      //     : calorieYearData(calorieYear),
+                      calorieMonthData(calorieMonth),
+                      swapAnimationDuration:
+                          Duration(milliseconds: 750), // Optional
+                      swapAnimationCurve: Curves.linear,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 60,
+                height: 34,
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      showMonthlyData = !showMonthlyData;
+                    });
+                  },
+                  child: Text(
+                    // showMonthlyData ? 'Month' : 'Year',
+                    "Month",
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: _height * 0.01),
+        ],
+      );
+    }
+  }
+
+  int touchedIndex = -1;
+
+  List<BarChartGroupData> showingGroups() => List.generate(7, (i) {
+        switch (i) {
+          case 0:
+            return makeGroupData(0, 150, isTouched: i == touchedIndex);
+          case 1:
+            return makeGroupData(1, 165, isTouched: i == touchedIndex);
+          case 2:
+            return makeGroupData(2, 105, isTouched: i == touchedIndex);
+          case 3:
+            return makeGroupData(3, 175, isTouched: i == touchedIndex);
+          case 4:
+            return makeGroupData(4, 109, isTouched: i == touchedIndex);
+          case 5:
+            return makeGroupData(5, 115, isTouched: i == touchedIndex);
+          case 6:
+            return makeGroupData(6, 165, isTouched: i == touchedIndex);
+          default:
+            return makeGroupData(0, 110, isTouched: i == touchedIndex);
+        }
+      });
+
+  BarChartGroupData makeGroupData(
+    int x,
+    double y, {
+    bool isTouched = false,
+    Color barColor = Colors.white,
+    double width = 30,
+    List<int> showTooltips = const [],
+  }) {
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          y: isTouched ? y + 1 : y,
+          colors: isTouched ? [Colors.yellow] : [barColor],
+          width: width,
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            y: 200,
+            colors: [Color(0xff72d8bf)],
+          ),
+        ),
+      ],
+      showingTooltipIndicators: showTooltips,
+    );
+  }
+
+  BarChartData mainBarData() {
+    return BarChartData(
+      barTouchData: BarTouchData(
+        touchTooltipData: BarTouchTooltipData(
+            tooltipBgColor: Colors.blueGrey,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              String weekDay;
+              switch (group.x.toInt()) {
+                case 0:
+                  weekDay = 'Monday';
+                  break;
+                case 1:
+                  weekDay = 'Tuesday';
+                  break;
+                case 2:
+                  weekDay = 'Wednesday';
+                  break;
+                case 3:
+                  weekDay = 'Thursday';
+                  break;
+                case 4:
+                  weekDay = 'Friday';
+                  break;
+                case 5:
+                  weekDay = 'Saturday';
+                  break;
+                case 6:
+                  weekDay = 'Sunday';
+                  break;
+                default:
+                  throw Error();
+              }
+              return BarTooltipItem(
+                weekDay + '\n',
+                TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: (rod.y - 1).toString(),
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            }),
+        touchCallback: (barTouchResponse) {
+          setState(() {
+            if (barTouchResponse.spot != null &&
+                barTouchResponse.touchInput is PointerUpEvent &&
+                barTouchResponse.touchInput is PointerExitEvent) {
+              touchedIndex = barTouchResponse.spot.touchedBarGroupIndex;
+            } else {
+              touchedIndex = -1;
+            }
+          });
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          margin: 16,
+          getTitles: (double value) {
+            switch (value.toInt()) {
+              case 0:
+                return 'M';
+              case 1:
+                return 'T';
+              case 2:
+                return 'W';
+              case 3:
+                return 'T';
+              case 4:
+                return 'F';
+              case 5:
+                return 'S';
+              case 6:
+                return 'S';
+              default:
+                return '';
+            }
+          },
+        ),
+        leftTitles: SideTitles(
+          showTitles: false,
+        ),
+      ),
+      borderData: FlBorderData(
+        show: false,
+      ),
+      barGroups: showingGroups(),
+    );
+  }
+
+  LineChartData stepYearData(List<FlSpot> spots) {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: true,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
           );
-        });
+        },
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff68737d),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontFamily: "Nunito"),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 0:
+                return 'JAN';
+              case 6:
+                return 'JUL';
+              case 11:
+                return 'DEC';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff67727d),
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontFamily: "Nunito"),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 1:
+                return '2k';
+              case 3:
+                return '6k';
+              case 5:
+                return '10k';
+              case 7:
+                return '14k';
+            }
+            return '';
+          },
+          reservedSize: 28,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 12,
+      minY: 0,
+      maxY: 8,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: false,
+          colors: gradientColors,
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            colors:
+                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  LineChartData stepMonthData(List<FlSpot> spots) {
+    return LineChartData(
+      lineTouchData: LineTouchData(enabled: false),
+      gridData: FlGridData(
+        show: true,
+        drawHorizontalLine: true,
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff68737d),
+              fontWeight: FontWeight.bold,
+              fontSize: 16),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 0:
+                return '1';
+              case 14:
+                return '15';
+              case 29:
+                return '30';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff67727d),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 1:
+                return '2k';
+              case 3:
+                return '6k';
+              case 5:
+                return '10k';
+              case 7:
+                return '14k';
+            }
+            return '';
+          },
+          reservedSize: 28,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 30,
+      minY: 0,
+      maxY: 8,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: false,
+          colors: [
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2),
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2),
+          ],
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(show: true, colors: [
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2)
+                .withOpacity(0.1),
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2)
+                .withOpacity(0.1),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  LineChartData calorieYearData(List<FlSpot> spots) {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: true,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff68737d),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontFamily: "Nunito"),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 0:
+                return 'JAN';
+              case 6:
+                return 'JUL';
+              case 11:
+                return 'DEC';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff67727d),
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontFamily: "Nunito"),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 1:
+                return '2k';
+              case 3:
+                return '6k';
+              case 5:
+                return '10k';
+              case 7:
+                return '14k';
+            }
+            return '';
+          },
+          reservedSize: 28,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 12,
+      minY: 0,
+      maxY: 8,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: false,
+          colors: gradientColors,
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            colors:
+                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  LineChartData calorieMonthData(List<FlSpot> spots) {
+    return LineChartData(
+      lineTouchData: LineTouchData(enabled: false),
+      gridData: FlGridData(
+        show: true,
+        drawHorizontalLine: true,
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+              color: Color(0xff68737d),
+              fontWeight: FontWeight.bold,
+              fontSize: 16),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 0:
+                return '1';
+              case 14:
+                return '15';
+              case 29:
+                return '30';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff67727d),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 1:
+                return '750';
+              case 3:
+                return '1.5k';
+              case 5:
+                return '2.25k';
+              case 7:
+                return '3k';
+            }
+            return '';
+          },
+          reservedSize: 28,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 30,
+      minY: 0,
+      maxY: 8,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: false,
+          colors: [
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2),
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2),
+          ],
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(show: true, colors: [
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2)
+                .withOpacity(0.1),
+            ColorTween(begin: gradientColors[0], end: gradientColors[1])
+                .lerp(0.2)
+                .withOpacity(0.1),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  String nameOfMonthFromMonthNumber(int month) {
+    month--;
+    return (month == 0
+        ? "January"
+        : month == 1
+            ? "February"
+            : month == 2
+                ? "March"
+                : month == 3
+                    ? "April"
+                    : month == 4
+                        ? "May"
+                        : month == 5
+                            ? "June"
+                            : month == 6
+                                ? "July"
+                                : month == 7
+                                    ? "August"
+                                    : month == 8
+                                        ? "Sept."
+                                        : month == 9
+                                            ? "October"
+                                            : month == 10
+                                                ? "November"
+                                                : "December");
   }
 }

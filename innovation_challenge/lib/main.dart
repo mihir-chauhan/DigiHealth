@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
               color: const Color(0x242424),
             )),
           ),
-          home: IntroScreen(),
+          home: HomeController(),
           routes: <String, WidgetBuilder>{
             '/signUp': (BuildContext context) =>
                 SignUpPage(authFormType: AuthFormType.signUp),

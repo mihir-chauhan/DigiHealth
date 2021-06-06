@@ -140,13 +140,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 3000), () {
-      AlertController.show("New Challenges Await!",
-          "You have new challenges under DigiFit!", TypeAlert.warning);
+    // await Future.delayed(Duration(milliseconds: 3000), () {
+    AlertController.show("New Challenges Await!", "You have new challenges under DigiFit!", TypeAlert.warning);
 
-      Navigator.push(context,
-          CupertinoPageRoute(builder: (context) => QuestionnairePage()));
-    });
+    // Navigator.push(
+    //     context,
+    //     CupertinoPageRoute(
+    //         builder: (context) => QuestionnairePage()));
+    // });
   }
 
   bool hasShownDialog = false;
@@ -157,13 +158,13 @@ class _HomePageState extends State<HomePage> {
         showCupertinoDialog(
             context: context,
             builder: (_) => Container(
-                  child: NetworkGiffyDialog(
-                    image: Image.asset("welcome.gif"),
-                    title: Text("Welcome to DigiHealth!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
+              child: NetworkGiffyDialog(
+                image: Image.asset("welcome.gif"),
+                title: Text("Welcome to DigiHealth!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
                             fontFamily: 'Nunito',
                             fontWeight: FontWeight.w600)),
                     description: Text(
@@ -188,11 +189,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                     buttonCancelColor: primaryColor,
                     onlyCancelButton: true,
-                    onCancelButtonPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ));
+                onCancelButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ));
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }
