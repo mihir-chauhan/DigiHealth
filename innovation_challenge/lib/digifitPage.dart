@@ -2,6 +2,7 @@ import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -68,11 +69,11 @@ class _DigiFitPageState extends State<DigiFitPage> {
   Future<bool> readPermissionsForHealthKit() async {
     try {
       final responses = await HealthKit.hasPermissions(
-          [DataType.STEP_COUNT, DataType.ENERGY, DataType.HEART_RATE]);
+          [DataType.STEP_COUNT, DataType.ENERGY]); //, DataType.HEART_RATE]);
 
       if (!responses) {
         final value = await HealthKit.requestPermissions(
-            [DataType.STEP_COUNT, DataType.ENERGY, DataType.HEART_RATE]);
+            [DataType.STEP_COUNT, DataType.ENERGY]); //, DataType.HEART_RATE]);
 
         return value;
       } else {
@@ -128,7 +129,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
         .get()
         .then((DocumentSnapshot snapshot) {
       lastOpenedDate = snapshot["Previous Use Date"].toDate();
-      print("Got latest date: " + snapshot["Previous Use Date"].toDate().toString());
+      print("Got latest date: " +
+          snapshot["Previous Use Date"].toDate().toString());
     }).then((value) async {
       print("Restore? " +
           DateTime.now().difference(lastOpenedDate).inDays.toString());
@@ -136,48 +138,60 @@ class _DigiFitPageState extends State<DigiFitPage> {
         print("Not restoring data");
       } else if (DateTime.now().difference(lastOpenedDate).inDays == 0) {
         print("Updating today's data");
-        SparseList stepData =
-            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.STEP_COUNT);
+        SparseList stepData = await getHealthData(
+            DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
+            DataType.STEP_COUNT);
         print("Got step Data: " + stepData.toString());
 
-        SparseList calorieData =
-            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.ENERGY);
+        SparseList calorieData = await getHealthData(
+            DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
+            DataType.ENERGY);
         print("Got calorie Data: " + calorieData.toString());
 
-        SparseList heartData =
-            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.HEART_RATE);
-        print("Got heart Data: " + heartData.toString());
+        // SparseList heartData = await getHealthData(
+        //     DateTime(
+        //         DateTime.now().year, DateTime.now().month, DateTime.now().day),
+        //     DataType.HEART_RATE);
+        // print("Got heart Data: " + heartData.toString());
 
         if (stepData.length > 0) {
           num steps = stepData.elementAt(0);
           print("-- Date: " +
-              DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString() +
+              DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString() +
               ", Steps: $steps");
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
               .collection('DigiFit Data')
-              .doc(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString())
-              .set({"Steps": steps}, SetOptions(merge : true));
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({"Steps": steps}, SetOptions(merge: true));
         }
 
         if (calorieData.length > 0) {
           num calories = calorieData.elementAt(0);
           print("-- Date: " +
-              DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString() +
+              DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString() +
               ", Calories: $calories");
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
               .collection('DigiFit Data')
-              .doc(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString())
-              .set({"Calories": calories}, SetOptions(merge : true));
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({"Calories": calories}, SetOptions(merge: true));
         }
 
-        FirebaseFirestore.instance
-            .collection('User Data')
-            .doc(user.email)
-            .set({"Previous Use Date": DateTime.now()}, SetOptions(merge : true));
+        FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+            {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
       } else {
         print("Writing data until today");
         SparseList stepData =
@@ -188,13 +202,11 @@ class _DigiFitPageState extends State<DigiFitPage> {
             await getHealthData(lastOpenedDate, DataType.ENERGY);
         print("Got calorie Data: " + calorieData.toString());
 
-        heartData = await getHealthData(lastOpenedDate, DataType.HEART_RATE);
-        print("Got heart Data: " + heartData.toString());
+        // heartData = await getHealthData(lastOpenedDate, DataType.HEART_RATE);
+        // print("Got heart Data: " + heartData.toString());
 
         if (stepData.length > 0) {
-          for (int i = 0;
-              i < stepData.length;
-              i++) {
+          for (int i = 0; i < stepData.length; i++) {
             print("i $i");
             DateTime newDate = lastOpenedDate.add(Duration(days: i));
             num steps = stepData.elementAt(i);
@@ -208,14 +220,15 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .doc(user.email)
                 .collection('DigiFit Data')
                 .doc(newDate.toString())
-                .set({"Steps": steps, "timeStamp":newDate}, SetOptions(merge : true));
-            if(calorieData.length <= i + 1) {
+                .set({"Steps": steps, "timeStamp": newDate},
+                    SetOptions(merge: true));
+            if (calorieData.length <= i + 1) {
               FirebaseFirestore.instance
                   .collection('User Data')
                   .doc(user.email)
                   .collection('DigiFit Data')
                   .doc(newDate.toString())
-                  .set({"Calories": 0}, SetOptions(merge : true));
+                  .set({"Calories": 0}, SetOptions(merge: true));
             }
           }
         }
@@ -236,28 +249,28 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .doc(user.email)
                 .collection('DigiFit Data')
                 .doc(newDate.toString())
-                .set({"Calories": calories, "timeStamp":newDate}, SetOptions(merge : true));
+                .set({"Calories": calories, "timeStamp": newDate},
+                    SetOptions(merge: true));
 
-            if(stepData.length <= i + 1) {
+            if (stepData.length <= i + 1) {
               FirebaseFirestore.instance
                   .collection('User Data')
                   .doc(user.email)
                   .collection('DigiFit Data')
                   .doc(newDate.toString())
-                  .set({"Steps": 0}, SetOptions(merge : true));
+                  .set({"Steps": 0}, SetOptions(merge: true));
             }
           }
         }
 
-        FirebaseFirestore.instance
-            .collection('User Data')
-            .doc(user.email)
-            .set({"Previous Use Date": DateTime.now()}, SetOptions(merge : true));
+        FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+            {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
       }
     }).then((value) {
       FirebaseFirestore.instance
           .collection('User Data')
-          .doc(user.email).get()
+          .doc(user.email)
+          .get()
           .then<dynamic>((DocumentSnapshot snapshot) {
         setState(() {
           stepGoal = snapshot["Step Goal"] + 0.0;
@@ -272,29 +285,29 @@ class _DigiFitPageState extends State<DigiFitPage> {
             .get()
             .then((QuerySnapshot querySnapshot) {
           querySnapshot.docs.forEach((doc) {
-            print("Reading Graph Data " +
-                (doc.id.toString()));
+            print("Reading Graph Data " + (doc.id.toString()));
             DateTime dateTime = doc["timeStamp"].toDate();
 
-            if(dateTime.year == DateTime.now().year && dateTime.month == DateTime.now().month && dateTime.day == DateTime.now().day) {
+            if (dateTime.year == DateTime.now().year &&
+                dateTime.month == DateTime.now().month &&
+                dateTime.day == DateTime.now().day) {
               setState(() {
                 todaySteps = doc["Steps"] + 0.0;
                 todayCalories = doc["Calories"] + 0.0;
               });
             }
 
-            if(dateTime.month == DateTime.now().month) {
+            if (dateTime.month == DateTime.now().month) {
               setState(() {
                 stepMonth.add(new FlSpot(
-                    (dateTime.day /
-                        1.0),
-                    (doc["Steps"] / 18000.0) * 9.0));
+                    (dateTime.day / 1.0), (doc["Steps"] / 18000.0) * 9.0));
               });
               setState(() {
                 calorieMonth.add(new FlSpot(
-                    (dateTime.day /
-                        1.0),
-                    ((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0));
+                    (dateTime.day / 1.0),
+                    (((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0) >= 0
+                        ? (((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0)
+                        : 0));
               });
             }
           });
@@ -321,7 +334,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   bool showMonthlyData = true;
   int currentDataPage = 1;
-  Duration time = DateTime(2021, 7, 1).difference(DateTime.now());
+  Duration time = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day + 7)
+      .difference(DateTime.now());
   bool hasWrittenLatestFitnessData = false;
 
   List<FlSpot> stepYear = [];
@@ -339,9 +354,62 @@ class _DigiFitPageState extends State<DigiFitPage> {
   double todayCalories = 0;
   double calorieGoal = 1;
 
+  List<Widget> challengeCards = [];
+
   Widget updateViewBasedOnTab(int i) {
     if (!hasWrittenLatestFitnessData) {
       writeLatestFitnessData();
+      final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      FirebaseFirestore.instance
+          .collection('DigiFit Challenges')
+          .orderBy("endDate", descending: false)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        DateTime upcomingChallengeExpiryDate;
+        int i = 0;
+        snapshot.docs.forEach((doc) {
+          DateTime expiryOfChallenge = doc["endDate"].toDate();
+          if (i == 0) {
+            upcomingChallengeExpiryDate = expiryOfChallenge;
+            time = upcomingChallengeExpiryDate.difference(DateTime.now());
+            i++;
+          }
+          if (expiryOfChallenge.isAtSameMomentAs(upcomingChallengeExpiryDate)) {
+            FirebaseFirestore.instance
+                .collection('DigiFit Challenges')
+                .doc(doc.id.toString())
+                .collection("Participants")
+                .get()
+                .then((QuerySnapshot snapshot) {
+                  snapshot.docs.forEach((doc) {
+                    if(doc.id.toString().contains(user.email)) {
+                      challengeCards.add(buildChallengeCard(
+                          challengeName: doc.id.toString(),
+                          imageSource: doc['image'],
+                          difficulty: doc['complexity'],
+                          goal: doc['goal'],
+                          finishDate: upcomingChallengeExpiryDate,
+                          points: doc['pointsForCompletion'],
+                          isParticipating: true));
+                      challengeCards.add(SizedBox(height: _height * 0.0125));
+                    } else {
+                      challengeCards.add(buildChallengeCard(
+                          challengeName: doc.id.toString(),
+                          imageSource: doc['image'],
+                          difficulty: doc['complexity'],
+                          goal: doc['goal'],
+                          finishDate: upcomingChallengeExpiryDate,
+                          points: doc['pointsForCompletion'],
+                          isParticipating: false));
+                      challengeCards.add(SizedBox(height: _height * 0.0125));
+                    }
+                  });
+            });
+
+
+          }
+        });
+      });
       hasWrittenLatestFitnessData = true;
     }
 
@@ -427,7 +495,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Expiry: ",
+                    Text("Expires: ",
                         style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -435,7 +503,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
                             fontWeight: FontWeight.w700)),
                     SlideCountdownClock(
                       duration: time,
-                      //Duration(days: 1, minutes: 0),
                       slideDirection: SlideDirection.Up,
                       separator: ":",
                       textStyle: TextStyle(
@@ -449,25 +516,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 ),
                 SizedBox(height: _height * 0.0125),
                 Column(
-                  children: [
-                    buildChallengeCard(
-                        challengeName: "Daily Step Challenge",
-                        imageSource:
-                            "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/bronze_medal.png?alt=media&token=3e3ddff9-a1a9-4fa7-a4ad-70ca4438e70f",
-                        difficulty: "Easy",
-                        goal: "Reach 4000 steps every day in a row for a week",
-                        finishDate: DateTime(2021, 7, 1),
-                        points: 350),
-                    SizedBox(height: _height * 0.0125),
-                    buildChallengeCard(
-                        challengeName: "Daily Step Challenge",
-                        imageSource:
-                        "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/silver_medal1.png?alt=media&token=1732d107-83a1-4f7a-bbc4-e69f85cdbd50",
-                        difficulty: "Medium",
-                        goal: "Reach 4000 steps every day in a row for a week",
-                        finishDate: DateTime(2021, 7, 1),
-                        points: 350),
-                  ],
+                  children: challengeCards,
                 )
               ],
             ),
@@ -483,64 +532,114 @@ class _DigiFitPageState extends State<DigiFitPage> {
       String difficulty,
       String goal,
       DateTime finishDate,
-      int points}) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
+      int points,
+      bool isParticipating}) {
+    GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
+    return FlipCard(
+      key: cardKey,
+      back: Container(
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          color: secondaryColor,
+          shadowColor: Colors.black54,
+          child: Container(
+              width: _width * 0.9,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  children: [Image.network(imageSource)],
+                ),
+              )),
+        ),
       ),
-      color: secondaryColor,
-      shadowColor: Colors.black54,
-      child: Wrap(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              children: [
-                Image.network(imageSource),
-                SizedBox(height: _height * 0.0125),
-                Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: AutoSizeText(challengeName,
-                        maxLines: 1,
-                        maxFontSize: 30,
+      front: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        color: secondaryColor,
+        shadowColor: Colors.black54,
+        child: Container(
+            width: _width * 0.9,
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Column(
+                children: [
+                  Image.network(imageSource),
+                  SizedBox(height: _height * 0.0125),
+                  Padding(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      child: AutoSizeText(challengeName,
+                          maxLines: 1,
+                          maxFontSize: 30,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200))),
+                  SizedBox(height: _height * 0.0125),
+                  Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      child: AutoSizeText(goal,
+                          maxLines: 2,
+                          maxFontSize: 22,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200))),
+                  SizedBox(height: _height * 0.0125),
+                  Text("Complexity: $difficulty",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w200)),
+                  Text("Points: $points",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w200)),
+                  SizedBox(height: _height * 0.0125),
+                  CupertinoButton(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(30)),
+                    child: Text(
+                        !isParticipating ? "Participate" : "View Competitors",
                         style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.white,
+                            fontSize: 20,
+                            color: primaryColor,
                             fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w200))),
-                SizedBox(height: _height * 0.0125),
-                Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: AutoSizeText(goal,
-                        maxLines: 2,
-                        maxFontSize: 22,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w200))),
-                SizedBox(height: _height * 0.0125),
-                Text("Complexity: $difficulty",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200)),
-                Text("Points: $points",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200)),
+                            fontWeight: FontWeight.w200)),
+                    onPressed: () async {
+                      if (!isParticipating) {
+                        final User user =
+                            Provider.of(context).auth.firebaseAuth.currentUser;
+                        FirebaseFirestore.instance
+                            .collection('DigiFit Challenges')
+                            .doc(challengeName)
+                            .collection('Participants')
+                            .doc(user.email)
+                            .set({"value": 0}, SetOptions(merge: true));
 
-              ],
-            ),
-          )
-        ],
+                        setState(() {
+                          isParticipating = true;
+                        });
+                      } else {
+                        cardKey.currentState.toggleCard();
+                      }
+                    },
+                  )
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -615,7 +714,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
             // radius: 120.0,
             lineHeight: 25.0,
             animation: true,
-            percent: (todaySteps / stepGoal) > 1.0 ? 1 : (todaySteps / stepGoal),
+            percent:
+                (todaySteps / stepGoal) > 1.0 ? 1 : (todaySteps / stepGoal),
             progressColor: goodColor,
             backgroundColor: tertiaryColor,
           ),
@@ -682,7 +782,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
             // radius: 120.0,
             lineHeight: 25.0,
             animation: true,
-            percent: (todayCalories / calorieGoal) > 1.0 ? 1 : (todayCalories / calorieGoal),
+            percent: (todayCalories / calorieGoal) > 1.0
+                ? 1
+                : (todayCalories / calorieGoal),
             progressColor: goodColor,
             backgroundColor: tertiaryColor,
           ),

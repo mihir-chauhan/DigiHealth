@@ -51,8 +51,30 @@ class _HomePageState extends State<HomePage> {
         openedQuestionnaire = true;
       }
     }
+
+    FirebaseFirestore.instance
+        .collection('DigiFit Challenges')
+        .orderBy("endDate", descending: false)
+        .get()
+        .then((QuerySnapshot snapshot) {
+          if(snapshot.docs.length > 0) {
+            DateTime startDate = snapshot.docs.elementAt(0)['startDate'].toDate();
+            final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+            DateTime lastOpenedDate;
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .get()
+                .then((DocumentSnapshot snapshot) {
+              lastOpenedDate = snapshot["Previous Use Date"].toDate();
+              if(lastOpenedDate.isBefore(startDate)) {
+                AlertController.show("New Challenges Await!",
+                    "Check out new challenges under DigiFit!", TypeAlert.warning);
+              }
+          });
+    }});
+
     WidgetsFlutterBinding.ensureInitialized();
-    // launchQuestionnaire();
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
@@ -142,9 +164,6 @@ class _HomePageState extends State<HomePage> {
 
   void launchQuestionnaire() async {
     await Future.delayed(Duration(milliseconds: 3000), () {
-      AlertController.show("New Challenges Await!",
-          "You have new challenges under DigiFit!", TypeAlert.warning);
-
       Navigator.push(context,
           CupertinoPageRoute(builder: (context) => QuestionnairePage()));
     });

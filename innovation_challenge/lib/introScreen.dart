@@ -169,6 +169,11 @@ class IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     return new IntroSlider(
+      onSkipPress: () {
+        this.onDonePress();
+      },
+      colorActiveDot: Colors.white,
+      colorDot: Colors.white30,
       slides: this.slides,
       onDonePress: this.onDonePress,
     );
