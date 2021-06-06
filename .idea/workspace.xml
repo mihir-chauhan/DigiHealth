@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/android/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/android/key.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="InnovationChallenge" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dart File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="MERGE" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1sxEDwQetosmdbSKUzGgQKKaaaD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="dart.analysis.tool.window.force.activate" value="false" />
+    <property name="io.flutter.reload.alreadyRun" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="dart.settings" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/innovation_challenge/android/app" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="FlutterRunConfigurationType" factoryName="Flutter">
+      <option name="filePath" value="$PROJECT_DIR$/innovation_challenge/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/innovation_challenge/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="" />
+      <created>1621805724188</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1621805724188</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Changed text to be independent of phone font settings and changed questionnaire answers">
+      <created>1621806129802</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1621806129803</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Fixed rollover between months, accounting for leap years">
+      <created>1621810446142</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1621810446142</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fixed text clearance between signUp and signIn and added pedometer">
+      <created>1622243800060</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1622243800062</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Pedometer and all of Health Kit Worked! :)">
+      <created>1622692599515</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1622692599516</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Changed Questionnaire to look like Google Forms.">
+      <created>1622869090457</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1622869090460</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added the intro slider screen">
+      <created>1622932596501</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1622932596504</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added introScreen.dart">
+      <created>1622932748038</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1622932748038</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fixed DigiDiet bug and questionnaire page">
+      <created>1622966638766</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1622966638766</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Changed text to be independent of phone font settings and changed questionnaire answers" />
+    <MESSAGE value="Fixed rollover between months, accounting for leap years" />
+    <MESSAGE value="Fixed text clearance between signUp and signIn and added pedometer" />
+    <MESSAGE value="Pedometer Worked! :)" />
+    <MESSAGE value="Pedometer and all of Health Kit Worked! :)" />
+    <MESSAGE value="Changed Questionnaire to look like Google Forms." />
+    <MESSAGE value="Added the intro slider screen" />
+    <MESSAGE value="Added introScreen.dart" />
+    <MESSAGE value="Fixed DigiDiet bug and questionnaire page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed DigiDiet bug and questionnaire page" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1621806252402">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806252402" />
+    <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1621806233854">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806233854" />
+    <state x="74" y="25" key="CommitChangelistDialog2" timestamp="1622966848611">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1622932747479" />
+    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.804@0.25.1440.804" timestamp="1622966848611" />
+    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.805@0.25.1440.805" timestamp="1622692598843" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom" timestamp="1622964115139">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.802@0.25.1440.802" timestamp="1622963735689" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.804@0.25.1440.804" timestamp="1622964115139" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.805@0.25.1440.805" timestamp="1622963240552" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.807@0.25.1440.807" timestamp="1622490132728" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
+    <state width="985" height="203" key="GridCell.Tab.0.center" timestamp="1622964115138">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.802@0.25.1440.802" timestamp="1622963735688" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.804@0.25.1440.804" timestamp="1622964115138" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.805@0.25.1440.805" timestamp="1622963240551" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.807@0.25.1440.807" timestamp="1622490132725" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.809@0.25.1440.809" timestamp="1622835370980" />
+    <state width="985" height="203" key="GridCell.Tab.0.left" timestamp="1622964115137">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.802@0.25.1440.802" timestamp="1622963735687" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.804@0.25.1440.804" timestamp="1622964115137" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.805@0.25.1440.805" timestamp="1622963240550" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.807@0.25.1440.807" timestamp="1622490132724" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.809@0.25.1440.809" timestamp="1622835370978" />
+    <state width="985" height="203" key="GridCell.Tab.0.right" timestamp="1622964115138">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.802@0.25.1440.802" timestamp="1622963735689" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.804@0.25.1440.804" timestamp="1622964115138" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.805@0.25.1440.805" timestamp="1622963240552" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.807@0.25.1440.807" timestamp="1622490132726" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
+    <state x="21" y="62" key="SettingsEditor" timestamp="1622848513135">
+      <screen x="0" y="25" width="1440" height="802" />
+    </state>
+    <state x="21" y="62" key="SettingsEditor/0.25.1440.802@0.25.1440.802" timestamp="1622848513135" />
+    <state x="21" y="62" key="SettingsEditor/0.25.1440.804@0.25.1440.804" timestamp="1622041679616" />
+    <state x="21" y="62" key="SettingsEditor/0.25.1440.805@0.25.1440.805" timestamp="1622304368196" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1622963209497">
+      <screen x="0" y="25" width="1440" height="805" />
+    </state>
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.802@0.25.1440.802" timestamp="1622848522283" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.804@0.25.1440.804" timestamp="1622760814843" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.805@0.25.1440.805" timestamp="1622963209497" />
+    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1622959230466">
+      <screen x="0" y="25" width="1440" height="802" />
+    </state>
+    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1440.802@0.25.1440.802" timestamp="1622959230466" />
+    <state x="298" y="347" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1440.804@0.25.1440.804" timestamp="1622484506064" />
+    <state x="185" y="153" width="670" height="676" key="search.everywhere.popup" timestamp="1622177019896">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state x="185" y="153" width="670" height="676" key="search.everywhere.popup/0.25.1440.804@0.25.1440.804" timestamp="1622177019896" />
+  </component>
+</project>

@@ -226,6 +226,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         setState(() {
           differenceInIndex =
               DateTime.now().difference(timeOfCreation).inDays % 30;
+          dayofweek = differenceInIndex;
           breakfastList = List<String>.from(snapshot.value as List<dynamic>);
         });
       });
