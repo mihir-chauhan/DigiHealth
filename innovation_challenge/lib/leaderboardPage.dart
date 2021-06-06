@@ -15,9 +15,20 @@ class LeaderboardPage extends StatefulWidget {
 class _LeaderboardPageState extends State<LeaderboardPage> {
   static var leaderboardName;
   static var leaderboardPoints;
+  int lowestRankPoints = 1500;
+  int rankingPointIntervals = 500;
   int i = 50;
 
   setupLeaderboardRankings() async {
+    FirebaseFirestore.instance
+        .collection('Global Data')
+        .doc('Rank System')
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      lowestRankPoints = snapshot['lowestRankPoints'];
+      rankingPointIntervals = snapshot['rankingPointIntervals'];
+    });
+
     leaderboardName = ValueNotifier<List<String>>(<String>[]);
     leaderboardPoints = ValueNotifier<List<int>>(<int>[]);
     FirebaseFirestore.instance
@@ -60,28 +71,28 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       return AssetImage('images/rank.png');
     }
 
-    if (leaderboardPoints.value[i] > 5000) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (7 * rankingPointIntervals)) {
       return AssetImage('images/diamond1.png');
     }
-    if (leaderboardPoints.value[i] > 4500) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (6 * rankingPointIntervals)) {
       return AssetImage('images/platinum2.png');
     }
-    if (leaderboardPoints.value[i] > 4000) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (5 * rankingPointIntervals)) {
       return AssetImage('images/platinum1.png');
     }
-    if (leaderboardPoints.value[i] > 3500) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (4 * rankingPointIntervals)) {
       return AssetImage('images/gold2.png');
     }
-    if (leaderboardPoints.value[i] > 3000) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (3 * rankingPointIntervals)) {
       return AssetImage('images/gold1.png');
     }
-    if (leaderboardPoints.value[i] > 2500) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (2 * rankingPointIntervals)) {
       return AssetImage('images/silver2.png');
     }
-    if (leaderboardPoints.value[i] > 2000) {
+    if (leaderboardPoints.value[i] > lowestRankPoints + (1 * rankingPointIntervals)) {
       return AssetImage('images/silver1.png');
     }
-    if (leaderboardPoints.value[i] > 1500) {
+    if (leaderboardPoints.value[i] > lowestRankPoints) {
       return AssetImage('images/bronze2.png');
     } else {
       return AssetImage('images/bronze1.png');

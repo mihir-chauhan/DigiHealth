@@ -121,6 +121,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   SparseList heartData;
 
   writeLatestFitnessData() async {
+    double totalCaloriesGained = 0.0;
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     DateTime lastOpenedDate;
     FirebaseFirestore.instance
@@ -188,6 +189,18 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       DateTime.now().day)
                   .toString())
               .set({"Calories": calories}, SetOptions(merge: true));
+          totalCaloriesGained = calories;
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .get()
+              .then((DocumentSnapshot snapshot) {
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .set({"Points": snapshot["Points"] + totalCaloriesGained.round()},
+                    SetOptions(merge: true));
+          });
         }
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
@@ -251,6 +264,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .doc(newDate.toString())
                 .set({"Calories": calories, "timeStamp": newDate},
                     SetOptions(merge: true));
+            totalCaloriesGained += calories;
 
             if (stepData.length <= i + 1) {
               FirebaseFirestore.instance
@@ -262,6 +276,18 @@ class _DigiFitPageState extends State<DigiFitPage> {
             }
           }
         }
+
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .get()
+            .then((DocumentSnapshot snapshot) {
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .set({"Points": snapshot["Points"] + totalCaloriesGained.round()},
+              SetOptions(merge: true));
+        });
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
             {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
@@ -589,8 +615,10 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       child: AutoSizeText(
                                         "User",
                                         maxLines: 1,
-                                        style:
-                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100),
                                       ),
                                     ),
                                   ],
@@ -633,8 +661,10 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       child: AutoSizeText(
                                         "User",
                                         maxLines: 1,
-                                        style:
-                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100),
                                       ),
                                     ),
                                   ],
@@ -677,8 +707,10 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       child: AutoSizeText(
                                         "User",
                                         maxLines: 1,
-                                        style:
-                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100),
                                       ),
                                     ),
                                   ],
@@ -721,8 +753,10 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       child: AutoSizeText(
                                         "User",
                                         maxLines: 1,
-                                        style:
-                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100),
                                       ),
                                     ),
                                   ],
@@ -765,8 +799,10 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       child: AutoSizeText(
                                         "You",
                                         maxLines: 1,
-                                        style:
-                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100),
                                       ),
                                     ),
                                   ],
@@ -851,9 +887,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     child: Text(
-                        !isParticipating
-                            ? "Participate"
-                            : "View Competitors",
+                        !isParticipating ? "Participate" : "View Competitors",
                         style: TextStyle(
                             fontSize: 20,
                             color: primaryColor,
@@ -861,10 +895,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                             fontWeight: FontWeight.w200)),
                     onPressed: () async {
                       if (!isParticipating) {
-                        final User user = Provider.of(context)
-                            .auth
-                            .firebaseAuth
-                            .currentUser;
+                        final User user =
+                            Provider.of(context).auth.firebaseAuth.currentUser;
                         FirebaseFirestore.instance
                             .collection('DigiFit Challenges')
                             .doc(challengeName)
