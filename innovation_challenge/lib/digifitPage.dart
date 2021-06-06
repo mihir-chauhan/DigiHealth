@@ -121,15 +121,14 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   writeLatestFitnessData() async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-
     DateTime lastOpenedDate;
     FirebaseFirestore.instance
         .collection('User Data')
         .doc(user.email)
         .get()
         .then((DocumentSnapshot snapshot) {
-      Timestamp stamp = snapshot["Previous Use Date"];
-      lastOpenedDate = stamp.toDate();
+      lastOpenedDate = snapshot["Previous Use Date"].toDate();
+      print("Got latest date: " + snapshot["Previous Use Date"].toDate().toString());
     }).then((value) async {
       print("Restore? " +
           DateTime.now().difference(lastOpenedDate).inDays.toString());
@@ -138,55 +137,47 @@ class _DigiFitPageState extends State<DigiFitPage> {
       } else if (DateTime.now().difference(lastOpenedDate).inDays == 0) {
         print("Updating today's data");
         SparseList stepData =
-            await getHealthData(lastOpenedDate, DataType.STEP_COUNT);
+            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.STEP_COUNT);
         print("Got step Data: " + stepData.toString());
 
         SparseList calorieData =
-            await getHealthData(lastOpenedDate, DataType.ENERGY);
+            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.ENERGY);
         print("Got calorie Data: " + calorieData.toString());
 
         SparseList heartData =
-            await getHealthData(lastOpenedDate, DataType.HEART_RATE);
+            await getHealthData(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day), DataType.HEART_RATE);
         print("Got heart Data: " + heartData.toString());
 
         if (stepData.length > 0) {
           num steps = stepData.elementAt(0);
           print("-- Date: " +
-              lastOpenedDate.toString() +
-              ", month: " +
-              nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+              DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString() +
               ", Steps: $steps");
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
               .collection('DigiFit Data')
-              .doc(nameOfMonthFromMonthNumber(lastOpenedDate.month) +
-                  ", " +
-                  lastOpenedDate.day.toString())
-              .update({"Steps": steps});
+              .doc(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString())
+              .set({"Steps": steps}, SetOptions(merge : true));
         }
 
         if (calorieData.length > 0) {
           num calories = calorieData.elementAt(0);
           print("-- Date: " +
-              lastOpenedDate.toString() +
-              ", month: " +
-              nameOfMonthFromMonthNumber(lastOpenedDate.month) +
+              DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString() +
               ", Calories: $calories");
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
               .collection('DigiFit Data')
-              .doc(nameOfMonthFromMonthNumber(lastOpenedDate.month) +
-                  ", " +
-                  lastOpenedDate.day.toString())
-              .update({"Calories": calories});
+              .doc(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString())
+              .set({"Calories": calories}, SetOptions(merge : true));
         }
 
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .update({"Previous Use Date": DateTime.now()});
+            .set({"Previous Use Date": DateTime.now()}, SetOptions(merge : true));
       } else {
         print("Writing data until today");
         SparseList stepData =
@@ -202,8 +193,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
         if (stepData.length > 0) {
           for (int i = 0;
-              i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
+              i < stepData.length;
               i++) {
+            print("i $i");
             DateTime newDate = lastOpenedDate.add(Duration(days: i));
             num steps = stepData.elementAt(i);
             print("$i -- Date: " +
@@ -215,10 +207,16 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .collection('User Data')
                 .doc(user.email)
                 .collection('DigiFit Data')
-                .doc(nameOfMonthFromMonthNumber(newDate.month) +
-                    ", " +
-                    newDate.day.toString())
-                .update({"Steps": steps});
+                .doc(newDate.toString())
+                .set({"Steps": steps, "timeStamp":newDate}, SetOptions(merge : true));
+            if(calorieData.length <= i + 1) {
+              FirebaseFirestore.instance
+                  .collection('User Data')
+                  .doc(user.email)
+                  .collection('DigiFit Data')
+                  .doc(newDate.toString())
+                  .set({"Calories": 0}, SetOptions(merge : true));
+            }
           }
         }
 
@@ -237,18 +235,71 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .collection('User Data')
                 .doc(user.email)
                 .collection('DigiFit Data')
-                .doc(nameOfMonthFromMonthNumber(newDate.month) +
-                    ", " +
-                    newDate.day.toString())
-                .update({"Calories": calories});
+                .doc(newDate.toString())
+                .set({"Calories": calories, "timeStamp":newDate}, SetOptions(merge : true));
+
+            if(stepData.length <= i + 1) {
+              FirebaseFirestore.instance
+                  .collection('User Data')
+                  .doc(user.email)
+                  .collection('DigiFit Data')
+                  .doc(newDate.toString())
+                  .set({"Steps": 0}, SetOptions(merge : true));
+            }
           }
         }
 
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .update({"Previous Use Date": DateTime.now()});
+            .set({"Previous Use Date": DateTime.now()}, SetOptions(merge : true));
       }
+    }).then((value) {
+      FirebaseFirestore.instance
+          .collection('User Data')
+          .doc(user.email).get()
+          .then<dynamic>((DocumentSnapshot snapshot) {
+        setState(() {
+          stepGoal = snapshot["Step Goal"] + 0.0;
+          calorieGoal = snapshot["Calorie Goal"] + 0.0;
+        });
+      }).then((value) {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('DigiFit Data')
+            .orderBy("timeStamp", descending: false)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            print("Reading Graph Data " +
+                (doc.id.toString()));
+            DateTime dateTime = doc["timeStamp"].toDate();
+
+            if(dateTime.year == DateTime.now().year && dateTime.month == DateTime.now().month && dateTime.day == DateTime.now().day) {
+              setState(() {
+                todaySteps = doc["Steps"] + 0.0;
+                todayCalories = doc["Calories"] + 0.0;
+              });
+            }
+
+            if(dateTime.month == DateTime.now().month) {
+              setState(() {
+                stepMonth.add(new FlSpot(
+                    (dateTime.day /
+                        1.0),
+                    (doc["Steps"] / 18000.0) * 9.0));
+              });
+              setState(() {
+                calorieMonth.add(new FlSpot(
+                    (dateTime.day /
+                        1.0),
+                    ((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0));
+              });
+            }
+          });
+        });
+      });
     });
   }
 
@@ -290,58 +341,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   Widget updateViewBasedOnTab(int i) {
     if (!hasWrittenLatestFitnessData) {
-      // writeLatestFitnessData();
-      FirebaseFirestore.instance
-          .collection('User Data')
-          .doc("blade@run.ner").get()
-          .then<dynamic>((DocumentSnapshot snapshot) {
-            setState(() {
-              stepGoal = snapshot["Step Goal"] + 0.0;
-              calorieGoal = snapshot["Calorie Goal"] + 0.0;
-            });
-          }).then((value) {
-        FirebaseFirestore.instance
-            .collection('User Data')
-            .doc("blade@run.ner")
-            .collection('DigiFit Data')
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          querySnapshot.docs.forEach((doc) {
-            print("Reading Graph Data " +
-                (doc.id.toString().replaceAll(
-                    nameOfMonthFromMonthNumber(DateTime.now().month) + ", ",
-                    "")) +
-                ", " +
-                doc["Steps"].toString());
-            if (doc.id
-                .toString()
-                .contains(nameOfMonthFromMonthNumber(DateTime.now().month))) {
-              setState(() {
-                todaySteps = doc["Steps"] + 0.0;
-                stepMonth.add(new FlSpot(
-                    (int.parse(doc.id.toString().replaceAll(
-                        nameOfMonthFromMonthNumber(DateTime.now().month) +
-                            ", ",
-                        "")) /
-                        1.0),
-                    (doc["Steps"] / 18000.0) * 9.0));
-              });
-              setState(() {
-                todayCalories = doc["Calories"] + 0.0;
-                calorieMonth.add(new FlSpot(
-                    (int.parse(doc.id.toString().replaceAll(
-                        nameOfMonthFromMonthNumber(DateTime.now().month) +
-                            ", ",
-                        "")) /
-                        1.0),
-                    ((2 * (doc["Calories"] / 3750.0) * 5.0)) - 1.0));
-              });
-            }
-          });
-        });
-      });
-
-
+      writeLatestFitnessData();
       hasWrittenLatestFitnessData = true;
     }
 
@@ -447,16 +447,26 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     ),
                   ],
                 ),
+                SizedBox(height: _height * 0.0125),
                 Column(
                   children: [
                     buildChallengeCard(
                         challengeName: "Daily Step Challenge",
                         imageSource:
-                            "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/silver_medal1.png?alt=media&token=1732d107-83a1-4f7a-bbc4-e69f85cdbd50",
+                            "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/bronze_medal.png?alt=media&token=3e3ddff9-a1a9-4fa7-a4ad-70ca4438e70f",
                         difficulty: "Easy",
                         goal: "Reach 4000 steps every day in a row for a week",
                         finishDate: DateTime(2021, 7, 1),
-                        points: 350)
+                        points: 350),
+                    SizedBox(height: _height * 0.0125),
+                    buildChallengeCard(
+                        challengeName: "Daily Step Challenge",
+                        imageSource:
+                        "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/silver_medal1.png?alt=media&token=1732d107-83a1-4f7a-bbc4-e69f85cdbd50",
+                        difficulty: "Medium",
+                        goal: "Reach 4000 steps every day in a row for a week",
+                        finishDate: DateTime(2021, 7, 1),
+                        points: 350),
                   ],
                 )
               ],
@@ -484,7 +494,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
       child: Wrap(
         children: [
           Padding(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(15),
             child: Column(
               children: [
                 Image.network(imageSource),
@@ -525,7 +535,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                         fontSize: 22,
                         color: Colors.white,
                         fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w200))
+                        fontWeight: FontWeight.w200)),
+
               ],
             ),
           )
