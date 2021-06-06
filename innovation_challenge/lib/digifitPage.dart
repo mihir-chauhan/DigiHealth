@@ -375,38 +375,56 @@ class _DigiFitPageState extends State<DigiFitPage> {
             i++;
           }
           if (expiryOfChallenge.isAtSameMomentAs(upcomingChallengeExpiryDate)) {
-            FirebaseFirestore.instance
-                .collection('DigiFit Challenges')
-                .doc(doc.id.toString())
-                .collection("Participants")
-                .get()
-                .then((QuerySnapshot snapshot) {
-                  snapshot.docs.forEach((doc) {
-                    if(doc.id.toString().contains(user.email)) {
-                      challengeCards.add(buildChallengeCard(
-                          challengeName: doc.id.toString(),
-                          imageSource: doc['image'],
-                          difficulty: doc['complexity'],
-                          goal: doc['goal'],
-                          finishDate: upcomingChallengeExpiryDate,
-                          points: doc['pointsForCompletion'],
-                          isParticipating: true));
-                      challengeCards.add(SizedBox(height: _height * 0.0125));
-                    } else {
-                      challengeCards.add(buildChallengeCard(
-                          challengeName: doc.id.toString(),
-                          imageSource: doc['image'],
-                          difficulty: doc['complexity'],
-                          goal: doc['goal'],
-                          finishDate: upcomingChallengeExpiryDate,
-                          points: doc['pointsForCompletion'],
-                          isParticipating: false));
-                      challengeCards.add(SizedBox(height: _height * 0.0125));
-                    }
-                  });
-            });
-
-
+            try {
+              FirebaseFirestore.instance
+                  .collection('DigiFit Challenges')
+                  .doc(doc.id.toString())
+                  .collection("Participants")
+                  .get()
+                  .then((QuerySnapshot snapshot) {
+                for (int x = 0; x < snapshot.docs.length; i++) {
+                  print("here:111");
+                  if (snapshot.docs
+                      .elementAt(x)
+                      .id
+                      .toString()
+                      .contains(user.email)) {
+                    challengeCards.add(buildChallengeCard(
+                        challengeName: doc.id.toString(),
+                        imageSource: doc['image'],
+                        difficulty: doc['complexity'],
+                        goal: doc['goal'],
+                        finishDate: upcomingChallengeExpiryDate,
+                        points: doc['pointsForCompletion'],
+                        isParticipating: true));
+                    challengeCards.add(SizedBox(height: _height * 0.0125));
+                    break;
+                  } else {
+                    challengeCards.add(buildChallengeCard(
+                        challengeName: doc.id.toString(),
+                        imageSource: doc['image'],
+                        difficulty: doc['complexity'],
+                        goal: doc['goal'],
+                        finishDate: upcomingChallengeExpiryDate,
+                        points: doc['pointsForCompletion'],
+                        isParticipating: false));
+                    challengeCards.add(SizedBox(height: _height * 0.0125));
+                    break;
+                  }
+                }
+              });
+            } catch (e) {
+              print("here:1212113");
+              challengeCards.add(buildChallengeCard(
+                  challengeName: doc.id.toString(),
+                  imageSource: doc['image'],
+                  difficulty: doc['complexity'],
+                  goal: doc['goal'],
+                  finishDate: upcomingChallengeExpiryDate,
+                  points: doc['pointsForCompletion'],
+                  isParticipating: false));
+              challengeCards.add(SizedBox(height: _height * 0.0125));
+            }
           }
         });
       });
@@ -550,7 +568,228 @@ class _DigiFitPageState extends State<DigiFitPage> {
               child: Padding(
                 padding: EdgeInsets.all(15),
                 child: Column(
-                  children: [Image.network(imageSource)],
+                  children: [
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: secondaryColor,
+                        ),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15, right: 15, top: 7.5, bottom: 7.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Align(
+                                      child: AutoSizeText(
+                                        "User",
+                                        maxLines: 1,
+                                        style:
+                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Align(
+                                  child: AutoSizeText(
+                                    "1115",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 100,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: secondaryColor,
+                        ),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15, right: 15, top: 7.5, bottom: 7.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Align(
+                                      child: AutoSizeText(
+                                        "User",
+                                        maxLines: 1,
+                                        style:
+                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Align(
+                                  child: AutoSizeText(
+                                    "1114",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 100,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: secondaryColor,
+                        ),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15, right: 15, top: 7.5, bottom: 7.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Align(
+                                      child: AutoSizeText(
+                                        "User",
+                                        maxLines: 1,
+                                        style:
+                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Align(
+                                  child: AutoSizeText(
+                                    "1113",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 100,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: secondaryColor,
+                        ),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15, right: 15, top: 7.5, bottom: 7.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Align(
+                                      child: AutoSizeText(
+                                        "User",
+                                        maxLines: 1,
+                                        style:
+                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Align(
+                                  child: AutoSizeText(
+                                    "1112",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 100,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: secondaryColor,
+                        ),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 15, right: 15, top: 7.5, bottom: 7.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Align(
+                                      child: AutoSizeText(
+                                        "You",
+                                        maxLines: 1,
+                                        style:
+                                        TextStyle(color: Colors.white, fontFamily: 'Nunito', fontSize: 100),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Align(
+                                  child: AutoSizeText(
+                                    "1111",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Nunito',
+                                        fontSize: 100,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ))
+                  ],
                 ),
               )),
         ),
@@ -612,7 +851,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     child: Text(
-                        !isParticipating ? "Participate" : "View Competitors",
+                        !isParticipating
+                            ? "Participate"
+                            : "View Competitors",
                         style: TextStyle(
                             fontSize: 20,
                             color: primaryColor,
@@ -620,15 +861,16 @@ class _DigiFitPageState extends State<DigiFitPage> {
                             fontWeight: FontWeight.w200)),
                     onPressed: () async {
                       if (!isParticipating) {
-                        final User user =
-                            Provider.of(context).auth.firebaseAuth.currentUser;
+                        final User user = Provider.of(context)
+                            .auth
+                            .firebaseAuth
+                            .currentUser;
                         FirebaseFirestore.instance
                             .collection('DigiFit Challenges')
                             .doc(challengeName)
                             .collection('Participants')
                             .doc(user.email)
                             .set({"value": 0}, SetOptions(merge: true));
-
                         setState(() {
                           isParticipating = true;
                         });
