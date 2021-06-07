@@ -433,8 +433,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   for (int a = 0; a < 4; a++) {
                     listOfHighScorersForChallenge
                         .add(snapshot.docs.elementAt(a).get("value") * 1.0);
-                    listOfHighScorersForChallengeNames
-                        .add(snapshot.docs.elementAt(a).get("username").toString());
+                    listOfHighScorersForChallengeNames.add(
+                        snapshot.docs.elementAt(a).get("username").toString());
                   }
 
                   snapshot.docs.forEach((doc) {
@@ -449,19 +449,26 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     listOfHighScorersForChallenge.add(0);
                     listOfHighScorersForChallengeNames.add("You");
                   }
-                  listOfHighScoringChallenge
-                      .putIfAbsent(doc.id.toString(), () => listOfHighScorersForChallenge);
-                  listOfHighScoringChallengeNames
-                      .putIfAbsent(doc.id.toString(), () => listOfHighScorersForChallengeNames);
+                  listOfHighScoringChallenge.putIfAbsent(
+                      doc.id.toString(), () => listOfHighScorersForChallenge);
+                  listOfHighScoringChallengeNames.putIfAbsent(doc.id.toString(),
+                      () => listOfHighScorersForChallengeNames);
                   print("Got high scorers for challenge: " +
-                      listOfHighScoringChallenge.toString() + ", names: " + listOfHighScoringChallengeNames.toString());
+                      listOfHighScoringChallenge.toString() +
+                      ", names: " +
+                      listOfHighScoringChallengeNames.toString());
                 } else {
                   listOfHighScoringChallenge.putIfAbsent(
-                      doc.id.toString(), () => [0, 0, 0, 0, 0]
-                  );
+                      doc.id.toString(), () => [0, 0, 0, 0, 0]);
                   listOfHighScoringChallengeNames.putIfAbsent(
-                      doc.id.toString(), () => ["LuckyYoda", "GenuineTurtle", "LoyalEagle12", "IamBatman", "You"]
-                  );
+                      doc.id.toString(),
+                      () => [
+                            "LuckyYoda",
+                            "GenuineTurtle",
+                            "LoyalEagle12",
+                            "IamBatman",
+                            "You"
+                          ]);
                 }
                 for (int x = 0; x < snapshot.docs.length; x++) {
                   print("here:111 $x " + snapshot.docs.length.toString());
@@ -477,6 +484,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                         goal: doc['goal'],
                         finishDate: upcomingChallengeExpiryDate,
                         points: doc['pointsForCompletion'],
+                        challengeType: doc['challengeType'],
                         isParticipating: true));
                     challengeCards.add(SizedBox(height: _height * 0.0125));
                     foundUserInChallenge = true;
@@ -491,6 +499,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       goal: doc['goal'],
                       finishDate: upcomingChallengeExpiryDate,
                       points: doc['pointsForCompletion'],
+                      challengeType: doc['challengeType'],
                       isParticipating: false));
                   challengeCards.add(SizedBox(height: _height * 0.0125));
                 }
@@ -504,6 +513,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   goal: doc['goal'],
                   finishDate: upcomingChallengeExpiryDate,
                   points: doc['pointsForCompletion'],
+                  challengeType: doc['challengeType'],
                   isParticipating: false));
               challengeCards.add(SizedBox(height: _height * 0.0125));
             }
@@ -627,13 +637,13 @@ class _DigiFitPageState extends State<DigiFitPage> {
     }
   }
 
-
   Widget buildChallengeCard(
       {String challengeName,
       String imageSource,
       String difficulty,
       String goal,
       DateTime finishDate,
+      String challengeType,
       int points,
       bool isParticipating}) {
     GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
@@ -673,8 +683,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       children: [
                                         Align(
                                           child: AutoSizeText(
-                                            listOfHighScoringChallengeNames
-                                            [challengeName][0]
+                                            listOfHighScoringChallengeNames[
+                                                    challengeName][0]
                                                 .toString(),
                                             maxLines: 1,
                                             style: TextStyle(
@@ -691,8 +701,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                         EdgeInsets.symmetric(horizontal: 25),
                                     child: Align(
                                       child: AutoSizeText(
-                                        listOfHighScoringChallenge
-                                                [challengeName][0]
+                                        listOfHighScoringChallenge[
+                                                challengeName][0]
                                             .round()
                                             .toString(),
                                         maxLines: 1,
@@ -725,8 +735,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       children: [
                                         Align(
                                           child: AutoSizeText(
-                                            listOfHighScoringChallengeNames
-                                            [challengeName][1]
+                                            listOfHighScoringChallengeNames[
+                                                    challengeName][1]
                                                 .toString(),
                                             maxLines: 1,
                                             style: TextStyle(
@@ -743,8 +753,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                         EdgeInsets.symmetric(horizontal: 25),
                                     child: Align(
                                       child: AutoSizeText(
-                                        listOfHighScoringChallenge
-                                                [challengeName][1]
+                                        listOfHighScoringChallenge[
+                                                challengeName][1]
                                             .round()
                                             .toString(),
                                         maxLines: 1,
@@ -777,8 +787,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       children: [
                                         Align(
                                           child: AutoSizeText(
-                                            listOfHighScoringChallengeNames
-                                            [challengeName][2]
+                                            listOfHighScoringChallengeNames[
+                                                    challengeName][2]
                                                 .toString(),
                                             maxLines: 1,
                                             style: TextStyle(
@@ -795,8 +805,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                         EdgeInsets.symmetric(horizontal: 25),
                                     child: Align(
                                       child: AutoSizeText(
-                                        listOfHighScoringChallenge
-                                                [challengeName][2]
+                                        listOfHighScoringChallenge[
+                                                challengeName][2]
                                             .round()
                                             .toString(),
                                         maxLines: 1,
@@ -829,8 +839,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       children: [
                                         Align(
                                           child: AutoSizeText(
-                                            listOfHighScoringChallengeNames
-                                            [challengeName][3]
+                                            listOfHighScoringChallengeNames[
+                                                    challengeName][3]
                                                 .toString(),
                                             maxLines: 1,
                                             style: TextStyle(
@@ -847,8 +857,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                         EdgeInsets.symmetric(horizontal: 25),
                                     child: Align(
                                       child: AutoSizeText(
-                                        listOfHighScoringChallenge
-                                                [challengeName][3]
+                                        listOfHighScoringChallenge[
+                                                challengeName][3]
                                             .round()
                                             .toString(),
                                         maxLines: 1,
@@ -866,7 +876,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                         Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: secondaryColor,
+                              color: tertiaryColor,
                             ),
                             height: 50,
                             width: MediaQuery.of(context).size.width,
@@ -881,8 +891,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                       children: [
                                         Align(
                                           child: AutoSizeText(
-                                            listOfHighScoringChallengeNames
-                                            [challengeName][4]
+                                            listOfHighScoringChallengeNames[
+                                                    challengeName][4]
                                                 .toString(),
                                             maxLines: 1,
                                             style: TextStyle(
@@ -899,8 +909,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                         EdgeInsets.symmetric(horizontal: 25),
                                     child: Align(
                                       child: AutoSizeText(
-                                        listOfHighScoringChallenge
-                                                [challengeName][4]
+                                        listOfHighScoringChallenge[
+                                                challengeName][4]
                                             .round()
                                             .toString(),
                                         maxLines: 1,
@@ -1027,8 +1037,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                     children: [
                                       Align(
                                         child: AutoSizeText(
-                                          listOfHighScoringChallengeNames
-                                          [challengeName][0]
+                                          listOfHighScoringChallengeNames[
+                                                  challengeName][0]
                                               .toString(),
                                           maxLines: 1,
                                           style: TextStyle(
@@ -1044,8 +1054,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: Align(
                                     child: AutoSizeText(
-                                      listOfHighScoringChallenge
-                                      [challengeName][0]
+                                      listOfHighScoringChallenge[challengeName]
+                                              [0]
                                           .round()
                                           .toString(),
                                       maxLines: 1,
@@ -1078,8 +1088,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                     children: [
                                       Align(
                                         child: AutoSizeText(
-                                          listOfHighScoringChallengeNames
-                                          [challengeName][1]
+                                          listOfHighScoringChallengeNames[
+                                                  challengeName][1]
                                               .toString(),
                                           maxLines: 1,
                                           style: TextStyle(
@@ -1095,8 +1105,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: Align(
                                     child: AutoSizeText(
-                                      listOfHighScoringChallenge
-                                      [challengeName][1]
+                                      listOfHighScoringChallenge[challengeName]
+                                              [1]
                                           .round()
                                           .toString(),
                                       maxLines: 1,
@@ -1129,8 +1139,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                     children: [
                                       Align(
                                         child: AutoSizeText(
-                                          listOfHighScoringChallengeNames
-                                          [challengeName][2]
+                                          listOfHighScoringChallengeNames[
+                                                  challengeName][2]
                                               .toString(),
                                           maxLines: 1,
                                           style: TextStyle(
@@ -1146,8 +1156,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: Align(
                                     child: AutoSizeText(
-                                      listOfHighScoringChallenge
-                                      [challengeName][2]
+                                      listOfHighScoringChallenge[challengeName]
+                                              [2]
                                           .round()
                                           .toString(),
                                       maxLines: 1,
@@ -1180,8 +1190,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                     children: [
                                       Align(
                                         child: AutoSizeText(
-                                          listOfHighScoringChallengeNames
-                                          [challengeName][3]
+                                          listOfHighScoringChallengeNames[
+                                                  challengeName][3]
                                               .toString(),
                                           maxLines: 1,
                                           style: TextStyle(
@@ -1197,8 +1207,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: Align(
                                     child: AutoSizeText(
-                                      listOfHighScoringChallenge
-                                      [challengeName][3]
+                                      listOfHighScoringChallenge[challengeName]
+                                              [3]
                                           .round()
                                           .toString(),
                                       maxLines: 1,
@@ -1216,7 +1226,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: secondaryColor,
+                            color: tertiaryColor,
                           ),
                           height: 50,
                           width: MediaQuery.of(context).size.width,
@@ -1231,8 +1241,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                     children: [
                                       Align(
                                         child: AutoSizeText(
-                                          listOfHighScoringChallengeNames
-                                          [challengeName][4]
+                                          listOfHighScoringChallengeNames[
+                                                  challengeName][4]
                                               .toString(),
                                           maxLines: 1,
                                           style: TextStyle(
@@ -1248,8 +1258,8 @@ class _DigiFitPageState extends State<DigiFitPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 25),
                                   child: Align(
                                     child: AutoSizeText(
-                                      listOfHighScoringChallenge
-                                      [challengeName][4]
+                                      listOfHighScoringChallenge[challengeName]
+                                              [4]
                                           .round()
                                           .toString(),
                                       maxLines: 1,
@@ -1325,8 +1335,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                     CupertinoButton(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                      child: Text(
-                          "Participate",
+                      child: Text("Participate",
                           style: TextStyle(
                               fontSize: 20,
                               color: primaryColor,
@@ -1339,14 +1348,43 @@ class _DigiFitPageState extends State<DigiFitPage> {
                               .firebaseAuth
                               .currentUser;
                           FirebaseFirestore.instance
-                              .collection('DigiFit Challenges')
-                              .doc(challengeName)
-                              .collection('Participants')
+                              .collection("User Data")
                               .doc(user.email)
-                              .set({"value": 0, "username": user.displayName}, SetOptions(merge: true));
-                          setState(() {
-                            isParticipating = true;
-                            cardKey.currentState.toggleCard();
+                              .collection("DigiFit Data")
+                              .doc(DateTime(DateTime.now().year,
+                                      DateTime.now().month, DateTime.now().day)
+                                  .toString())
+                              .get()
+                              .then((DocumentSnapshot document) {
+                                num value = 0;
+                                if(challengeType.contains("Distance")) {
+                                  value = (todaySteps * 0.000535).round();
+                                } else {
+                                  if(challengeType.contains("Calories")) {
+                                    value = todayCalories;
+                                  } else if(challengeType.contains("Steps")) {
+                                    value = todaySteps;
+                                  }
+                                }
+
+                                setState(() {
+                                  listOfHighScoringChallengeNames[challengeName][4] = "You";
+                                  listOfHighScoringChallenge[challengeName][4] = value;
+                                });
+
+                                print("CLICKED PARTICIPATE: VALUE -- $value");
+
+                            FirebaseFirestore.instance
+                                .collection('DigiFit Challenges')
+                                .doc(challengeName)
+                                .collection('Participants')
+                                .doc(user.email)
+                                .set({"value": value, "username": user.displayName},
+                                    SetOptions(merge: true));
+                            setState(() {
+                              isParticipating = true;
+                              cardKey.currentState.toggleCard();
+                            });
                           });
                         }
                       },
