@@ -29,6 +29,7 @@ class AuthService {
       "Diet Plan": "Not Set",
       "Points": 0,
       "Questionnaire": false,
+      "Previous Use Date": DateTime.now()
     });
 
     databaseReference
