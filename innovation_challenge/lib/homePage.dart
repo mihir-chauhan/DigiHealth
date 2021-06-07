@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                 .get()
                 .then((DocumentSnapshot snapshot) {
               lastOpenedDate = snapshot["Previous Use Date"].toDate();
-              if(lastOpenedDate.isBefore(startDate)) {
+              if(lastOpenedDate.isBefore(startDate) && DateTime.now().isAfter(startDate)) {
                 AlertController.show("New Challenges Await!",
                     "Check out new challenges under DigiFit!", TypeAlert.warning);
               }

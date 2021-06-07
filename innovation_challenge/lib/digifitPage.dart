@@ -198,8 +198,9 @@ class _DigiFitPageState extends State<DigiFitPage> {
             FirebaseFirestore.instance
                 .collection('User Data')
                 .doc(user.email)
-                .set({"Points": snapshot["Points"] + totalCaloriesGained.round()},
-                    SetOptions(merge: true));
+                .set({
+              "Points": snapshot["Points"] + totalCaloriesGained.round()
+            }, SetOptions(merge: true));
           });
         }
 
@@ -286,7 +287,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
               .collection('User Data')
               .doc(user.email)
               .set({"Points": snapshot["Points"] + totalCaloriesGained.round()},
-              SetOptions(merge: true));
+                  SetOptions(merge: true));
         });
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
@@ -382,6 +383,18 @@ class _DigiFitPageState extends State<DigiFitPage> {
 
   List<Widget> challengeCards = [];
 
+  Map<String, List<double>> listOfHighScoringChallenge = {
+    "a": [0, 0, 0, 0, 0],
+    "b": [0, 0, 0, 0, 0],
+    "c": [0, 0, 0, 0, 0]
+  };
+
+  Map<String, List<String>> listOfHighScoringChallengeNames = {
+    "a": ["a", "a", "a", "a", "a"],
+    "b": ["a", "a", "a", "a", "a"],
+    "c": ["a", "a", "a", "a", "a"]
+  };
+
   Widget updateViewBasedOnTab(int i) {
     if (!hasWrittenLatestFitnessData) {
       writeLatestFitnessData();
@@ -391,25 +404,67 @@ class _DigiFitPageState extends State<DigiFitPage> {
           .orderBy("endDate", descending: false)
           .get()
           .then((QuerySnapshot snapshot) {
-        DateTime upcomingChallengeExpiryDate;
+        DateTime upcomingChallengeExpiryDate = DateTime(1970, 1, 1);
         int i = 0;
         snapshot.docs.forEach((doc) {
           DateTime expiryOfChallenge = doc["endDate"].toDate();
-          if (i == 0) {
+          if (i == 0 && expiryOfChallenge.isAfter(DateTime.now())) {
             upcomingChallengeExpiryDate = expiryOfChallenge;
             time = upcomingChallengeExpiryDate.difference(DateTime.now());
             i++;
           }
           if (expiryOfChallenge.isAtSameMomentAs(upcomingChallengeExpiryDate)) {
             try {
+              listOfHighScoringChallenge.clear();
+              listOfHighScoringChallengeNames.clear();
+              print("READING DOCUMENT: " + doc.id.toString());
+
+              bool foundUserInChallenge = false;
               FirebaseFirestore.instance
                   .collection('DigiFit Challenges')
                   .doc(doc.id.toString())
                   .collection("Participants")
+                  .orderBy("value", descending: true)
                   .get()
                   .then((QuerySnapshot snapshot) {
-                for (int x = 0; x < snapshot.docs.length; i++) {
-                  print("here:111");
+                if (snapshot.docs.length >= 4) {
+                  List<double> listOfHighScorersForChallenge = [];
+                  List<String> listOfHighScorersForChallengeNames = [];
+                  for (int a = 0; a < 4; a++) {
+                    listOfHighScorersForChallenge
+                        .add(snapshot.docs.elementAt(a).get("value") * 1.0);
+                    listOfHighScorersForChallengeNames
+                        .add(snapshot.docs.elementAt(a).get("username").toString());
+                  }
+
+                  snapshot.docs.forEach((doc) {
+                    if (doc.id.toString().contains(user.email)) {
+                      print("found myself");
+                      listOfHighScorersForChallenge
+                          .add(doc['value'].toDouble());
+                      listOfHighScorersForChallengeNames.add("You");
+                    }
+                  });
+                  if (listOfHighScorersForChallenge.length < 5) {
+                    listOfHighScorersForChallenge.add(0);
+                    listOfHighScorersForChallengeNames.add("You");
+                  }
+                  listOfHighScoringChallenge
+                      .putIfAbsent(doc.id.toString(), () => listOfHighScorersForChallenge);
+                  listOfHighScoringChallengeNames
+                      .putIfAbsent(doc.id.toString(), () => listOfHighScorersForChallengeNames);
+                  print("Got high scorers for challenge: " +
+                      listOfHighScoringChallenge.toString() + ", names: " + listOfHighScoringChallengeNames.toString());
+                } else {
+                  listOfHighScoringChallenge.putIfAbsent(
+                      doc.id.toString(), () => [0, 0, 0, 0, 0]
+                  );
+                  listOfHighScoringChallengeNames.putIfAbsent(
+                      doc.id.toString(), () => ["LuckyYoda", "GenuineTurtle", "LoyalEagle12", "IamBatman", "You"]
+                  );
+                }
+                for (int x = 0; x < snapshot.docs.length; x++) {
+                  print("here:111 $x " + snapshot.docs.length.toString());
                   if (snapshot.docs
                       .elementAt(x)
                       .id
@@ -424,19 +479,20 @@ class _DigiFitPageState extends State<DigiFitPage> {
                         points: doc['pointsForCompletion'],
                         isParticipating: true));
                     challengeCards.add(SizedBox(height: _height * 0.0125));
-                    break;
-                  } else {
-                    challengeCards.add(buildChallengeCard(
-                        challengeName: doc.id.toString(),
-                        imageSource: doc['image'],
-                        difficulty: doc['complexity'],
-                        goal: doc['goal'],
-                        finishDate: upcomingChallengeExpiryDate,
-                        points: doc['pointsForCompletion'],
-                        isParticipating: false));
-                    challengeCards.add(SizedBox(height: _height * 0.0125));
+                    foundUserInChallenge = true;
                     break;
                   }
+                }
+                if (!foundUserInChallenge) {
+                  challengeCards.add(buildChallengeCard(
+                      challengeName: doc.id.toString(),
+                      imageSource: doc['image'],
+                      difficulty: doc['complexity'],
+                      goal: doc['goal'],
+                      finishDate: upcomingChallengeExpiryDate,
+                      points: doc['pointsForCompletion'],
+                      isParticipating: false));
+                  challengeCards.add(SizedBox(height: _height * 0.0125));
                 }
               });
             } catch (e) {
@@ -454,6 +510,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
           }
         });
       });
+
       hasWrittenLatestFitnessData = true;
     }
 
@@ -570,6 +627,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
     }
   }
 
+
   Widget buildChallengeCard(
       {String challengeName,
       String imageSource,
@@ -579,10 +637,639 @@ class _DigiFitPageState extends State<DigiFitPage> {
       int points,
       bool isParticipating}) {
     GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
-    return FlipCard(
-      key: cardKey,
-      back: Container(
-        child: Card(
+    try {
+      if (isParticipating) {
+        return FlipCard(
+          key: cardKey,
+          back: Container(
+            child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              color: secondaryColor,
+              shadowColor: Colors.black54,
+              child: Container(
+                  width: _width * 0.9,
+                  child: Padding(
+                    padding: EdgeInsets.all(15),
+                    child: Column(
+                      children: [
+                        Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: secondaryColor,
+                            ),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15, right: 15, top: 7.5, bottom: 7.5),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Align(
+                                          child: AutoSizeText(
+                                            listOfHighScoringChallengeNames
+                                            [challengeName][0]
+                                                .toString(),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontSize: 100),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 25),
+                                    child: Align(
+                                      child: AutoSizeText(
+                                        listOfHighScoringChallenge
+                                                [challengeName][0]
+                                            .round()
+                                            .toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: secondaryColor,
+                            ),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15, right: 15, top: 7.5, bottom: 7.5),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Align(
+                                          child: AutoSizeText(
+                                            listOfHighScoringChallengeNames
+                                            [challengeName][1]
+                                                .toString(),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontSize: 100),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 25),
+                                    child: Align(
+                                      child: AutoSizeText(
+                                        listOfHighScoringChallenge
+                                                [challengeName][1]
+                                            .round()
+                                            .toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: secondaryColor,
+                            ),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15, right: 15, top: 7.5, bottom: 7.5),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Align(
+                                          child: AutoSizeText(
+                                            listOfHighScoringChallengeNames
+                                            [challengeName][2]
+                                                .toString(),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontSize: 100),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 25),
+                                    child: Align(
+                                      child: AutoSizeText(
+                                        listOfHighScoringChallenge
+                                                [challengeName][2]
+                                            .round()
+                                            .toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: secondaryColor,
+                            ),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15, right: 15, top: 7.5, bottom: 7.5),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Align(
+                                          child: AutoSizeText(
+                                            listOfHighScoringChallengeNames
+                                            [challengeName][3]
+                                                .toString(),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontSize: 100),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 25),
+                                    child: Align(
+                                      child: AutoSizeText(
+                                        listOfHighScoringChallenge
+                                                [challengeName][3]
+                                            .round()
+                                            .toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: secondaryColor,
+                            ),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                left: 15, right: 15, top: 7.5, bottom: 7.5),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Align(
+                                          child: AutoSizeText(
+                                            listOfHighScoringChallengeNames
+                                            [challengeName][4]
+                                                .toString(),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontSize: 100),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 25),
+                                    child: Align(
+                                      child: AutoSizeText(
+                                        listOfHighScoringChallenge
+                                                [challengeName][4]
+                                            .round()
+                                            .toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontSize: 100,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ))
+                      ],
+                    ),
+                  )),
+            ),
+          ),
+          front: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            color: secondaryColor,
+            shadowColor: Colors.black54,
+            child: Container(
+                width: _width * 0.9,
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Image.network(imageSource),
+                      SizedBox(height: _height * 0.0125),
+                      Padding(
+                          padding: EdgeInsets.only(left: 10, right: 10),
+                          child: AutoSizeText(challengeName,
+                              maxLines: 1,
+                              maxFontSize: 30,
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontWeight: FontWeight.w200))),
+                      SizedBox(height: _height * 0.0125),
+                      Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          child: AutoSizeText(goal,
+                              maxLines: 2,
+                              maxFontSize: 22,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.white,
+                                  fontFamily: 'Nunito',
+                                  fontWeight: FontWeight.w200))),
+                      SizedBox(height: _height * 0.0125),
+                      Text("Complexity: $difficulty",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200)),
+                      Text("Points: $points",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200)),
+                      SizedBox(height: _height * 0.0125),
+                      CupertinoButton(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
+                        child: Text("View Competitors",
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: primaryColor,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w200)),
+                        onPressed: () async {
+                          cardKey.currentState.toggleCard();
+                        },
+                      )
+                    ],
+                  ),
+                )),
+          ),
+        );
+      }
+      return FlipCard(
+        key: cardKey,
+        flipOnTouch: false,
+        back: Container(
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            color: secondaryColor,
+            shadowColor: Colors.black54,
+            child: Container(
+                width: _width * 0.9,
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: secondaryColor,
+                          ),
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 15, right: 15, top: 7.5, bottom: 7.5),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Align(
+                                        child: AutoSizeText(
+                                          listOfHighScoringChallengeNames
+                                          [challengeName][0]
+                                              .toString(),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontSize: 100),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Align(
+                                    child: AutoSizeText(
+                                      listOfHighScoringChallenge
+                                      [challengeName][0]
+                                          .round()
+                                          .toString(),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontSize: 100,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: secondaryColor,
+                          ),
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 15, right: 15, top: 7.5, bottom: 7.5),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Align(
+                                        child: AutoSizeText(
+                                          listOfHighScoringChallengeNames
+                                          [challengeName][1]
+                                              .toString(),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontSize: 100),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Align(
+                                    child: AutoSizeText(
+                                      listOfHighScoringChallenge
+                                      [challengeName][1]
+                                          .round()
+                                          .toString(),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontSize: 100,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: secondaryColor,
+                          ),
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 15, right: 15, top: 7.5, bottom: 7.5),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Align(
+                                        child: AutoSizeText(
+                                          listOfHighScoringChallengeNames
+                                          [challengeName][2]
+                                              .toString(),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontSize: 100),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Align(
+                                    child: AutoSizeText(
+                                      listOfHighScoringChallenge
+                                      [challengeName][2]
+                                          .round()
+                                          .toString(),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontSize: 100,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: secondaryColor,
+                          ),
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 15, right: 15, top: 7.5, bottom: 7.5),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Align(
+                                        child: AutoSizeText(
+                                          listOfHighScoringChallengeNames
+                                          [challengeName][3]
+                                              .toString(),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontSize: 100),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Align(
+                                    child: AutoSizeText(
+                                      listOfHighScoringChallenge
+                                      [challengeName][3]
+                                          .round()
+                                          .toString(),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontSize: 100,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: secondaryColor,
+                          ),
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 15, right: 15, top: 7.5, bottom: 7.5),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Align(
+                                        child: AutoSizeText(
+                                          listOfHighScoringChallengeNames
+                                          [challengeName][4]
+                                              .toString(),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontSize: 100),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Align(
+                                    child: AutoSizeText(
+                                      listOfHighScoringChallenge
+                                      [challengeName][4]
+                                          .round()
+                                          .toString(),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontSize: 100,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ))
+                    ],
+                  ),
+                )),
+          ),
+        ),
+        front: Card(
           elevation: 5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
@@ -595,327 +1282,84 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 padding: EdgeInsets.all(15),
                 child: Column(
                   children: [
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: secondaryColor,
-                        ),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15, right: 15, top: 7.5, bottom: 7.5),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Align(
-                                      child: AutoSizeText(
-                                        "User",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Nunito',
-                                            fontSize: 100),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Align(
-                                  child: AutoSizeText(
-                                    "1115",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: secondaryColor,
-                        ),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15, right: 15, top: 7.5, bottom: 7.5),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Align(
-                                      child: AutoSizeText(
-                                        "User",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Nunito',
-                                            fontSize: 100),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Align(
-                                  child: AutoSizeText(
-                                    "1114",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: secondaryColor,
-                        ),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15, right: 15, top: 7.5, bottom: 7.5),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Align(
-                                      child: AutoSizeText(
-                                        "User",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Nunito',
-                                            fontSize: 100),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Align(
-                                  child: AutoSizeText(
-                                    "1113",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: secondaryColor,
-                        ),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15, right: 15, top: 7.5, bottom: 7.5),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Align(
-                                      child: AutoSizeText(
-                                        "User",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Nunito',
-                                            fontSize: 100),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Align(
-                                  child: AutoSizeText(
-                                    "1112",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: secondaryColor,
-                        ),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 15, right: 15, top: 7.5, bottom: 7.5),
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Align(
-                                      child: AutoSizeText(
-                                        "You",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Nunito',
-                                            fontSize: 100),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Align(
-                                  child: AutoSizeText(
-                                    "1111",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ))
+                    Image.network(imageSource),
+                    SizedBox(height: _height * 0.0125),
+                    Padding(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: AutoSizeText(challengeName,
+                            maxLines: 1,
+                            maxFontSize: 30,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w200))),
+                    SizedBox(height: _height * 0.0125),
+                    Padding(
+                        padding: EdgeInsets.only(left: 20, right: 20),
+                        child: AutoSizeText(goal,
+                            maxLines: 2,
+                            maxFontSize: 22,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w200))),
+                    SizedBox(height: _height * 0.0125),
+                    Text("Complexity: $difficulty",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200)),
+                    Text("Points: $points",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w200)),
+                    SizedBox(height: _height * 0.0125),
+                    CupertinoButton(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      child: Text(
+                          "Participate",
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: primaryColor,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w200)),
+                      onPressed: () async {
+                        if (!isParticipating) {
+                          final User user = Provider.of(context)
+                              .auth
+                              .firebaseAuth
+                              .currentUser;
+                          FirebaseFirestore.instance
+                              .collection('DigiFit Challenges')
+                              .doc(challengeName)
+                              .collection('Participants')
+                              .doc(user.email)
+                              .set({"value": 0, "username": user.displayName}, SetOptions(merge: true));
+                          setState(() {
+                            isParticipating = true;
+                            cardKey.currentState.toggleCard();
+                          });
+                        }
+                      },
+                    )
                   ],
                 ),
               )),
         ),
-      ),
-      front: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        color: secondaryColor,
-        shadowColor: Colors.black54,
-        child: Container(
-            width: _width * 0.9,
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                children: [
-                  Image.network(imageSource),
-                  SizedBox(height: _height * 0.0125),
-                  Padding(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      child: AutoSizeText(challengeName,
-                          maxLines: 1,
-                          maxFontSize: 30,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
-                  SizedBox(height: _height * 0.0125),
-                  Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      child: AutoSizeText(goal,
-                          maxLines: 2,
-                          maxFontSize: 22,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
-                  SizedBox(height: _height * 0.0125),
-                  Text("Complexity: $difficulty",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w200)),
-                  Text("Points: $points",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w200)),
-                  SizedBox(height: _height * 0.0125),
-                  CupertinoButton(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(30)),
-                    child: Text(
-                        !isParticipating ? "Participate" : "View Competitors",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: primaryColor,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w200)),
-                    onPressed: () async {
-                      if (!isParticipating) {
-                        final User user =
-                            Provider.of(context).auth.firebaseAuth.currentUser;
-                        FirebaseFirestore.instance
-                            .collection('DigiFit Challenges')
-                            .doc(challengeName)
-                            .collection('Participants')
-                            .doc(user.email)
-                            .set({"value": 0}, SetOptions(merge: true));
-                        setState(() {
-                          isParticipating = true;
-                        });
-                      } else {
-                        cardKey.currentState.toggleCard();
-                      }
-                    },
-                  )
-                ],
-              ),
-            )),
-      ),
-    );
+      );
+    } catch (e) {
+      print("CCard errors " + e.toString());
+    }
+    return Text("");
   }
 
   Widget buildFitDataPage() {
@@ -1041,13 +1485,14 @@ class _DigiFitPageState extends State<DigiFitPage> {
         ],
       );
     } else {
+      int todayCaloriesRounded = todayCalories.round();
       return new Column(
         children: [
           SizedBox(height: _height * 0.05),
           Padding(
             padding: EdgeInsets.all(8),
             child: Text(
-              "Today's Calorie Goal: $todayCalories of $calorieGoal",
+              "Today's Calorie Goal: $todayCaloriesRounded of $calorieGoal",
               style: TextStyle(
                   color: Colors.white, fontFamily: 'Nunito', fontSize: 20),
             ),
