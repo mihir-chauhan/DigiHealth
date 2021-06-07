@@ -174,45 +174,45 @@ class _HomePageState extends State<HomePage> {
   void popupInSeconds(int time) async {
     await Future.delayed(Duration(milliseconds: time), () {
       if (!hasShownDialog) {
-        showCupertinoDialog(
-            context: context,
-            builder: (_) => Container(
-                  child: NetworkGiffyDialog(
-                    image: Image.asset("welcome.gif"),
-                    title: Text("Welcome to DigiHealth!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.w600)),
-                    description: Text(
-                      "Choose a workout or get diet suggestions from intelligent AI, encourage others with the chat, and view your all-time stats!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w400),
-                    ),
-                    entryAnimation: EntryAnimation.DEFAULT,
-                    onOkButtonPressed: () {},
-                    buttonCancelText: Text(
-                      "I'm Ready!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w300),
-                    ),
-                    buttonCancelColor: primaryColor,
-                    onlyCancelButton: true,
-                    onCancelButtonPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ));
+        // showCupertinoDialog(
+        //     context: context,
+        //     builder: (_) => Container(
+        //           child: NetworkGiffyDialog(
+        //             image: Image.asset("welcome.gif"),
+        //             title: Text("Welcome to DigiHealth!",
+        //                 textAlign: TextAlign.center,
+        //                 style: TextStyle(
+        //                     fontSize: 15,
+        //                     color: Colors.black,
+        //                     fontFamily: 'Nunito',
+        //                     fontWeight: FontWeight.w600)),
+        //             description: Text(
+        //               "Choose a workout or get diet suggestions from intelligent AI, encourage others with the chat, and view your all-time stats!",
+        //               textAlign: TextAlign.center,
+        //               style: TextStyle(
+        //                   fontSize: 14,
+        //                   color: Colors.black87,
+        //                   fontFamily: 'Nunito',
+        //                   fontWeight: FontWeight.w400),
+        //             ),
+        //             entryAnimation: EntryAnimation.DEFAULT,
+        //             onOkButtonPressed: () {},
+        //             buttonCancelText: Text(
+        //               "I'm Ready!",
+        //               textAlign: TextAlign.center,
+        //               style: TextStyle(
+        //                   fontSize: 14,
+        //                   color: Colors.white,
+        //                   fontFamily: 'Nunito',
+        //                   fontWeight: FontWeight.w300),
+        //             ),
+        //             buttonCancelColor: primaryColor,
+        //             onlyCancelButton: true,
+        //             onCancelButtonPressed: () {
+        //               Navigator.of(context).pop();
+        //             },
+        //           ),
+        //         ));
         hasShownDialog = true;
         Provider.of(context).auth.madeNewAccount = false;
       }

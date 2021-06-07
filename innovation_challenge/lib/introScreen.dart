@@ -36,7 +36,7 @@ class IntroScreenState extends State<IntroScreen> {
           fontSize: 30.0,
         ),
         pathImage: "assets/DigiHealthLogoAndroid.png",
-        backgroundColor: primaryColor,
+        backgroundColor: Color(0xFF001d36),
       ),
     );
     slides.add(
@@ -49,7 +49,7 @@ class IntroScreenState extends State<IntroScreen> {
           fontWeight: FontWeight.w600,
         ),
         description:
-            "No need to open the app to record activity! Earn points through exercising and win medals for bonus points to your showcase!",
+            "Automatically load fitness data from Apple Health or Google Fit! Earn points through exercising and win medals by completing challenges!",
         styleDescription: TextStyle(
           fontFamily: 'Nunito',
           color: Colors.white,
@@ -58,9 +58,9 @@ class IntroScreenState extends State<IntroScreen> {
         centerWidget: Icon(
           Icons.sports_handball_rounded,
           size: 200.0,
-          color: Colors.blueGrey,
+          color: Color(0xFFccada9),
         ),
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Color(0xFF765C59),
       ),
     );
     slides.add(
@@ -82,9 +82,9 @@ class IntroScreenState extends State<IntroScreen> {
         centerWidget: Icon(
           Icons.fastfood_rounded,
           size: 200.0,
-          color: Colors.pink[200],
+          color: Color(0xFFdb937d),
         ),
-        backgroundColor: Colors.purpleAccent,
+        backgroundColor: Color(0xFFab492c),
       ),
     );
     slides.add(
@@ -97,7 +97,7 @@ class IntroScreenState extends State<IntroScreen> {
           fontWeight: FontWeight.w600,
         ),
         description:
-            "You can view both your everyday adventures in DigiFit and body metrics in DigiDiet!",
+            "You can view your everyday adventures in DigiFit and body metrics in DigiDiet!",
         styleDescription: TextStyle(
           fontFamily: 'Nunito',
           color: Colors.white,
@@ -106,9 +106,9 @@ class IntroScreenState extends State<IntroScreen> {
         centerWidget: Icon(
           Icons.trending_up_rounded,
           size: 200.0,
-          color: Colors.deepPurple,
+          color: Color(0xFFf5e578),
         ),
-        backgroundColor: Colors.red,
+        backgroundColor: Color(0xFFab9b2c),
       ),
     );
     slides.add(
@@ -130,9 +130,9 @@ class IntroScreenState extends State<IntroScreen> {
         centerWidget: Icon(
           Icons.chat_rounded,
           size: 200.0,
-          color: Colors.teal,
+          color: Color(0xFFc6edb2),
         ),
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color(0xFF76ae59),
       ),
     );
     slides.add(
@@ -145,7 +145,7 @@ class IntroScreenState extends State<IntroScreen> {
           fontWeight: FontWeight.w600,
         ),
         description:
-            "Compete through points to become the DigiHealth champ and aim for the one-and-only DigiHealth medal!",
+            "Compete through points to become the DigiHealth champion!",
         styleDescription: TextStyle(
           fontFamily: 'Nunito',
           color: Colors.white,
@@ -154,9 +154,9 @@ class IntroScreenState extends State<IntroScreen> {
         centerWidget: Icon(
           Icons.leaderboard_rounded,
           size: 200.0,
-          color: Colors.brown,
+          color: Color(0xFFb37f90),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Color(0xFF6b3345),
       ),
     );
   }
