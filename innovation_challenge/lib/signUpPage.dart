@@ -81,7 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
               builder: (context) => LoadingScreen(),
             ),
           );
-          await Future.delayed(const Duration(milliseconds: 500), () {});
+          await Future.delayed(const Duration(milliseconds: 2000), () {});
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -98,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
               builder: (context) => LoadingScreen(),
             ),
           );
-          await Future.delayed(const Duration(milliseconds: 500), () {});
+          await Future.delayed(const Duration(milliseconds: 2000), () {});
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -220,7 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
             fontFamily: 'Nunito',
             fontWeight: FontWeight.w300),
         onChanged: (String value) => _name = value,
-        placeholder: "Display Name (4-10 char)",
+        placeholder: "Display Name",
         placeholderStyle: TextStyle(color: hintColor),
         cursorColor: Colors.black87,
         keyboardType: TextInputType.text,

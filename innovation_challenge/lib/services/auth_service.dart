@@ -29,7 +29,7 @@ class AuthService {
       "Diet Plan": "Not Set",
       "Points": 0,
       "Questionnaire": false,
-      "Previous Use Date": DateTime.now()
+      "Previous Use Date": DateTime.now().subtract(Duration(days: 7))
     });
 
     databaseReference
@@ -66,7 +66,7 @@ class NameValidator {
     if (value.length < 2) {
       return "Name must be at least 2 characters long";
     }
-    if (value.length > 20) {
+    if (value.length > 10) {
       return "Name must be less than 20 characters long";
     }
     return null;

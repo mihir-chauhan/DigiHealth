@@ -163,7 +163,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void launchQuestionnaire() async {
-    await Future.delayed(Duration(milliseconds: 3000), () {
+    print("opening questionnaire");
+    await Future.delayed(Duration(milliseconds: 1000), () {
       Navigator.push(context,
           CupertinoPageRoute(builder: (context) => QuestionnairePage()));
     });

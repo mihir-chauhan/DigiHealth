@@ -28,6 +28,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(
                     color: Colors.white, fontFamily: 'Nunito')),
             backgroundColor: secondaryColor,
+          leading: GestureDetector(
+            child: Icon(
+              Icons.circle,
+              color: secondaryColor,
+            ),
+          ),
             trailing: GestureDetector(
               onTap: () async {
                 try {
