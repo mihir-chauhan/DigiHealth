@@ -171,7 +171,16 @@ class _DigiFitPageState extends State<DigiFitPage> {
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
-              .set({"Steps": steps}, SetOptions(merge: true));
+              .set({"Steps": steps, "timeStamp": DateTime.now()}, SetOptions(merge: true));
+        } else {
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('DigiFit Data')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day)
+              .toString())
+              .set({"Steps": 0, "timeStamp": DateTime.now()}, SetOptions(merge: true));
         }
 
         if (calorieData.length > 0) {
@@ -188,20 +197,13 @@ class _DigiFitPageState extends State<DigiFitPage> {
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
-              .set({"Calories": calories}, SetOptions(merge: true));
+              .set({"Calories": calories, "timeStamp": DateTime.now()}, SetOptions(merge: true));
           totalCaloriesGained = calories;
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
               .get()
               .then((DocumentSnapshot snapshot) {
-            FirebaseFirestore.instance
-                .collection('User Data')
-                .doc(user.email)
-                .set({
-              "Points": snapshot["Points"] + totalCaloriesGained.round()
-            }, SetOptions(merge: true));
-
             FirebaseFirestore.instance
                 .collection('DigiFit Challenges')
                 .orderBy("endDate", descending: false)
@@ -238,6 +240,15 @@ class _DigiFitPageState extends State<DigiFitPage> {
               });
             });
           });
+        } else {
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('DigiFit Data')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day)
+              .toString())
+              .set({"Calories": 0, "timeStamp": DateTime.now()}, SetOptions(merge: true));
         }
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
@@ -269,7 +280,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .collection('User Data')
                 .doc(user.email)
                 .collection('DigiFit Data')
-                .doc(newDate.toString())
+                .doc(DateTime(newDate.year, newDate.month, newDate.day).toString())
                 .set({"Steps": steps, "timeStamp": newDate},
                     SetOptions(merge: true));
 
@@ -312,7 +323,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   .collection('User Data')
                   .doc(user.email)
                   .collection('DigiFit Data')
-                  .doc(newDate.toString())
+                  .doc(DateTime(newDate.year, newDate.month, newDate.day).toString())
                   .set({"Calories": 0}, SetOptions(merge: true));
             }
           }
@@ -333,7 +344,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .collection('User Data')
                 .doc(user.email)
                 .collection('DigiFit Data')
-                .doc(newDate.toString())
+                .doc(DateTime(newDate.year, newDate.month, newDate.day).toString())
                 .set({"Calories": calories, "timeStamp": newDate},
                     SetOptions(merge: true));
             totalCaloriesGained += calories;
@@ -375,23 +386,11 @@ class _DigiFitPageState extends State<DigiFitPage> {
                   .collection('User Data')
                   .doc(user.email)
                   .collection('DigiFit Data')
-                  .doc(newDate.toString())
+                  .doc(DateTime(newDate.year, newDate.month, newDate.day).toString())
                   .set({"Steps": 0}, SetOptions(merge: true));
             }
           }
         }
-
-        FirebaseFirestore.instance
-            .collection('User Data')
-            .doc(user.email)
-            .get()
-            .then((DocumentSnapshot snapshot) {
-          FirebaseFirestore.instance
-              .collection('User Data')
-              .doc(user.email)
-              .set({"Points": snapshot["Points"] + totalCaloriesGained.round()},
-                  SetOptions(merge: true));
-        });
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
             {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
