@@ -135,7 +135,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
     }).then((value) async {
       print("Restore? " +
           DateTime.now().difference(lastOpenedDate).inDays.toString());
-      if (DateTime.now().difference(lastOpenedDate).inDays > 7) {
+      if (DateTime.now().difference(lastOpenedDate).inDays > 14) {
         print("Not restoring data");
       } else if (DateTime.now().difference(lastOpenedDate).inDays == 0) {
         print("Updating today's data");
@@ -395,7 +395,128 @@ class _DigiFitPageState extends State<DigiFitPage> {
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
             {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
       }
+
+      // Calling again to update today's data because when time is over 1 day, it doesn't update.
+
+      print("Updating today's data");
+      SparseList stepData = await getHealthData(
+          DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day),
+          DataType.STEP_COUNT);
+      print("Got step Data: " + stepData.toString());
+
+      SparseList calorieData = await getHealthData(
+          DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day),
+          DataType.ENERGY);
+      print("Got calorie Data: " + calorieData.toString());
+
+      // SparseList heartData = await getHealthData(
+      //     DateTime(
+      //         DateTime.now().year, DateTime.now().month, DateTime.now().day),
+      //     DataType.HEART_RATE);
+      // print("Got heart Data: " + heartData.toString());
+      num steps = 0;
+      if (stepData.length > 0) {
+        steps = stepData.elementAt(0);
+        print("-- Date: " +
+            DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day)
+                .toString() +
+            ", Steps: $steps");
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('DigiFit Data')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day)
+            .toString())
+            .set({"Steps": steps, "timeStamp": DateTime.now()}, SetOptions(merge: true));
+      } else {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('DigiFit Data')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day)
+            .toString())
+            .set({"Steps": 0, "timeStamp": DateTime.now()}, SetOptions(merge: true));
+      }
+
+      if (calorieData.length > 0) {
+        num calories = calorieData.elementAt(0);
+        print("-- Date: " +
+            DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day)
+                .toString() +
+            ", Calories: $calories");
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('DigiFit Data')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day)
+            .toString())
+            .set({"Calories": calories, "timeStamp": DateTime.now()}, SetOptions(merge: true));
+        totalCaloriesGained = calories;
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .get()
+            .then((DocumentSnapshot snapshot) {
+          FirebaseFirestore.instance
+              .collection('DigiFit Challenges')
+              .orderBy("endDate", descending: false)
+              .get()
+              .then((QuerySnapshot snapshot) {
+            snapshot.docs.forEach((doc) {
+              FirebaseFirestore.instance
+                  .collection('DigiFit Challenges')
+                  .doc(doc.id.toString())
+                  .collection("Participants")
+                  .orderBy("value", descending: true)
+                  .get()
+                  .then((QuerySnapshot snapshot) {
+                snapshot.docs.forEach((document) {
+                  if (document.id.toString().contains(user.email)) {
+                    FirebaseFirestore.instance
+                        .collection('DigiFit Challenges')
+                        .doc(doc.id.toString())
+                        .get()
+                        .then((docData) {
+                      if(docData["challengeType"].toString().contains("Calories")) {
+                        print("updating calories: $totalCaloriesGained for " + doc.id.toString());
+                        updateChallengeData(totalCaloriesGained, doc.id.toString());
+                      } else if(docData["challengeType"].toString().contains("Steps")) {
+                        print("updating steps: $steps for " + doc.id.toString());
+                        updateChallengeData(steps.toDouble(), doc.id.toString());
+                      } else if(docData["challengeType"].toString().contains("Distance")) {
+                        updateChallengeData(steps.toDouble() * 0.000535, doc.id.toString());
+                      }
+                    });
+                  }
+                });
+              });
+            });
+          });
+        });
+      } else {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('DigiFit Data')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day)
+            .toString())
+            .set({"Calories": 0, "timeStamp": DateTime.now()}, SetOptions(merge: true));
+      }
+
+      FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+          {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
+
+
     }).then((value) {
+      // Graph Population
       FirebaseFirestore.instance
           .collection('User Data')
           .doc(user.email)
