@@ -117,6 +117,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           ),
           trailing: GestureDetector(
             onTap: () async {
+              final User user =
+                  Provider.of(context).auth.firebaseAuth.currentUser;
+              FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+                  {"Previous Use Date": DateTime.now().subtract(Duration(days: 7))}, SetOptions(merge: true));
               print('steps goal: $stepsGoal & calorie count: $calorieCount');
               print(question1Selection.toString());
               print(question2Selection.toString());
@@ -140,8 +144,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   fitquestion5Selection != -1 &&
                   stepsGoal != 0 &&
                   calorieCount != 0) {
-                final User user =
-                    Provider.of(context).auth.firebaseAuth.currentUser;
+
                 final databaseReference = FirebaseFirestore.instance;
                 print('database instance');
 
