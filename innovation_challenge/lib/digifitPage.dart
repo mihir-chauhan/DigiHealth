@@ -198,48 +198,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
                       DateTime.now().day)
                   .toString())
               .set({"Calories": calories, "timeStamp": DateTime.now()}, SetOptions(merge: true));
-          totalCaloriesGained = calories;
-          FirebaseFirestore.instance
-              .collection('User Data')
-              .doc(user.email)
-              .get()
-              .then((DocumentSnapshot snapshot) {
-            FirebaseFirestore.instance
-                .collection('DigiFit Challenges')
-                .orderBy("endDate", descending: false)
-                .get()
-                .then((QuerySnapshot snapshot) {
-              snapshot.docs.forEach((doc) {
-                FirebaseFirestore.instance
-                    .collection('DigiFit Challenges')
-                    .doc(doc.id.toString())
-                    .collection("Participants")
-                    .orderBy("value", descending: true)
-                    .get()
-                    .then((QuerySnapshot snapshot) {
-                  snapshot.docs.forEach((document) {
-                    if (document.id.toString().contains(user.email)) {
-                      FirebaseFirestore.instance
-                          .collection('DigiFit Challenges')
-                          .doc(doc.id.toString())
-                          .get()
-                          .then((docData) {
-                        if(docData["challengeType"].toString().contains("Calories")) {
-                          print("updating calories: $totalCaloriesGained for " + doc.id.toString());
-                          updateChallengeData(totalCaloriesGained, doc.id.toString());
-                        } else if(docData["challengeType"].toString().contains("Steps")) {
-                          print("updating steps: $steps for " + doc.id.toString());
-                          updateChallengeData(steps.toDouble(), doc.id.toString());
-                        } else if(docData["challengeType"].toString().contains("Distance")) {
-                          updateChallengeData(steps.toDouble() * 0.000535, doc.id.toString());
-                        }
-                      });
-                    }
-                  });
-                });
-              });
-            });
-          });
         } else {
           FirebaseFirestore.instance
               .collection('User Data')
@@ -284,40 +242,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .set({"Steps": steps, "timeStamp": newDate},
                     SetOptions(merge: true));
 
-            FirebaseFirestore.instance
-                .collection('DigiFit Challenges')
-                .orderBy("endDate", descending: false)
-                .get()
-                .then((QuerySnapshot snapshot) {
-              snapshot.docs.forEach((doc) {
-                FirebaseFirestore.instance
-                    .collection('DigiFit Challenges')
-                    .doc(doc.id.toString())
-                    .collection("Participants")
-                    .orderBy("value", descending: true)
-                    .get()
-                    .then((QuerySnapshot snapshot) {
-                  snapshot.docs.forEach((document) {
-                    if (document.id.toString().contains(user.email)) {
-                      FirebaseFirestore.instance
-                          .collection('DigiFit Challenges')
-                          .doc(doc.id.toString())
-                          .get()
-                          .then((docData) {
-                        if(docData["challengeType"].toString().contains("Steps")) {
-                          print("updating steps: $steps for " + doc.id.toString());
-                          updateChallengeData(steps.toDouble(), doc.id.toString());
-                        } else if(docData["challengeType"].toString().contains("Distance")) {
-                          updateChallengeData(steps.toDouble() * 0.000535, doc.id.toString());
-                        }
-                      });
-                    }
-                  });
-                });
-              });
-            });
-
-
             if (calorieData.length <= i + 1) {
               FirebaseFirestore.instance
                   .collection('User Data')
@@ -347,40 +271,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
                 .doc(DateTime(newDate.year, newDate.month, newDate.day).toString())
                 .set({"Calories": calories, "timeStamp": newDate},
                     SetOptions(merge: true));
-            totalCaloriesGained += calories;
-
-
-            FirebaseFirestore.instance
-                .collection('DigiFit Challenges')
-                .orderBy("endDate", descending: false)
-                .get()
-                .then((QuerySnapshot snapshot) {
-              snapshot.docs.forEach((doc) {
-                FirebaseFirestore.instance
-                    .collection('DigiFit Challenges')
-                    .doc(doc.id.toString())
-                    .collection("Participants")
-                    .orderBy("value", descending: true)
-                    .get()
-                    .then((QuerySnapshot snapshot) {
-                  snapshot.docs.forEach((document) {
-                    if (document.id.toString().contains(user.email)) {
-                      FirebaseFirestore.instance
-                          .collection('DigiFit Challenges')
-                          .doc(doc.id.toString())
-                          .get()
-                          .then((docData) {
-                        if(docData["challengeType"].toString().contains("Calories")) {
-                          print("updating calories: $totalCaloriesGained for " + doc.id.toString());
-                          updateChallengeData(totalCaloriesGained, doc.id.toString());
-                        }
-                      });
-                    }
-                  });
-                });
-              });
-            });
-
             if (stepData.length <= i + 1) {
               FirebaseFirestore.instance
                   .collection('User Data')
@@ -458,48 +348,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
             DateTime.now().day)
             .toString())
             .set({"Calories": calories, "timeStamp": DateTime.now()}, SetOptions(merge: true));
-        totalCaloriesGained = calories;
-        FirebaseFirestore.instance
-            .collection('User Data')
-            .doc(user.email)
-            .get()
-            .then((DocumentSnapshot snapshot) {
-          FirebaseFirestore.instance
-              .collection('DigiFit Challenges')
-              .orderBy("endDate", descending: false)
-              .get()
-              .then((QuerySnapshot snapshot) {
-            snapshot.docs.forEach((doc) {
-              FirebaseFirestore.instance
-                  .collection('DigiFit Challenges')
-                  .doc(doc.id.toString())
-                  .collection("Participants")
-                  .orderBy("value", descending: true)
-                  .get()
-                  .then((QuerySnapshot snapshot) {
-                snapshot.docs.forEach((document) {
-                  if (document.id.toString().contains(user.email)) {
-                    FirebaseFirestore.instance
-                        .collection('DigiFit Challenges')
-                        .doc(doc.id.toString())
-                        .get()
-                        .then((docData) {
-                      if(docData["challengeType"].toString().contains("Calories")) {
-                        print("updating calories: $totalCaloriesGained for " + doc.id.toString());
-                        updateChallengeData(totalCaloriesGained, doc.id.toString());
-                      } else if(docData["challengeType"].toString().contains("Steps")) {
-                        print("updating steps: $steps for " + doc.id.toString());
-                        updateChallengeData(steps.toDouble(), doc.id.toString());
-                      } else if(docData["challengeType"].toString().contains("Distance")) {
-                        updateChallengeData(steps.toDouble() * 0.000535, doc.id.toString());
-                      }
-                    });
-                  }
-                });
-              });
-            });
-          });
-        });
       } else {
         FirebaseFirestore.instance
             .collection('User Data')
@@ -510,7 +358,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
             .toString())
             .set({"Calories": 0, "timeStamp": DateTime.now()}, SetOptions(merge: true));
       }
-
       FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
           {"Previous Use Date": DateTime.now()}, SetOptions(merge: true));
 
@@ -527,6 +374,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
           calorieGoal = snapshot["Calorie Goal"] + 0.0;
         });
       }).then((value) {
+        writePointsAndChallengeValues();
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
@@ -566,6 +414,201 @@ class _DigiFitPageState extends State<DigiFitPage> {
     });
   }
 
+  writePointsAndChallengeValues() {
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    FirebaseFirestore.instance
+        .collection("User Data")
+        .doc(user.email)
+        .collection("DigiFit Data")
+        .orderBy("timeStamp")
+        .get()
+        .then((QuerySnapshot snapshot) {
+          int points = 0;
+          int calories = 0;
+          int steps = 0;
+          snapshot.docs.forEach((document) { 
+            DateTime timeStamp = document["timeStamp"].toDate();
+            if(DateTime.now().difference(timeStamp).inDays <= 7) {
+              calories += document["Calories"].toInt();
+              steps += document["Steps"].toInt();
+            }
+            points += document["Calories"].toInt();
+          });
+          print("TOTAL POINTS $points");
+          print("Calories $calories");
+          print("Steps $steps");
+
+          // Update Points
+
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .set({"Points": points}, SetOptions(merge: true));
+
+          // Update My Challenge Data
+
+          FirebaseFirestore.instance
+              .collection('DigiFit Challenges')
+              .orderBy("endDate", descending: false)
+              .get()
+              .then((QuerySnapshot snapshot) {
+            snapshot.docs.forEach((doc) {
+              FirebaseFirestore.instance
+                  .collection('DigiFit Challenges')
+                  .doc(doc.id.toString())
+                  .collection("Participants")
+                  .orderBy("value", descending: true)
+                  .get()
+                  .then((QuerySnapshot snapshot) {
+                snapshot.docs.forEach((document) {
+                  if (document.id.toString().contains(user.email)) {
+                    FirebaseFirestore.instance
+                        .collection('DigiFit Challenges')
+                        .doc(doc.id.toString())
+                        .get()
+                        .then((docData) {
+                      if(docData["challengeType"].toString().contains("Calories")) {
+                        updateChallengeData(calories.toDouble(), doc.id.toString());
+                      } else if(docData["challengeType"].toString().contains("Steps")) {
+                        updateChallengeData(steps.toDouble(), doc.id.toString());
+                      } else if(docData["challengeType"].toString().contains("Distance")) {
+                        updateChallengeData(steps.toDouble() * 0.000535, doc.id.toString());
+                      }
+                    });
+                  }
+                });
+              });
+            });
+          });
+    });
+  }
+
+  populateCurrentChallenges() {
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    FirebaseFirestore.instance
+        .collection('DigiFit Challenges')
+        .orderBy("endDate", descending: false)
+        .get()
+        .then((QuerySnapshot snapshot) {
+      DateTime upcomingChallengeExpiryDate = DateTime(1970, 1, 1);
+      int i = 0;
+      snapshot.docs.forEach((doc) {
+        DateTime expiryOfChallenge = doc["endDate"].toDate();
+        if (i == 0 && expiryOfChallenge.isAfter(DateTime.now())) {
+          upcomingChallengeExpiryDate = expiryOfChallenge;
+          time = upcomingChallengeExpiryDate.difference(DateTime.now());
+          i++;
+        }
+        if (expiryOfChallenge.isAtSameMomentAs(upcomingChallengeExpiryDate)) {
+          try {
+            listOfHighScoringChallenge.clear();
+            listOfHighScoringChallengeNames.clear();
+            print("READING DOCUMENT: " + doc.id.toString());
+
+            bool foundUserInChallenge = false;
+            FirebaseFirestore.instance
+                .collection('DigiFit Challenges')
+                .doc(doc.id.toString())
+                .collection("Participants")
+                .orderBy("value", descending: true)
+                .get()
+                .then((QuerySnapshot snapshot) {
+              if (snapshot.docs.length >= 4) {
+                List<double> listOfHighScorersForChallenge = [];
+                List<String> listOfHighScorersForChallengeNames = [];
+                for (int a = 0; a < 4; a++) {
+                  listOfHighScorersForChallenge
+                      .add(snapshot.docs.elementAt(a).get("value") * 1.0);
+                  listOfHighScorersForChallengeNames.add(
+                      snapshot.docs.elementAt(a).get("username").toString());
+                }
+
+                snapshot.docs.forEach((doc) {
+                  if (doc.id.toString().contains(user.email)) {
+                    print("found myself");
+                    listOfHighScorersForChallenge
+                        .add(doc['value'].toDouble());
+                    listOfHighScorersForChallengeNames.add("You");
+                  }
+                });
+                if (listOfHighScorersForChallenge.length < 5) {
+                  listOfHighScorersForChallenge.add(0);
+                  listOfHighScorersForChallengeNames.add("You");
+                }
+                listOfHighScoringChallenge.putIfAbsent(
+                    doc.id.toString(), () => listOfHighScorersForChallenge);
+                listOfHighScoringChallengeNames.putIfAbsent(doc.id.toString(),
+                        () => listOfHighScorersForChallengeNames);
+                print("Got high scorers for challenge: " +
+                    listOfHighScoringChallenge.toString() +
+                    ", names: " +
+                    listOfHighScoringChallengeNames.toString());
+              } else {
+                listOfHighScoringChallenge.putIfAbsent(
+                    doc.id.toString(), () => [0, 0, 0, 0, 0]);
+                listOfHighScoringChallengeNames.putIfAbsent(
+                    doc.id.toString(),
+                        () => [
+                      "LuckyYoda",
+                      "GenuineTurtle",
+                      "LoyalEagle12",
+                      "IamBatman",
+                      "You"
+                    ]);
+              }
+              for (int x = 0; x < snapshot.docs.length; x++) {
+                print("here:111 $x " + snapshot.docs.length.toString());
+                if (snapshot.docs
+                    .elementAt(x)
+                    .id
+                    .toString()
+                    .contains(user.email)) {
+                  challengeCards.add(buildChallengeCard(
+                      challengeName: doc.id.toString(),
+                      imageSource: doc['image'],
+                      difficulty: doc['complexity'],
+                      goal: doc['goal'],
+                      finishDate: upcomingChallengeExpiryDate,
+                      points: doc['pointsForCompletion'],
+                      challengeType: doc['challengeType'],
+                      isParticipating: true));
+                  challengeCards.add(SizedBox(height: _height * 0.0125));
+                  foundUserInChallenge = true;
+                  break;
+                }
+              }
+              if (!foundUserInChallenge) {
+                challengeCards.add(buildChallengeCard(
+                    challengeName: doc.id.toString(),
+                    imageSource: doc['image'],
+                    difficulty: doc['complexity'],
+                    goal: doc['goal'],
+                    finishDate: upcomingChallengeExpiryDate,
+                    points: doc['pointsForCompletion'],
+                    challengeType: doc['challengeType'],
+                    isParticipating: false));
+                challengeCards.add(SizedBox(height: _height * 0.0125));
+              }
+            });
+          } catch (e) {
+            print("here:1212113");
+            challengeCards.add(buildChallengeCard(
+                challengeName: doc.id.toString(),
+                imageSource: doc['image'],
+                difficulty: doc['complexity'],
+                goal: doc['goal'],
+                finishDate: upcomingChallengeExpiryDate,
+                points: doc['pointsForCompletion'],
+                challengeType: doc['challengeType'],
+                isParticipating: false));
+            challengeCards.add(SizedBox(height: _height * 0.0125));
+          }
+        }
+      });
+    });
+  }
+
+
   void updateChallengeData(double value, String challengeName) {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     FirebaseFirestore.instance
@@ -573,7 +616,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
         .doc(challengeName)
         .collection('Participants')
         .doc(user.email)
-        .set({"value": FieldValue.increment(value)}, SetOptions(merge: true));
+        .set({"value": value}, SetOptions(merge: true));
   }
 
   Icon activityIcon = Icon(Icons.whatshot_rounded, color: Colors.white);
@@ -631,129 +674,7 @@ class _DigiFitPageState extends State<DigiFitPage> {
   Widget updateViewBasedOnTab(int i) {
     if (!hasWrittenLatestFitnessData) {
       writeLatestFitnessData();
-      final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-      FirebaseFirestore.instance
-          .collection('DigiFit Challenges')
-          .orderBy("endDate", descending: false)
-          .get()
-          .then((QuerySnapshot snapshot) {
-        DateTime upcomingChallengeExpiryDate = DateTime(1970, 1, 1);
-        int i = 0;
-        snapshot.docs.forEach((doc) {
-          DateTime expiryOfChallenge = doc["endDate"].toDate();
-          if (i == 0 && expiryOfChallenge.isAfter(DateTime.now())) {
-            upcomingChallengeExpiryDate = expiryOfChallenge;
-            time = upcomingChallengeExpiryDate.difference(DateTime.now());
-            i++;
-          }
-          if (expiryOfChallenge.isAtSameMomentAs(upcomingChallengeExpiryDate)) {
-            try {
-              listOfHighScoringChallenge.clear();
-              listOfHighScoringChallengeNames.clear();
-              print("READING DOCUMENT: " + doc.id.toString());
-
-              bool foundUserInChallenge = false;
-              FirebaseFirestore.instance
-                  .collection('DigiFit Challenges')
-                  .doc(doc.id.toString())
-                  .collection("Participants")
-                  .orderBy("value", descending: true)
-                  .get()
-                  .then((QuerySnapshot snapshot) {
-                if (snapshot.docs.length >= 4) {
-                  List<double> listOfHighScorersForChallenge = [];
-                  List<String> listOfHighScorersForChallengeNames = [];
-                  for (int a = 0; a < 4; a++) {
-                    listOfHighScorersForChallenge
-                        .add(snapshot.docs.elementAt(a).get("value") * 1.0);
-                    listOfHighScorersForChallengeNames.add(
-                        snapshot.docs.elementAt(a).get("username").toString());
-                  }
-
-                  snapshot.docs.forEach((doc) {
-                    if (doc.id.toString().contains(user.email)) {
-                      print("found myself");
-                      listOfHighScorersForChallenge
-                          .add(doc['value'].toDouble());
-                      listOfHighScorersForChallengeNames.add("You");
-                    }
-                  });
-                  if (listOfHighScorersForChallenge.length < 5) {
-                    listOfHighScorersForChallenge.add(0);
-                    listOfHighScorersForChallengeNames.add("You");
-                  }
-                  listOfHighScoringChallenge.putIfAbsent(
-                      doc.id.toString(), () => listOfHighScorersForChallenge);
-                  listOfHighScoringChallengeNames.putIfAbsent(doc.id.toString(),
-                      () => listOfHighScorersForChallengeNames);
-                  print("Got high scorers for challenge: " +
-                      listOfHighScoringChallenge.toString() +
-                      ", names: " +
-                      listOfHighScoringChallengeNames.toString());
-                } else {
-                  listOfHighScoringChallenge.putIfAbsent(
-                      doc.id.toString(), () => [0, 0, 0, 0, 0]);
-                  listOfHighScoringChallengeNames.putIfAbsent(
-                      doc.id.toString(),
-                      () => [
-                            "LuckyYoda",
-                            "GenuineTurtle",
-                            "LoyalEagle12",
-                            "IamBatman",
-                            "You"
-                          ]);
-                }
-                for (int x = 0; x < snapshot.docs.length; x++) {
-                  print("here:111 $x " + snapshot.docs.length.toString());
-                  if (snapshot.docs
-                      .elementAt(x)
-                      .id
-                      .toString()
-                      .contains(user.email)) {
-                    challengeCards.add(buildChallengeCard(
-                        challengeName: doc.id.toString(),
-                        imageSource: doc['image'],
-                        difficulty: doc['complexity'],
-                        goal: doc['goal'],
-                        finishDate: upcomingChallengeExpiryDate,
-                        points: doc['pointsForCompletion'],
-                        challengeType: doc['challengeType'],
-                        isParticipating: true));
-                    challengeCards.add(SizedBox(height: _height * 0.0125));
-                    foundUserInChallenge = true;
-                    break;
-                  }
-                }
-                if (!foundUserInChallenge) {
-                  challengeCards.add(buildChallengeCard(
-                      challengeName: doc.id.toString(),
-                      imageSource: doc['image'],
-                      difficulty: doc['complexity'],
-                      goal: doc['goal'],
-                      finishDate: upcomingChallengeExpiryDate,
-                      points: doc['pointsForCompletion'],
-                      challengeType: doc['challengeType'],
-                      isParticipating: false));
-                  challengeCards.add(SizedBox(height: _height * 0.0125));
-                }
-              });
-            } catch (e) {
-              print("here:1212113");
-              challengeCards.add(buildChallengeCard(
-                  challengeName: doc.id.toString(),
-                  imageSource: doc['image'],
-                  difficulty: doc['complexity'],
-                  goal: doc['goal'],
-                  finishDate: upcomingChallengeExpiryDate,
-                  points: doc['pointsForCompletion'],
-                  challengeType: doc['challengeType'],
-                  isParticipating: false));
-              challengeCards.add(SizedBox(height: _height * 0.0125));
-            }
-          }
-        });
-      });
-
+      populateCurrentChallenges();
       hasWrittenLatestFitnessData = true;
     }
 
