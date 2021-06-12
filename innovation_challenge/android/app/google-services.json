@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:343036519175:android:add7e9ca7dae3a7b23dba2",
         "android_client_info": {
-          "package_name": "com.example.innovation_challenge"
+          "package_name": "com.innov8rz.innovation_challenge"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "343036519175-urvvo2jrfgd5119o70l8e1341kjr3p4g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.innovation_challenge",
+            "package_name": "com.innov8rz.innovation_challenge",
             "certificate_hash": "9ed3fd79d05a7683bce3822f09e117b37d96fa5d"
           }
         },

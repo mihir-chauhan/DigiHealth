@@ -1,4 +1,4 @@
-package com.example.innovation_challenge
+package com.innov8rz.innovation_challenge
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
