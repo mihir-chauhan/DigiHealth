@@ -142,8 +142,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   fitquestion3Selection != -1 &&
                   fitquestion4Selection != -1 &&
                   fitquestion5Selection != -1 &&
-                  stepsGoal != 0 &&
-                  calorieCount != 0) {
+                  stepsGoal > 0 &&
+                  calorieCount > 0) {
 
                 final databaseReference = FirebaseFirestore.instance;
                 print('database instance');
