@@ -116,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 10,
                   ),
                   AutoSizeText(
-                      "For DigiDiet, we use recipes from \"food.com\", \"ketodietapp.com\", \"simple-veganista.com\", and \"plantbasedcooking.com\", which are third-party websites that collect cookies. By opening the recipes, you can allowing these websites to collect cookies through this app.",
+                      "For DigiDiet, we use recipes from \"food.com\", \"ketodietapp.com\", \"simple-veganista.com\", and \"plantbasedcooking.com\", which are third-party websites that collect cookies. By opening the recipes, you are allowing these websites to collect cookies through this app.",
                       style: TextStyle(
                           fontSize: 20,
                           color: Colors.white,
