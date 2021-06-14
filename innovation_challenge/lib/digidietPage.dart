@@ -1,4 +1,5 @@
 import 'package:DigiHealth/provider_widget.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:keyboard_actions/external/platform_check/platform_check.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -525,7 +527,21 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.bold)),
                           onPressed: () async {
-                            _launchURL(breakfastLinkList[dayofweek]);
+                            if(PlatformCheck.isAndroid) {
+                              _launchURL(breakfastLinkList[dayofweek]);
+                            } else {
+                              if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+                                  TrackingStatus.notDetermined || await AppTrackingTransparency.trackingAuthorizationStatus ==
+                                  TrackingStatus.denied) {
+                                await AppTrackingTransparency.requestTrackingAuthorization();
+                                final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
+                                if (!uuid.toString().contains("00000000-0000-0000-0000-000000000000")) {
+                                  _launchURL(breakfastLinkList[dayofweek]);
+                                }
+                              } else {
+                                _launchURL(breakfastLinkList[dayofweek]);
+                              }
+                            }
                           },
                         ),
                       ),
