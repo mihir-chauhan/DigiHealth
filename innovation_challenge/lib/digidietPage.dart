@@ -4,12 +4,15 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:health_kit/health_kit.dart';
 import 'package:keyboard_actions/external/platform_check/platform_check.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:lists/lists.dart';
 import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -100,6 +103,362 @@ class _DigiDietPageState extends State<DigiDietPage> {
   ];
   final FocusNode _nodeText1 = FocusNode();
   final FocusNode _nodeText2 = FocusNode();
+
+  Future<bool> readPermissionsForHealthKit() async {
+    try {
+      final responses = await HealthKit.hasPermissions(
+          [DataType.HEIGHT, DataType.WEIGHT]); //, DataType.HEART_RATE]);
+
+      if (!responses) {
+        final value = await HealthKit.requestPermissions(
+            [DataType.HEIGHT, DataType.WEIGHT]); //, DataType.HEART_RATE]);
+
+        return value;
+      } else {
+        return true;
+      }
+    } on UnsupportedException catch (e) {
+      // thrown in case e.dataType is unsupported
+      print("Error: DigiFit: readPermissionsForHealthKit $e");
+      return false;
+    }
+  }
+
+  Future<SparseList<num>> getHealthData(
+      DateTime dateFrom, DataType dataType) async {
+    var permissionsGiven = await readPermissionsForHealthKit();
+
+    print("Permission Status: $permissionsGiven");
+    if (true) {
+      var dateTo = DateTime.now();
+
+      print('dateFrom: $dateFrom');
+      print('dateTo: $dateTo');
+      try {
+        var results = await HealthKit.read(
+          dataType,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+        );
+        if (results != null) {
+          SparseList<num> listOfHealthData = new SparseList();
+          for (var result in results) {
+            print("Results: $result.value");
+            listOfHealthData.add(result.value);
+          }
+          print('value: ' + listOfHealthData.toString());
+          return listOfHealthData;
+        }
+      } on Exception catch (ex) {
+        print('Exception in getYesterdayStep: $ex');
+      }
+      return new SparseList();
+    }
+  }
+
+  SparseList heartData;
+
+  writeLatestFitnessData() async {
+    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    DateTime lastOpenedDate;
+    FirebaseFirestore.instance
+        .collection('User Data')
+        .doc(user.email)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      lastOpenedDate = snapshot["Previous Use Date for DigiDiet"].toDate();
+      print("Got latest date: " +
+          snapshot["Previous Use Date for DigiDiet"].toDate().toString());
+    }).then((value) async {
+      print("Restore? " +
+          DateTime.now().difference(lastOpenedDate).inDays.toString());
+      if (DateTime.now().difference(lastOpenedDate).inDays > 14) {
+        print("Not restoring data");
+      } else if (DateTime.now().difference(lastOpenedDate).inDays == 0) {
+        print("Updating today's data");
+        SparseList heightData = await getHealthData(
+            DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
+            DataType.HEIGHT);
+        print("Got height Data: " + heightData.toString());
+
+        SparseList weightData = await getHealthData(
+            DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
+            DataType.WEIGHT);
+        print("Got weight Data: " + weightData.toString());
+        num height = 0;
+        num weight = 0;
+        if (heightData.length > 0 && weightData.length > 0) {
+          height = heightData.elementAt(0);
+          weight = weightData.elementAt(0);
+          print("-- Date: " +
+              DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString() +
+              ", Steps: $height & $weight");
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('Health Logs')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({
+            "height": height,
+            "weight": weight,
+            "timeStamp": DateTime.now()
+          }, SetOptions(merge: true));
+        } else {
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('Health Logs')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({"height": 0, "weight": 0, "timeStamp": DateTime.now()},
+                  SetOptions(merge: true));
+        }
+
+        // if (weightData.length > 0) {
+        //   num calories = weightData.elementAt(0);
+        //   print("-- Date: " +
+        //       DateTime(DateTime.now().year, DateTime.now().month,
+        //               DateTime.now().day)
+        //           .toString() +
+        //       ", Calories: $calories");
+        //   FirebaseFirestore.instance
+        //       .collection('User Data')
+        //       .doc(user.email)
+        //       .collection('DigiFit Data')
+        //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
+        //               DateTime.now().day)
+        //           .toString())
+        //       .set({"Calories": calories, "timeStamp": DateTime.now()},
+        //           SetOptions(merge: true));
+        // } else {
+        //   FirebaseFirestore.instance
+        //       .collection('User Data')
+        //       .doc(user.email)
+        //       .collection('DigiFit Data')
+        //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
+        //               DateTime.now().day)
+        //           .toString())
+        //       .set({"Calories": 0, "timeStamp": DateTime.now()},
+        //           SetOptions(merge: true));
+        // }
+
+        FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+            {"Previous Use Date for DigiDiet": DateTime.now()},
+            SetOptions(merge: true));
+      } else {
+        print("Writing data until today");
+        SparseList heightData =
+            await getHealthData(lastOpenedDate, DataType.HEIGHT);
+        print("Got step Data: " + heightData.toString());
+
+        SparseList weightData =
+            await getHealthData(lastOpenedDate, DataType.WEIGHT);
+        print("Got calorie Data: " + weightData.toString());
+
+        // heartData = await getHealthData(lastOpenedDate, DataType.HEART_RATE);
+        // print("Got heart Data: " + heartData.toString());
+
+        if (heightData.length > 0 && weightData.length > 0) {
+          for (int i = 0; i < heightData.length; i++) {
+            print("i $i");
+            DateTime newDate = lastOpenedDate.add(Duration(days: i));
+            num height = heightData.elementAt(i);
+            num weight = weightData.elementAt(i);
+            print("$i -- Date: " +
+                newDate.toString() +
+                ", month: " +
+                nameOfMonthFromMonthNumber(newDate.month) +
+                ", Steps: $height");
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .collection('Health Logs')
+                .doc(DateTime(newDate.year, newDate.month, newDate.day)
+                    .toString())
+                .set({"height": height, "weight": weight, "timeStamp": newDate},
+                    SetOptions(merge: true));
+
+            if (weightData.length <= i + 1 && heightData.length <= i + 1) {
+              FirebaseFirestore.instance
+                  .collection('User Data')
+                  .doc(user.email)
+                  .collection('DigiFit Data')
+                  .doc(DateTime(newDate.year, newDate.month, newDate.day)
+                      .toString())
+                  .set({"weight": 0, "height": 0}, SetOptions(merge: true));
+            }
+          }
+        }
+
+        // if (weightData.length > 0) {
+        //   for (int i = 0;
+        //       i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
+        //       i++) {
+        //     DateTime newDate = lastOpenedDate.add(Duration(days: i));
+        //     num weight = weightData.elementAt(i);
+        //     print("$i -- Date: " +
+        //         newDate.toString() +
+        //         ", month: " +
+        //         nameOfMonthFromMonthNumber(newDate.month) +
+        //         ", Steps: $weight");
+        //     FirebaseFirestore.instance
+        //         .collection('User Data')
+        //         .doc(user.email)
+        //         .collection('Health Logs')
+        //         .doc(DateTime(newDate.year, newDate.month, newDate.day)
+        //             .toString())
+        //         .set({"weight": weight, "timeStamp": newDate},
+        //             SetOptions(merge: true));
+        //     if (heightData.length <= i + 1) {
+        //       FirebaseFirestore.instance
+        //           .collection('User Data')
+        //           .doc(user.email)
+        //           .collection('DigiFit Data')
+        //           .doc(DateTime(newDate.year, newDate.month, newDate.day)
+        //               .toString())
+        //           .set({"height": 0}, SetOptions(merge: true));
+        //     }
+        //   }
+        // }
+
+        FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+            {"Previous Use Date for DigiDiet": DateTime.now()},
+            SetOptions(merge: true));
+      }
+
+      // Calling again to update today's data because when time is over 1 day, it doesn't update.
+
+      print("Updating today's data");
+      SparseList heightData = await getHealthData(
+          DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day),
+          DataType.HEIGHT);
+      print("Got step Data: " + heightData.toString());
+
+      SparseList weightData = await getHealthData(
+          DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day),
+          DataType.WEIGHT);
+      print("Got calorie Data: " + weightData.toString());
+
+      // SparseList heartData = await getHealthData(
+      //     DateTime(
+      //         DateTime.now().year, DateTime.now().month, DateTime.now().day),
+      //     DataType.HEART_RATE);
+      // print("Got heart Data: " + heartData.toString());
+      num height = 0;
+      num weight = 0;
+      if (heightData.length > 0 && weightData.length > 0) {
+        height = heightData.elementAt(0);
+        weight = weightData.elementAt(0);
+        print("-- Date: " +
+            DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString() +
+            ", Steps: $height & $weight");
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('Health Logs')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString())
+            .set({
+          "height": height,
+          "weight": weight,
+          "timeStamp": DateTime.now()
+        }, SetOptions(merge: true));
+      } else {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('Health Logs')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString())
+            .set({"height": 0, "weight": 0, "timeStamp": DateTime.now()},
+                SetOptions(merge: true));
+      }
+
+      // if (weightData.length > 0) {
+      //   num calories = weightData.elementAt(0);
+      //   print("-- Date: " +
+      //       DateTime(DateTime.now().year, DateTime.now().month,
+      //               DateTime.now().day)
+      //           .toString() +
+      //       ", Calories: $calories");
+      //   FirebaseFirestore.instance
+      //       .collection('User Data')
+      //       .doc(user.email)
+      //       .collection('DigiFit Data')
+      //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
+      //               DateTime.now().day)
+      //           .toString())
+      //       .set({"Calories": calories, "timeStamp": DateTime.now()},
+      //           SetOptions(merge: true));
+      // } else {
+      //   FirebaseFirestore.instance
+      //       .collection('User Data')
+      //       .doc(user.email)
+      //       .collection('DigiFit Data')
+      //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
+      //               DateTime.now().day)
+      //           .toString())
+      //       .set({"Calories": 0, "timeStamp": DateTime.now()},
+      //           SetOptions(merge: true));
+      // }
+
+      FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
+          {"Previous Use Date for DigiDiet": DateTime.now()},
+          SetOptions(merge: true));
+    }).then((value) {
+      // Graph Population
+      FirebaseFirestore.instance
+          .collection('User Data')
+          .doc(user.email)
+          .get()
+          .then((value) {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('Health Logs')
+            .orderBy("timeStamp", descending: false)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            print("Reading Graph Data " + (doc.id.toString()));
+            DateTime dateTime = doc["timeStamp"].toDate();
+
+            if (dateTime.month == DateTime.now().month) {
+              setState(() {
+                bmiMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
+                    (doc["Body Mass Index"] / 75) * 9));
+              });
+              setState(() {
+                weightMonth.add(new FlSpot(
+                    (dateTime.day / 1.0 - 1), (doc["Weight"] / 450) * 9));
+              });
+              setState(() {
+                lbmMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
+                    (doc["Lean Body Mass"] / 135) * 9));
+              });
+              setState(() {
+                fatMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
+                    (doc["Fat Concentration"] / 500) * 9));
+              });
+            }
+          });
+        });
+      });
+    });
+  }
 
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -203,6 +562,10 @@ class _DigiDietPageState extends State<DigiDietPage> {
   List<double> weightList;
   List<double> lbmList;
   List<double> fatList;
+  List<FlSpot> bmiMonth = [];
+  List<FlSpot> weightMonth = [];
+  List<FlSpot> lbmMonth = [];
+  List<FlSpot> fatMonth = [];
 
   void updateMealPlanBasedOnDiet() async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
@@ -301,6 +664,19 @@ class _DigiDietPageState extends State<DigiDietPage> {
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
+        DateTime dateTime = doc["Timestamp"].toDate();
+        if (dateTime.month == DateTime.now().month) {
+          setState(() {
+            bmiMonth.add(new FlSpot(
+                (dateTime.day / 1.0 - 1), (doc["Body Mass Index"] / 75) * 9));
+            weightMonth.add(new FlSpot(
+                (dateTime.day / 1.0 - 1), (doc["Weight"] / 450) * 9));
+            lbmMonth.add(new FlSpot(
+                (dateTime.day / 1.0 - 1), (doc["Lean Body Mass"] / 135) * 9));
+            fatMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
+                (doc["Fat Concentration"] / 500) * 9));
+          });
+        }
         bmiList.add(doc['Body Mass Index'] / 30);
         weightList.add(doc['Weight'] / 300);
         lbmList.add(doc['Lean Body Mass'] / 80);
@@ -527,15 +903,21 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.bold)),
                           onPressed: () async {
-                            if(PlatformCheck.isAndroid) {
+                            if (PlatformCheck.isAndroid) {
                               _launchURL(breakfastLinkList[dayofweek]);
                             } else {
-                              if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-                                  TrackingStatus.notDetermined || await AppTrackingTransparency.trackingAuthorizationStatus ==
-                                  TrackingStatus.denied) {
-                                await AppTrackingTransparency.requestTrackingAuthorization();
-                                final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
-                                if (!uuid.toString().contains("00000000-0000-0000-0000-000000000000")) {
+                              if (await AppTrackingTransparency
+                                          .trackingAuthorizationStatus ==
+                                      TrackingStatus.notDetermined ||
+                                  await AppTrackingTransparency
+                                          .trackingAuthorizationStatus ==
+                                      TrackingStatus.denied) {
+                                await AppTrackingTransparency
+                                    .requestTrackingAuthorization();
+                                final uuid = await AppTrackingTransparency
+                                    .getAdvertisingIdentifier();
+                                if (!uuid.toString().contains(
+                                    "00000000-0000-0000-0000-000000000000")) {
                                   _launchURL(breakfastLinkList[dayofweek]);
                                 }
                               } else {
@@ -855,7 +1237,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                     child: Align(
                         alignment: Alignment.centerLeft,
-                        child: AutoSizeText("Your Weight and BMI Stats",
+                        child: AutoSizeText("Your BMI Stats",
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 30,
@@ -863,6 +1245,222 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 fontFamily: 'Nunito',
                                 fontWeight: FontWeight.w400))),
                   ),
+                  SizedBox(height: _height * 0.01),
+                  Stack(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1.70,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(18),
+                              ),
+                              color: Color(0xff232d37)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 18.0, left: 12.0, top: 24, bottom: 12),
+                            child: LineChart(
+                              bmiMonthData(bmiMonth),
+                              // showMonthlyData
+                              //     ? stepMonthData(stepMonth)
+                              //     : stepYearData(stepYear),
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 750), // Optional
+                              swapAnimationCurve: Curves.linear,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 60,
+                        height: 34,
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              // showMonthlyData = !showMonthlyData;
+                            });
+                          },
+                          child: Text(
+                            // showMonthlyData ? 'Month' : 'Year',
+                            "Month",
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Your Weight Stats",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Stack(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1.70,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(18),
+                              ),
+                              color: Color(0xff232d37)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 18.0, left: 12.0, top: 24, bottom: 12),
+                            child: LineChart(
+                              weightMonthData(weightMonth),
+                              // showMonthlyData
+                              //     ? stepMonthData(stepMonth)
+                              //     : stepYearData(stepYear),
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 750), // Optional
+                              swapAnimationCurve: Curves.linear,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 60,
+                        height: 34,
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              // showMonthlyData = !showMonthlyData;
+                            });
+                          },
+                          child: Text(
+                            // showMonthlyData ? 'Month' : 'Year',
+                            "Month",
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Your Lean Body Mass Stats",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Stack(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1.70,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(18),
+                              ),
+                              color: Color(0xff232d37)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 18.0, left: 12.0, top: 24, bottom: 12),
+                            child: LineChart(
+                              lbmMonthData(lbmMonth),
+                              // showMonthlyData
+                              //     ? stepMonthData(stepMonth)
+                              //     : stepYearData(stepYear),
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 750), // Optional
+                              swapAnimationCurve: Curves.linear,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 60,
+                        height: 34,
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              // showMonthlyData = !showMonthlyData;
+                            });
+                          },
+                          child: Text(
+                            // showMonthlyData ? 'Month' : 'Year',
+                            "Month",
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText("Your Fat Percentage Stats",
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w400))),
+                  ),
+                  SizedBox(height: _height * 0.01),
+                  Stack(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1.70,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(18),
+                              ),
+                              color: Color(0xff232d37)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 18.0, left: 12.0, top: 24, bottom: 12),
+                            child: LineChart(
+                              fatMonthData(fatMonth),
+                              // showMonthlyData
+                              //     ? stepMonthData(stepMonth)
+                              //     : stepYearData(stepYear),
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 750), // Optional
+                              swapAnimationCurve: Curves.linear,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 60,
+                        height: 34,
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              // showMonthlyData = !showMonthlyData;
+                            });
+                          },
+                          child: Text(
+                            // showMonthlyData ? 'Month' : 'Year',
+                            "Month",
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: _height * 0.01),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 350,
@@ -882,18 +1480,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         graphColor: Colors.white60,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: AutoSizeText("Your Lean Body Mass Stats",
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                                fontFamily: 'Nunito',
-                                fontWeight: FontWeight.w400))),
                   ),
                   Container(
                     width: MediaQuery.of(context).size.width,
@@ -927,32 +1513,32 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 fontFamily: 'Nunito',
                                 fontWeight: FontWeight.w400))),
                   ),
-                  Container(
-                    height: 320,
-                    decoration: BoxDecoration(
-                        color: tertiaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: RadarChart(
-                        values: [5, 10, 3, 5, 6, 9],
-                        labels: [
-                          "Protein",
-                          "Carbs",
-                          "Dairy",
-                          "Fruits",
-                          "Veggies",
-                          "Grains",
-                        ],
-                        maxValue: 10,
-                        fillColor: Colors.blue,
-                        strokeColor: Colors.white,
-                        labelColor: Colors.white,
-                        textScaleFactor: 0.06,
-                        curve: Curves.easeInOutExpo,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   height: 320,
+                  //   decoration: BoxDecoration(
+                  //       color: tertiaryColor,
+                  //       borderRadius: BorderRadius.all(Radius.circular(10))),
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(8.0),
+                  //     child: RadarChart(
+                  //       values: [5, 10, 3, 5, 6, 9],
+                  //       labels: [
+                  //         "Protein",
+                  //         "Carbs",
+                  //         "Dairy",
+                  //         "Fruits",
+                  //         "Veggies",
+                  //         "Grains",
+                  //       ],
+                  //       maxValue: 10,
+                  //       fillColor: Colors.blue,
+                  //       strokeColor: Colors.white,
+                  //       labelColor: Colors.white,
+                  //       textScaleFactor: 0.06,
+                  //       curve: Curves.easeInOutExpo,
+                  //     ),
+                  //   ),
+                  // ),
                   Padding(
                       padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                       child: Align(
@@ -1042,4 +1628,404 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                                 ? "November"
                                                 : "December");
   }
+}
+
+LineChartData bmiMonthData(List<FlSpot> spots) {
+  return LineChartData(
+    lineTouchData: LineTouchData(enabled: false),
+    gridData: FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+      getDrawingHorizontalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+    ),
+    titlesData: FlTitlesData(
+      show: true,
+      bottomTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+            color: Color(0xff68737d),
+            fontWeight: FontWeight.bold,
+            fontSize: 16),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 0:
+              return '1';
+            case 14:
+              return '15';
+            case 29:
+              return '30';
+          }
+          return '';
+        },
+        margin: 8,
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Color(0xff67727d),
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 1:
+              return '8';
+            case 3:
+              return '24';
+            case 5:
+              return '40';
+            case 7:
+              return '56';
+          }
+          return '';
+        },
+        reservedSize: 28,
+        margin: 12,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d), width: 1)),
+    minX: 0,
+    maxX: 30,
+    minY: 0,
+    maxY: 8,
+    lineBarsData: [
+      LineChartBarData(
+        spots: spots,
+        isCurved: false,
+        colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+        ],
+        barWidth: 5,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: true, colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+        ]),
+      ),
+    ],
+  );
+}
+
+LineChartData weightMonthData(List<FlSpot> spots) {
+  return LineChartData(
+    lineTouchData: LineTouchData(enabled: false),
+    gridData: FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+      getDrawingHorizontalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+    ),
+    titlesData: FlTitlesData(
+      show: true,
+      bottomTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+            color: Color(0xff68737d),
+            fontWeight: FontWeight.bold,
+            fontSize: 16),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 0:
+              return '1';
+            case 14:
+              return '15';
+            case 29:
+              return '30';
+          }
+          return '';
+        },
+        margin: 8,
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Color(0xff67727d),
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 1:
+              return '50';
+            case 3:
+              return '150';
+            case 5:
+              return '250';
+            case 7:
+              return '350';
+          }
+          return '';
+        },
+        reservedSize: 28,
+        margin: 12,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d), width: 1)),
+    minX: 0,
+    maxX: 30,
+    minY: 0,
+    maxY: 8,
+    lineBarsData: [
+      LineChartBarData(
+        spots: spots,
+        isCurved: false,
+        colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+        ],
+        barWidth: 5,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: true, colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+        ]),
+      ),
+    ],
+  );
+}
+
+LineChartData lbmMonthData(List<FlSpot> spots) {
+  return LineChartData(
+    lineTouchData: LineTouchData(enabled: false),
+    gridData: FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+      getDrawingHorizontalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+    ),
+    titlesData: FlTitlesData(
+      show: true,
+      bottomTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+            color: Color(0xff68737d),
+            fontWeight: FontWeight.bold,
+            fontSize: 16),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 0:
+              return '1';
+            case 14:
+              return '15';
+            case 29:
+              return '30';
+          }
+          return '';
+        },
+        margin: 8,
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Color(0xff67727d),
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 1:
+              return '15';
+            case 3:
+              return '45';
+            case 5:
+              return '75';
+            case 7:
+              return '105';
+          }
+          return '';
+        },
+        reservedSize: 28,
+        margin: 12,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d), width: 1)),
+    minX: 0,
+    maxX: 30,
+    minY: 0,
+    maxY: 8,
+    lineBarsData: [
+      LineChartBarData(
+        spots: spots,
+        isCurved: false,
+        colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+        ],
+        barWidth: 5,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: true, colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+        ]),
+      ),
+    ],
+  );
+}
+
+LineChartData fatMonthData(List<FlSpot> spots) {
+  return LineChartData(
+    lineTouchData: LineTouchData(enabled: false),
+    gridData: FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+      getDrawingHorizontalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+    ),
+    titlesData: FlTitlesData(
+      show: true,
+      bottomTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+            color: Color(0xff68737d),
+            fontWeight: FontWeight.bold,
+            fontSize: 16),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 0:
+              return '1';
+            case 14:
+              return '15';
+            case 29:
+              return '30';
+          }
+          return '';
+        },
+        margin: 8,
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Color(0xff67727d),
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        getTitles: (value) {
+          switch (value.toInt()) {
+            case 1:
+              return '50';
+            case 3:
+              return '150';
+            case 5:
+              return '250';
+            case 7:
+              return '350';
+          }
+          return '';
+        },
+        reservedSize: 28,
+        margin: 12,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d), width: 1)),
+    minX: 0,
+    maxX: 30,
+    minY: 0,
+    maxY: 8,
+    lineBarsData: [
+      LineChartBarData(
+        spots: spots,
+        isCurved: false,
+        colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2),
+        ],
+        barWidth: 5,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: true, colors: [
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+          ColorTween(begin: gradientColors[0], end: gradientColors[1])
+              .lerp(0.2)
+              .withOpacity(0.1),
+        ]),
+      ),
+    ],
+  );
 }

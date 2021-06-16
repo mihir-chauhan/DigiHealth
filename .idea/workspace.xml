@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="">
+    <list default="true" id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="Fixed DigiDiet bug and questionnaire page">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/innovation_challenge/android/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/android/key.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +58,7 @@
       <method v="2" />
     </configuration>
     <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
+      <option name="additionalArgs" value="--release" />
       <option name="filePath" value="$PROJECT_DIR$/innovation_challenge/lib/main.dart" />
       <method v="2" />
     </configuration>
@@ -142,10 +146,15 @@
     <option name="LAST_COMMIT_MESSAGE" value="Fixed DigiDiet bug and questionnaire page" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1621806252402">
-      <screen x="0" y="25" width="1440" height="804" />
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1623823418139">
+      <screen x="0" y="25" width="1440" height="805" />
     </state>
     <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806252402" />
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.805@0.25.1440.805" timestamp="1623823418139" />
+    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1623532831275">
+      <screen x="0" y="25" width="1440" height="804" />
+    </state>
+    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser/0.25.1440.804@0.25.1440.804" timestamp="1623532831275" />
     <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1621806233854">
       <screen x="0" y="25" width="1440" height="804" />
     </state>
@@ -156,36 +165,36 @@
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1622932747479" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.804@0.25.1440.804" timestamp="1622966848611" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.805@0.25.1440.805" timestamp="1622692598843" />
-    <state width="985" height="203" key="GridCell.Tab.0.bottom" timestamp="1622964115139">
-      <screen x="0" y="25" width="1440" height="804" />
+    <state width="985" height="232" key="GridCell.Tab.0.bottom" timestamp="1623824379704">
+      <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.802@0.25.1440.802" timestamp="1622963735689" />
-    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.804@0.25.1440.804" timestamp="1622964115139" />
-    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.805@0.25.1440.805" timestamp="1622963240552" />
+    <state width="985" height="232" key="GridCell.Tab.0.bottom/0.25.1440.802@0.25.1440.802" timestamp="1623824379704" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.804@0.25.1440.804" timestamp="1623802864304" />
+    <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.805@0.25.1440.805" timestamp="1623823427767" />
     <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.807@0.25.1440.807" timestamp="1622490132728" />
     <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
-    <state width="985" height="203" key="GridCell.Tab.0.center" timestamp="1622964115138">
-      <screen x="0" y="25" width="1440" height="804" />
+    <state width="985" height="232" key="GridCell.Tab.0.center" timestamp="1623824379703">
+      <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.802@0.25.1440.802" timestamp="1622963735688" />
-    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.804@0.25.1440.804" timestamp="1622964115138" />
-    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.805@0.25.1440.805" timestamp="1622963240551" />
+    <state width="985" height="232" key="GridCell.Tab.0.center/0.25.1440.802@0.25.1440.802" timestamp="1623824379703" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.804@0.25.1440.804" timestamp="1623802864303" />
+    <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.805@0.25.1440.805" timestamp="1623823427766" />
     <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.807@0.25.1440.807" timestamp="1622490132725" />
     <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.809@0.25.1440.809" timestamp="1622835370980" />
-    <state width="985" height="203" key="GridCell.Tab.0.left" timestamp="1622964115137">
-      <screen x="0" y="25" width="1440" height="804" />
+    <state width="985" height="232" key="GridCell.Tab.0.left" timestamp="1623824379703">
+      <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.802@0.25.1440.802" timestamp="1622963735687" />
-    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.804@0.25.1440.804" timestamp="1622964115137" />
-    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.805@0.25.1440.805" timestamp="1622963240550" />
+    <state width="985" height="232" key="GridCell.Tab.0.left/0.25.1440.802@0.25.1440.802" timestamp="1623824379703" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.804@0.25.1440.804" timestamp="1623802864302" />
+    <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.805@0.25.1440.805" timestamp="1623823427765" />
     <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.807@0.25.1440.807" timestamp="1622490132724" />
     <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.809@0.25.1440.809" timestamp="1622835370978" />
-    <state width="985" height="203" key="GridCell.Tab.0.right" timestamp="1622964115138">
-      <screen x="0" y="25" width="1440" height="804" />
+    <state width="985" height="232" key="GridCell.Tab.0.right" timestamp="1623824379704">
+      <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.802@0.25.1440.802" timestamp="1622963735689" />
-    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.804@0.25.1440.804" timestamp="1622964115138" />
-    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.805@0.25.1440.805" timestamp="1622963240552" />
+    <state width="985" height="232" key="GridCell.Tab.0.right/0.25.1440.802@0.25.1440.802" timestamp="1623824379704" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.804@0.25.1440.804" timestamp="1623802864303" />
+    <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.805@0.25.1440.805" timestamp="1623823427766" />
     <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.807@0.25.1440.807" timestamp="1622490132726" />
     <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
     <state x="21" y="62" key="SettingsEditor" timestamp="1622848513135">
@@ -194,16 +203,16 @@
     <state x="21" y="62" key="SettingsEditor/0.25.1440.802@0.25.1440.802" timestamp="1622848513135" />
     <state x="21" y="62" key="SettingsEditor/0.25.1440.804@0.25.1440.804" timestamp="1622041679616" />
     <state x="21" y="62" key="SettingsEditor/0.25.1440.805@0.25.1440.805" timestamp="1622304368196" />
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1622963209497">
-      <screen x="0" y="25" width="1440" height="805" />
-    </state>
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.802@0.25.1440.802" timestamp="1622848522283" />
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.804@0.25.1440.804" timestamp="1622760814843" />
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.805@0.25.1440.805" timestamp="1622963209497" />
-    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1622959230466">
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1623801794493">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1440.802@0.25.1440.802" timestamp="1622959230466" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.802@0.25.1440.802" timestamp="1623801794493" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.804@0.25.1440.804" timestamp="1622760814843" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.805@0.25.1440.805" timestamp="1623537658772" />
+    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1623801700255">
+      <screen x="0" y="25" width="1440" height="802" />
+    </state>
+    <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1440.802@0.25.1440.802" timestamp="1623801700255" />
     <state x="298" y="347" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1440.804@0.25.1440.804" timestamp="1622484506064" />
     <state x="185" y="153" width="670" height="676" key="search.everywhere.popup" timestamp="1622177019896">
       <screen x="0" y="25" width="1440" height="804" />
