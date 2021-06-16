@@ -121,7 +121,6 @@ class _DigiFitPageState extends State<DigiFitPage> {
   SparseList heartData;
 
   writeLatestFitnessData() async {
-    double totalCaloriesGained = 0.0;
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     DateTime lastOpenedDate;
     FirebaseFirestore.instance
