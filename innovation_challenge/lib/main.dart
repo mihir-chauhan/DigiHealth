@@ -25,6 +25,11 @@ class MyApp extends StatelessWidget {
     return Provider(
       auth: AuthService(),
       child: CupertinoApp(
+          localizationsDelegates: [
+            DefaultMaterialLocalizations.delegate,
+            DefaultCupertinoLocalizations.delegate,
+            DefaultWidgetsLocalizations.delegate,
+          ],
           // builder: (context, child) {
           //   final mediaQueryData = MediaQuery.of(context);
           //   final scale = mediaQueryData.textScaleFactor.clamp(1.0, 1.1);

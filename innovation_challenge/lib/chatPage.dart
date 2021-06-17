@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:DigiHealth/provider_widget.dart';
-import 'package:chat_list/chat_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatPage extends StatefulWidget {
   @override
@@ -13,20 +17,24 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  String randomString() {
+    final random = Random.secure();
+    final values = List<int>.generate(16, (i) => random.nextInt(255));
+    return base64UrlEncode(values);
+  }
 
   String currentChatName = "Exercise";
-
-  final TextEditingController _controller = new TextEditingController();
-  String messageToSend = "";
-  final List<Message> _messageList = [];
+  final List<types.Message> _messageList = [];
+  final _user = const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c');
+  final _others = const types.User(id: '4965d318-cf1c-11eb-b8bc-0242ac130003');
 
   @override
   Widget build(BuildContext context) {
     populateChatListView(currentChatName);
-    return CupertinoPageScaffold(
+    return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
-        navigationBar: CupertinoNavigationBar(
+        appBar: CupertinoNavigationBar(
             transitionBetweenRoutes: false,
             heroTag: "chatPage",
             middle: Text("$currentChatName Channel",
@@ -90,16 +98,37 @@ class _ChatPageState extends State<ChatPage> {
                 size: 30,
               ),
             )),
-        child: Scaffold(
-          backgroundColor: primaryColor,
-          resizeToAvoidBottomInset: false,
-          body: SafeArea(child: generateChatListView()),
-        ));
+        body: Chat(
+            theme: const DarkChatTheme(),
+            messages: _messageList,
+            onSendPressed: _handleSendPressed,
+            user: _user,
+          ),
+        );
   }
+
+  void _handleSendPressed(types.PartialText message) {
+    final textMessage = types.TextMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: randomString(),
+      text: message.text,
+    );
+
+    sendChatMessage(message.text, currentChatName);
+    _addMessage(textMessage);
+  }
+
+  void _addMessage(types.Message message) {
+    setState(() {
+      _messageList.insert(0, message);
+    });
+  }
+
+
 
   populateChatListView(String chatRoom) async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-
     String message;
 
     final databaseReference = FirebaseFirestore.instance;
@@ -110,7 +139,6 @@ class _ChatPageState extends State<ChatPage> {
         .orderBy('created', descending: false)
         .snapshots()
         .listen((data) {
-      _messageList.clear();
       for (int i = 0; i < data.docs.length; i++) {
         data.docs
             .elementAt(i)
@@ -120,12 +148,14 @@ class _ChatPageState extends State<ChatPage> {
             message = value.toString();
           } else if (key.toString().contains("sentBy")) {
             setState(() {
-              _messageList.add(createMessageWidget(
-                  message,
-                  value.toString().endsWith(user.displayName.toString())
-                      ? OwnerType.sender
-                      : OwnerType.receiver,
-                  value.toString()));
+              _addMessage(types.TextMessage(
+                author: value.toString().endsWith(user.displayName.toString())
+                    ? _user
+                    : _others,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                id: randomString(),
+                text: message,
+              ));
             });
           }
         });
@@ -134,10 +164,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   sendChatMessage(String message, String chatRoom) async {
-    messageToSend = "";
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     final databaseReference = FirebaseFirestore.instance;
-    if (message.endsWith("!#clear#!")) {
+    if (message.contains("!#clear#!")) {
       databaseReference
           .collection("Chat")
           .doc("Chat Rooms")
@@ -172,87 +201,4 @@ class _ChatPageState extends State<ChatPage> {
       "created": Timestamp.now()
     });
   }
-
-  Widget generateChatListView() {
-    final ScrollController _scrollController = ScrollController();
-    return Container(
-      child: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ChatList(
-                  children: _messageList, scrollController: _scrollController),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Container(
-                color: primaryColor,
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: Column(
-                          children: [
-                            CupertinoTextField(
-                              controller: _controller,
-                              style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.black87,
-                                  fontFamily: 'Nunito',
-                                  fontWeight: FontWeight.w300),
-                              onChanged: (String value) {
-                                messageToSend = value;
-                              },
-                              placeholder: "Message",
-                              placeholderStyle: TextStyle(color: hintColor),
-                              cursorColor: Colors.black87,
-                              keyboardType: TextInputType.text,
-                              decoration: BoxDecoration(
-                                color: textColor,
-                                borderRadius: BorderRadius.circular(9),
-                              ),
-                            ),
-                          ],
-                        )),
-                    Container(
-                        width: 50,
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                _controller.clear();
-                                if (messageToSend.isNotEmpty) {
-                                  await sendChatMessage(
-                                      messageToSend, currentChatName);
-                                }
-                              },
-                              child: Icon(
-                                Icons.send_rounded,
-                                color: CupertinoColors.white,
-                                size: 35,
-                              ),
-                            )
-                          ],
-                        ))
-                  ],
-                )),
-          ),
-          SizedBox(height: 15)
-        ],
-      ),
-    );
-  }
-
-  Message createMessageWidget(
-      String text, OwnerType ownerType, String ownerName) {
-    return Message(
-        content: text,
-        fontSize: 18.0,
-        fontFamily: 'Nunito',
-        ownerType: ownerType,
-        ownerName: ownerName);
-  }
 }
-
-
