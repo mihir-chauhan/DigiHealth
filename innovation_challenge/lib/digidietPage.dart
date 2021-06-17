@@ -1,8 +1,6 @@
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:draw_graph/draw_graph.dart';
-import 'package:draw_graph/models/feature.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +11,6 @@ import 'package:health_kit/health_kit.dart';
 import 'package:keyboard_actions/external/platform_check/platform_check.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:lists/lists.dart';
-import 'package:multi_charts/multi_charts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:DigiHealth/recipeWebViewPage.dart';
@@ -158,7 +155,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   SparseList heartData;
 
-  writeLatestFitnessData() async {
+  writeLatestHealthData() async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
     DateTime lastOpenedDate;
     FirebaseFirestore.instance
@@ -189,14 +186,13 @@ class _DigiDietPageState extends State<DigiDietPage> {
         print("Got weight Data: " + weightData.toString());
         num height = 0;
         num weight = 0;
-        if (heightData.length > 0 && weightData.length > 0) {
+        if (heightData.length > 0) {
           height = heightData.elementAt(0);
-          weight = weightData.elementAt(0);
           print("-- Date: " +
               DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString() +
-              ", Steps: $height & $weight");
+              ", Steps: $height");
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
@@ -204,11 +200,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
-              .set({
-            "height": height,
-            "weight": weight,
-            "timeStamp": DateTime.now()
-          }, SetOptions(merge: true));
+              .set({"height": height, "timeStamp": DateTime.now()},
+                  SetOptions(merge: true));
         } else {
           FirebaseFirestore.instance
               .collection('User Data')
@@ -217,37 +210,37 @@ class _DigiDietPageState extends State<DigiDietPage> {
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
-              .set({"height": 0, "weight": 0, "timeStamp": DateTime.now()},
+              .set({"height": 0, "timeStamp": DateTime.now()},
                   SetOptions(merge: true));
         }
 
-        // if (weightData.length > 0) {
-        //   num calories = weightData.elementAt(0);
-        //   print("-- Date: " +
-        //       DateTime(DateTime.now().year, DateTime.now().month,
-        //               DateTime.now().day)
-        //           .toString() +
-        //       ", Calories: $calories");
-        //   FirebaseFirestore.instance
-        //       .collection('User Data')
-        //       .doc(user.email)
-        //       .collection('DigiFit Data')
-        //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
-        //               DateTime.now().day)
-        //           .toString())
-        //       .set({"Calories": calories, "timeStamp": DateTime.now()},
-        //           SetOptions(merge: true));
-        // } else {
-        //   FirebaseFirestore.instance
-        //       .collection('User Data')
-        //       .doc(user.email)
-        //       .collection('DigiFit Data')
-        //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
-        //               DateTime.now().day)
-        //           .toString())
-        //       .set({"Calories": 0, "timeStamp": DateTime.now()},
-        //           SetOptions(merge: true));
-        // }
+        if (weightData.length > 0) {
+          weight = weightData.elementAt(0);
+          print("-- Date: " +
+              DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString() +
+              ", Calories: $weight");
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('Health Logs')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({"weight": weight, "timeStamp": DateTime.now()},
+                  SetOptions(merge: true));
+        } else {
+          FirebaseFirestore.instance
+              .collection('User Data')
+              .doc(user.email)
+              .collection('Health Logs')
+              .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                      DateTime.now().day)
+                  .toString())
+              .set({"weight": 0, "timeStamp": DateTime.now()},
+                  SetOptions(merge: true));
+        }
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
             {"Previous Use Date for DigiDiet": DateTime.now()},
@@ -265,12 +258,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
         // heartData = await getHealthData(lastOpenedDate, DataType.HEART_RATE);
         // print("Got heart Data: " + heartData.toString());
 
-        if (heightData.length > 0 && weightData.length > 0) {
+        if (heightData.length > 0) {
           for (int i = 0; i < heightData.length; i++) {
             print("i $i");
             DateTime newDate = lastOpenedDate.add(Duration(days: i));
             num height = heightData.elementAt(i);
-            num weight = weightData.elementAt(i);
             print("$i -- Date: " +
                 newDate.toString() +
                 ", month: " +
@@ -282,14 +274,14 @@ class _DigiDietPageState extends State<DigiDietPage> {
                 .collection('Health Logs')
                 .doc(DateTime(newDate.year, newDate.month, newDate.day)
                     .toString())
-                .set({"height": height, "weight": weight, "timeStamp": newDate},
+                .set({"height": height, "timeStamp": newDate},
                     SetOptions(merge: true));
 
             if (weightData.length <= i + 1 && heightData.length <= i + 1) {
               FirebaseFirestore.instance
                   .collection('User Data')
                   .doc(user.email)
-                  .collection('DigiFit Data')
+                  .collection('Health Logs')
                   .doc(DateTime(newDate.year, newDate.month, newDate.day)
                       .toString())
                   .set({"weight": 0, "height": 0}, SetOptions(merge: true));
@@ -297,36 +289,36 @@ class _DigiDietPageState extends State<DigiDietPage> {
           }
         }
 
-        // if (weightData.length > 0) {
-        //   for (int i = 0;
-        //       i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
-        //       i++) {
-        //     DateTime newDate = lastOpenedDate.add(Duration(days: i));
-        //     num weight = weightData.elementAt(i);
-        //     print("$i -- Date: " +
-        //         newDate.toString() +
-        //         ", month: " +
-        //         nameOfMonthFromMonthNumber(newDate.month) +
-        //         ", Steps: $weight");
-        //     FirebaseFirestore.instance
-        //         .collection('User Data')
-        //         .doc(user.email)
-        //         .collection('Health Logs')
-        //         .doc(DateTime(newDate.year, newDate.month, newDate.day)
-        //             .toString())
-        //         .set({"weight": weight, "timeStamp": newDate},
-        //             SetOptions(merge: true));
-        //     if (heightData.length <= i + 1) {
-        //       FirebaseFirestore.instance
-        //           .collection('User Data')
-        //           .doc(user.email)
-        //           .collection('DigiFit Data')
-        //           .doc(DateTime(newDate.year, newDate.month, newDate.day)
-        //               .toString())
-        //           .set({"height": 0}, SetOptions(merge: true));
-        //     }
-        //   }
-        // }
+        if (weightData.length > 0) {
+          for (int i = 0;
+              i < (DateTime.now().difference(lastOpenedDate).inDays + 1);
+              i++) {
+            DateTime newDate = lastOpenedDate.add(Duration(days: i));
+            num weight = weightData.elementAt(i);
+            print("$i -- Date: " +
+                newDate.toString() +
+                ", month: " +
+                nameOfMonthFromMonthNumber(newDate.month) +
+                ", Steps: $weight");
+            FirebaseFirestore.instance
+                .collection('User Data')
+                .doc(user.email)
+                .collection('Health Logs')
+                .doc(DateTime(newDate.year, newDate.month, newDate.day)
+                    .toString())
+                .set({"weight": weight, "timeStamp": newDate},
+                    SetOptions(merge: true));
+            if (heightData.length <= i + 1) {
+              FirebaseFirestore.instance
+                  .collection('User Data')
+                  .doc(user.email)
+                  .collection('Health Logs')
+                  .doc(DateTime(newDate.year, newDate.month, newDate.day)
+                      .toString())
+                  .set({"height": 0}, SetOptions(merge: true));
+            }
+          }
+        }
 
         FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
             {"Previous Use Date for DigiDiet": DateTime.now()},
@@ -347,22 +339,15 @@ class _DigiDietPageState extends State<DigiDietPage> {
               DateTime.now().year, DateTime.now().month, DateTime.now().day),
           DataType.WEIGHT);
       print("Got calorie Data: " + weightData.toString());
-
-      // SparseList heartData = await getHealthData(
-      //     DateTime(
-      //         DateTime.now().year, DateTime.now().month, DateTime.now().day),
-      //     DataType.HEART_RATE);
-      // print("Got heart Data: " + heartData.toString());
       num height = 0;
       num weight = 0;
       if (heightData.length > 0 && weightData.length > 0) {
         height = heightData.elementAt(0);
-        weight = weightData.elementAt(0);
         print("-- Date: " +
             DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString() +
-            ", Steps: $height & $weight");
+            ", Steps: $height");
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
@@ -370,11 +355,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
-            .set({
-          "height": height,
-          "weight": weight,
-          "timeStamp": DateTime.now()
-        }, SetOptions(merge: true));
+            .set({"height": height, "timeStamp": DateTime.now()},
+                SetOptions(merge: true));
       } else {
         FirebaseFirestore.instance
             .collection('User Data')
@@ -383,37 +365,37 @@ class _DigiDietPageState extends State<DigiDietPage> {
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
-            .set({"height": 0, "weight": 0, "timeStamp": DateTime.now()},
+            .set({"height": 0, "timeStamp": DateTime.now()},
                 SetOptions(merge: true));
       }
 
-      // if (weightData.length > 0) {
-      //   num calories = weightData.elementAt(0);
-      //   print("-- Date: " +
-      //       DateTime(DateTime.now().year, DateTime.now().month,
-      //               DateTime.now().day)
-      //           .toString() +
-      //       ", Calories: $calories");
-      //   FirebaseFirestore.instance
-      //       .collection('User Data')
-      //       .doc(user.email)
-      //       .collection('DigiFit Data')
-      //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
-      //               DateTime.now().day)
-      //           .toString())
-      //       .set({"Calories": calories, "timeStamp": DateTime.now()},
-      //           SetOptions(merge: true));
-      // } else {
-      //   FirebaseFirestore.instance
-      //       .collection('User Data')
-      //       .doc(user.email)
-      //       .collection('DigiFit Data')
-      //       .doc(DateTime(DateTime.now().year, DateTime.now().month,
-      //               DateTime.now().day)
-      //           .toString())
-      //       .set({"Calories": 0, "timeStamp": DateTime.now()},
-      //           SetOptions(merge: true));
-      // }
+      if (weightData.length > 0) {
+        weight = weightData.elementAt(0);
+        print("-- Date: " +
+            DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString() +
+            ", Calories: $weight");
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('Health Logs')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString())
+            .set({"weight": weight, "timeStamp": DateTime.now()},
+                SetOptions(merge: true));
+      } else {
+        FirebaseFirestore.instance
+            .collection('User Data')
+            .doc(user.email)
+            .collection('Health Logs')
+            .doc(DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)
+                .toString())
+            .set({"weight": 0, "timeStamp": DateTime.now()},
+                SetOptions(merge: true));
+      }
 
       FirebaseFirestore.instance.collection('User Data').doc(user.email).set(
           {"Previous Use Date for DigiDiet": DateTime.now()},
@@ -435,23 +417,36 @@ class _DigiDietPageState extends State<DigiDietPage> {
           querySnapshot.docs.forEach((doc) {
             print("Reading Graph Data " + (doc.id.toString()));
             DateTime dateTime = doc["timeStamp"].toDate();
-
+            weight = (doc['weight'] * 2.20462);
+            bmi = (((doc["weight"] / ((doc["height"]) * doc["height"])) * 100)
+                    .round() /
+                100);
+            lbm = (((((0.407 * ((doc["weight"] * 2.20462) * 0.4536)) +
+                            (0.267 * ((doc["height"] * 39.3701) * 2.54)) -
+                            19.2) *
+                        100)
+                    .round()) /
+                100);
+            fatConcentration =
+                (100 - ((((weight - lbm) / weight) * 1000).round()) / 10);
+            print(
+                'WEIGHT: $weight BMI: $bmi LBM: $lbm FAT CONCENTRATION: $fatConcentration');
             if (dateTime.month == DateTime.now().month) {
               setState(() {
-                bmiMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
-                    (doc["Body Mass Index"] / 75) * 9));
+                bmiMonth
+                    .add(new FlSpot((dateTime.day / 1.0 - 1), (bmi / 75) * 9));
               });
               setState(() {
-                weightMonth.add(new FlSpot(
-                    (dateTime.day / 1.0 - 1), (doc["Weight"] / 450) * 9));
+                weightMonth.add(
+                    new FlSpot((dateTime.day / 1.0 - 1), (weight / 450) * 9));
               });
               setState(() {
-                lbmMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
-                    (doc["Lean Body Mass"] / 135) * 9));
+                lbmMonth
+                    .add(new FlSpot((dateTime.day / 1.0 - 1), (lbm / 135) * 9));
               });
               setState(() {
-                fatMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
-                    (doc["Fat Concentration"] / 500) * 9));
+                fatMonth.add(new FlSpot(
+                    (dateTime.day / 1.0 - 1), (fatConcentration / 500) * 9));
               });
             }
           });
@@ -558,10 +553,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
   }
 
-  List<double> bmiList;
-  List<double> weightList;
-  List<double> lbmList;
-  List<double> fatList;
   List<FlSpot> bmiMonth = [];
   List<FlSpot> weightMonth = [];
   List<FlSpot> lbmMonth = [];
@@ -652,69 +643,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
       });
     });
-    bmiList = <double>[];
-    weightList = <double>[];
-    lbmList = <double>[];
-    fatList = <double>[];
-    FirebaseFirestore.instance
-        .collection('User Data')
-        .doc(user.email)
-        .collection('Health Logs')
-        .orderBy('Timestamp', descending: false)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        DateTime dateTime = doc["Timestamp"].toDate();
-        if (dateTime.month == DateTime.now().month) {
-          setState(() {
-            bmiMonth.add(new FlSpot(
-                (dateTime.day / 1.0 - 1), (doc["Body Mass Index"] / 75) * 9));
-            weightMonth.add(new FlSpot(
-                (dateTime.day / 1.0 - 1), (doc["Weight"] / 450) * 9));
-            lbmMonth.add(new FlSpot(
-                (dateTime.day / 1.0 - 1), (doc["Lean Body Mass"] / 135) * 9));
-            fatMonth.add(new FlSpot((dateTime.day / 1.0 - 1),
-                (doc["Fat Concentration"] / 500) * 9));
-          });
-        }
-        bmiList.add(doc['Body Mass Index'] / 30);
-        weightList.add(doc['Weight'] / 300);
-        lbmList.add(doc['Lean Body Mass'] / 80);
-        fatList.add(doc['Fat Concentration'] / 100);
-        setState(() {
-          bmi = doc['Body Mass Index'];
-          heightController.text = (doc['Height']).toString();
-          weightController.text = (doc['Weight']).toString();
-          height = (doc['Height']);
-          weight = (doc['Weight']);
-          bmiHeightfeatures = [
-            Feature(
-              title: "BMI",
-              color: Colors.red,
-              data: bmiList,
-            ),
-            Feature(
-              title: "Weight",
-              color: Colors.blue,
-              data: weightList,
-            ),
-          ];
-
-          lbmFatFeatures = [
-            Feature(
-              title: "Lean Body Mass",
-              color: Colors.red,
-              data: lbmList,
-            ),
-            Feature(
-              title: "Fat Percentage",
-              color: Colors.blue,
-              data: fatList,
-            ),
-          ];
-        });
-      });
-    });
   }
 
   void updateTabBarController(int i) {
@@ -734,38 +662,15 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   double weight = 0;
   double height = 0;
-  TextEditingController weightController = new TextEditingController();
-  TextEditingController heightController = new TextEditingController();
-
   double lbm = 100.0, bmi = 22.0, fatConcentration = 60;
 
-  List<Feature> bmiHeightfeatures = [
-    Feature(
-      title: "BMI",
-      color: Colors.red,
-      data: [0],
-    ),
-    Feature(
-      title: "Weight",
-      color: Colors.blue,
-      data: [0],
-    ),
-  ];
-
-  List<Feature> lbmFatFeatures = [
-    Feature(
-      title: "Lean Body Mass",
-      color: Colors.red,
-      data: [0],
-    ),
-    Feature(
-      title: "Fat Percentage",
-      color: Colors.blue,
-      data: [0],
-    ),
-  ];
+  bool hasWrittenLatestFitnessData = false;
 
   Widget updateViewBasedOnTab(int i, context) {
+    if (!hasWrittenLatestFitnessData) {
+      writeLatestHealthData();
+      hasWrittenLatestFitnessData = true;
+    }
     if (breakfastList[0] == "Loading") {
       updateMealPlanBasedOnDiet();
     }
@@ -1050,153 +955,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     color: secondaryColor,
                   ),
                   Center(
-                      child: Text("Input Your Metrics",
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.white,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w200))),
-                  Container(
-                    width: _width,
-                    height: _height * 0.0025,
-                    color: secondaryColor,
-                  ),
-                  Container(height: _height * 0.01),
-                  CupertinoTextField(
-                    focusNode: _nodeText1,
-                    controller: weightController,
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.black87,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w300),
-                    onChanged: (String value) => weight = double.parse(value),
-                    placeholder: "Weight (pounds)",
-                    placeholderStyle: TextStyle(color: hintColor),
-                    cursorColor: Colors.black87,
-                    keyboardType: TextInputType.number,
-                    decoration: BoxDecoration(
-                        color: textColor,
-                        borderRadius: BorderRadius.circular(9)),
-                  ),
-                  Container(height: _height * 0.01),
-                  CupertinoTextField(
-                    focusNode: _nodeText2,
-                    controller: heightController,
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.black87,
-                        fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w300),
-                    onChanged: (String value) => height = double.parse(value),
-                    placeholder: "Height (inches)",
-                    placeholderStyle: TextStyle(color: hintColor),
-                    cursorColor: Colors.black87,
-                    keyboardType: TextInputType.number,
-                    decoration: BoxDecoration(
-                        color: textColor,
-                        borderRadius: BorderRadius.circular(9)),
-                  ),
-                  SizedBox(
-                    height: _height * 0.01,
-                  ),
-                  Wrap(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: CupertinoButton(
-                            padding: EdgeInsets.only(
-                                left: 20.0, right: 20.0, top: 8.0, bottom: 8.0),
-                            color: Colors.orange,
-                            child: Text('Enter',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'Nunito',
-                                    fontSize: 17.0,
-                                    fontWeight: FontWeight.bold)),
-                            onPressed: () async {
-                              setState(() {
-                                lbm = ((((0.407 * (weight * 0.4536)) +
-                                                (0.267 * (height * 2.54)) -
-                                                19.2) *
-                                            100)
-                                        .round()) /
-                                    100;
-                                bmi = ((weight / (height * height) * 703 * 100)
-                                        .round()) /
-                                    100;
-                                weightList.add(weight / 300);
-                                bmiList.add(bmi / 30);
-                                bmiHeightfeatures = [
-                                  Feature(
-                                    title: "BMI",
-                                    color: Colors.red,
-                                    data: bmiList,
-                                  ),
-                                  Feature(
-                                    title: "Weight",
-                                    color: Colors.blue,
-                                    data: weightList,
-                                  ),
-                                ];
-
-                                fatConcentration = 100 -
-                                    ((((weight - lbm) / weight) * 1000)
-                                            .round()) /
-                                        10;
-
-                                lbmList.add(lbm / 80);
-                                fatList.add(fatConcentration / 100);
-                                lbmFatFeatures = [
-                                  Feature(
-                                    title: "Lean Body Mass",
-                                    color: Colors.red,
-                                    data: lbmList,
-                                  ),
-                                  Feature(
-                                    title: "Fat Percentage",
-                                    color: Colors.blue,
-                                    data: fatList,
-                                  ),
-                                ];
-                                heightController.clear();
-                                weightController.clear();
-
-                                writeDietDataToFirestoreLog(
-                                    lbm, bmi, fatConcentration, weight, height);
-                              });
-
-                              showCupertinoDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      CupertinoAlertDialog(
-                                        title:
-                                            new Text("Your Calculated Metric"),
-                                        content: new Text(
-                                            "Body Mass Index: $bmi\nLean Body Mass: $lbm\nFat Percentage $fatConcentration%"),
-                                        actions: <Widget>[
-                                          CupertinoDialogAction(
-                                            isDefaultAction: true,
-                                            child: Text("Okay"),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          )
-                                        ],
-                                      ));
-                            }),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: _height * 0.01,
-                  ),
-                  Container(
-                    width: _width,
-                    height: _height * 0.0025,
-                    color: secondaryColor,
-                  ),
-                  Center(
                       child: Text("Your Diet Stats",
                           style: TextStyle(
                               fontSize: 30,
@@ -1461,46 +1219,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                     ],
                   ),
                   SizedBox(height: _height * 0.01),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 350,
-                    decoration: BoxDecoration(
-                        color: tertiaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 30.0,
-                      ),
-                      child: LineGraph(
-                        features: bmiHeightfeatures,
-                        size: Size(320, 300),
-                        labelX: ['1', '5', '10', '15', '20'],
-                        labelY: ['20%', '40%', '60%', '80%', '100%'],
-                        showDescription: true,
-                        graphColor: Colors.white60,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 350,
-                    decoration: BoxDecoration(
-                        color: tertiaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 30.0,
-                      ),
-                      child: LineGraph(
-                        features: lbmFatFeatures,
-                        size: Size(320, 300),
-                        labelX: ['1', '5', '10', '15', '20'],
-                        labelY: ['20%', '40%', '60%', '80%', '100%'],
-                        showDescription: true,
-                        graphColor: Colors.white60,
-                      ),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                     child: Align(
@@ -1513,32 +1231,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 fontFamily: 'Nunito',
                                 fontWeight: FontWeight.w400))),
                   ),
-                  // Container(
-                  //   height: 320,
-                  //   decoration: BoxDecoration(
-                  //       color: tertiaryColor,
-                  //       borderRadius: BorderRadius.all(Radius.circular(10))),
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.all(8.0),
-                  //     child: RadarChart(
-                  //       values: [5, 10, 3, 5, 6, 9],
-                  //       labels: [
-                  //         "Protein",
-                  //         "Carbs",
-                  //         "Dairy",
-                  //         "Fruits",
-                  //         "Veggies",
-                  //         "Grains",
-                  //       ],
-                  //       maxValue: 10,
-                  //       fillColor: Colors.blue,
-                  //       strokeColor: Colors.white,
-                  //       labelColor: Colors.white,
-                  //       textScaleFactor: 0.06,
-                  //       curve: Curves.easeInOutExpo,
-                  //     ),
-                  //   ),
-                  // ),
                   Padding(
                       padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                       child: Align(
@@ -1565,25 +1257,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
       context,
       CupertinoPageRoute(builder: (context) => RecipeWebViewPage(url)),
     );
-  }
-
-  void writeDietDataToFirestoreLog(double lbm, double bmi,
-      double fatConcentration, double weight, double height) async {
-    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    final databaseReference = FirebaseFirestore.instance;
-
-    await databaseReference
-        .collection("User Data")
-        .doc(user.email)
-        .collection("Health Logs")
-        .add({
-      "Lean Body Mass": lbm,
-      "Body Mass Index": bmi,
-      "Fat Concentration": fatConcentration,
-      "Weight": weight,
-      "Height": height,
-      "Timestamp": Timestamp.now()
-    });
   }
 
   String nameOfDayFromWeekday(int weekday) {

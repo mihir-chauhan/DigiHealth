@@ -29,7 +29,9 @@ class AuthService {
       "Diet Plan": "Not Set",
       "Points": 0,
       "Questionnaire": false,
-      "Previous Use Date": DateTime.now().subtract(Duration(days: 7))
+      "Previous Use Date": DateTime.now().subtract(Duration(days: 7)),
+      "Previous Use Date for DigiDiet":
+          DateTime.now().subtract(Duration(days: 7))
     });
 
     databaseReference
