@@ -103,19 +103,18 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   Future<bool> readPermissionsForHealthKit() async {
     try {
-      final responses = await HealthKit.hasPermissions(
-          [DataType.HEIGHT, DataType.WEIGHT]); //, DataType.HEART_RATE]);
+      final responses =
+          await HealthKit.hasPermissions([DataType.HEIGHT, DataType.WEIGHT]);
 
       if (!responses) {
         final value = await HealthKit.requestPermissions(
-            [DataType.HEIGHT, DataType.WEIGHT]); //, DataType.HEART_RATE]);
+            [DataType.HEIGHT, DataType.WEIGHT]);
 
         return value;
       } else {
         return true;
       }
     } on UnsupportedException catch (e) {
-      // thrown in case e.dataType is unsupported
       print("Error: DigiFit: readPermissionsForHealthKit $e");
       return false;
     }
@@ -325,8 +324,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
             SetOptions(merge: true));
       }
 
-      // Calling again to update today's data because when time is over 1 day, it doesn't update.
-
       print("Updating today's data");
       SparseList heightData = await getHealthData(
           DateTime(
@@ -401,7 +398,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
           {"Previous Use Date for DigiDiet": DateTime.now()},
           SetOptions(merge: true));
     }).then((value) {
-      // Graph Population
       FirebaseFirestore.instance
           .collection('User Data')
           .doc(user.email)
@@ -429,24 +425,16 @@ class _DigiDietPageState extends State<DigiDietPage> {
                 100);
             fatConcentration =
                 (100 - ((((weight - lbm) / weight) * 1000).round()) / 10);
-            print(
-                'WEIGHT: $weight BMI: $bmi LBM: $lbm FAT CONCENTRATION: $fatConcentration');
             if (dateTime.month == DateTime.now().month) {
               setState(() {
                 bmiMonth
                     .add(new FlSpot((dateTime.day / 1.0 - 1), (bmi / 75) * 9));
-              });
-              setState(() {
-                weightMonth.add(
-                    new FlSpot((dateTime.day / 1.0 - 1), (weight / 450) * 9));
-              });
-              setState(() {
-                lbmMonth
-                    .add(new FlSpot((dateTime.day / 1.0 - 1), (lbm / 135) * 9));
-              });
-              setState(() {
                 fatMonth.add(new FlSpot(
                     (dateTime.day / 1.0 - 1), (fatConcentration / 500) * 9));
+                weightMonth.add(
+                    new FlSpot((dateTime.day / 1.0 - 1), (weight / 450) * 9));
+                lbmMonth
+                    .add(new FlSpot((dateTime.day / 1.0 - 1), (lbm / 135) * 9));
               });
             }
           });
@@ -665,6 +653,8 @@ class _DigiDietPageState extends State<DigiDietPage> {
   double lbm = 100.0, bmi = 22.0, fatConcentration = 60;
 
   bool hasWrittenLatestFitnessData = false;
+
+  bool showMonthlyData = true;
 
   Widget updateViewBasedOnTab(int i, context) {
     if (!hasWrittenLatestFitnessData) {
@@ -1019,9 +1009,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 right: 18.0, left: 12.0, top: 24, bottom: 12),
                             child: LineChart(
                               bmiMonthData(bmiMonth),
-                              // showMonthlyData
-                              //     ? stepMonthData(stepMonth)
-                              //     : stepYearData(stepYear),
                               swapAnimationDuration:
                                   Duration(milliseconds: 750), // Optional
                               swapAnimationCurve: Curves.linear,
@@ -1035,12 +1022,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         child: TextButton(
                           onPressed: () {
                             setState(() {
-                              // showMonthlyData = !showMonthlyData;
+                              showMonthlyData = !showMonthlyData;
                             });
                           },
                           child: Text(
-                            // showMonthlyData ? 'Month' : 'Year',
-                            "Month",
+                            'Month',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
@@ -1076,9 +1062,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 right: 18.0, left: 12.0, top: 24, bottom: 12),
                             child: LineChart(
                               weightMonthData(weightMonth),
-                              // showMonthlyData
-                              //     ? stepMonthData(stepMonth)
-                              //     : stepYearData(stepYear),
                               swapAnimationDuration:
                                   Duration(milliseconds: 750), // Optional
                               swapAnimationCurve: Curves.linear,
@@ -1092,12 +1075,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         child: TextButton(
                           onPressed: () {
                             setState(() {
-                              // showMonthlyData = !showMonthlyData;
+                              showMonthlyData = !showMonthlyData;
                             });
                           },
                           child: Text(
-                            // showMonthlyData ? 'Month' : 'Year',
-                            "Month",
+                            'Month',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
@@ -1133,9 +1115,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 right: 18.0, left: 12.0, top: 24, bottom: 12),
                             child: LineChart(
                               lbmMonthData(lbmMonth),
-                              // showMonthlyData
-                              //     ? stepMonthData(stepMonth)
-                              //     : stepYearData(stepYear),
                               swapAnimationDuration:
                                   Duration(milliseconds: 750), // Optional
                               swapAnimationCurve: Curves.linear,
@@ -1149,12 +1128,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         child: TextButton(
                           onPressed: () {
                             setState(() {
-                              // showMonthlyData = !showMonthlyData;
+                              showMonthlyData = !showMonthlyData;
                             });
                           },
                           child: Text(
-                            // showMonthlyData ? 'Month' : 'Year',
-                            "Month",
+                            'Month',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
@@ -1190,9 +1168,6 @@ class _DigiDietPageState extends State<DigiDietPage> {
                                 right: 18.0, left: 12.0, top: 24, bottom: 12),
                             child: LineChart(
                               fatMonthData(fatMonth),
-                              // showMonthlyData
-                              //     ? stepMonthData(stepMonth)
-                              //     : stepYearData(stepYear),
                               swapAnimationDuration:
                                   Duration(milliseconds: 750), // Optional
                               swapAnimationCurve: Curves.linear,
@@ -1206,12 +1181,11 @@ class _DigiDietPageState extends State<DigiDietPage> {
                         child: TextButton(
                           onPressed: () {
                             setState(() {
-                              // showMonthlyData = !showMonthlyData;
+                              showMonthlyData = !showMonthlyData;
                             });
                           },
                           child: Text(
-                            // showMonthlyData ? 'Month' : 'Year',
-                            "Month",
+                            'Month',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
