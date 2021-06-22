@@ -32,89 +32,80 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     populateChatListView(currentChatName);
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: secondaryColor,
-        appBar: CupertinoNavigationBar(
-            transitionBetweenRoutes: false,
-            heroTag: "chatPage",
-            middle: Text("$currentChatName Channel",
-                style: TextStyle(
-                    color: Colors.white, fontFamily: 'Nunito')),
-            backgroundColor: secondaryColor,
-            leading: GestureDetector(
-              onTap: () {
-                showCupertinoModalPopup(
-                    context: context,
-                    builder: (context) {
-                      return CupertinoActionSheet(
-                        title: Text("Channels",
-                            style: TextStyle(
-                                color: Colors.black87,
-                                fontFamily: 'Nunito')),
-                        actions: [
-                          CupertinoActionSheetAction(
-                            child: Text("Exercise",
-                                style: TextStyle(
-                                    color: primaryColor,
-                                    fontFamily: 'Nunito')),
-                            onPressed: () {
-                              alreadyPopulatedChat = false;
-                              currentChatName = "Exercise";
-                              Navigator.pop(context);
-                              populateChatListView(
-                                  currentChatName);
-                            },
-                          ),
-                          CupertinoActionSheetAction(
-                            child: Text("Mental Health",
-                                style: TextStyle(
-                                    color: primaryColor,
-                                    fontFamily: 'Nunito')),
-                            onPressed: () {
-                              alreadyPopulatedChat = false;
-                              currentChatName = "Mental Health";
-                              Navigator.pop(context);
-                              populateChatListView(
-                                  currentChatName);
-                            },
-                          ),
-                          CupertinoActionSheetAction(
-                            child: Text("Other",
-                                style: TextStyle(
-                                    color: primaryColor,
-                                    fontFamily: 'Nunito')),
-                            onPressed: () {
-                              alreadyPopulatedChat = false;
-                              currentChatName = "Other";
-                              Navigator.pop(context);
-                              populateChatListView(
-                                  currentChatName);
-                            },
-                          )
-                        ],
-                      );
-                    });
-              },
-              child: Icon(
-                Icons.mark_chat_unread_outlined,
-                color: CupertinoColors.white,
-                size: 30,
-              ),
-            )),
-        body: Chat(
-            theme: const DarkChatTheme(
-                emptyChatPlaceholderTextStyle: TextStyle(color: Colors.white),
-              backgroundColor: const Color(0xFF75A2EA),
-              inputBackgroundColor: const Color(0xFF395075),
-              inputTextColor: Colors.white,
-              primaryColor: const Color(0xFF395075),
-              secondaryColor: const Color(0xFF395075)
+      resizeToAvoidBottomInset: false,
+      backgroundColor: secondaryColor,
+      appBar: CupertinoNavigationBar(
+          transitionBetweenRoutes: false,
+          heroTag: "chatPage",
+          middle: Text("$currentChatName Channel",
+              style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
+          backgroundColor: secondaryColor,
+          leading: GestureDetector(
+            onTap: () {
+              showCupertinoModalPopup(
+                  context: context,
+                  builder: (context) {
+                    return CupertinoActionSheet(
+                      title: Text("Channels",
+                          style: TextStyle(
+                              color: Colors.black87, fontFamily: 'Nunito')),
+                      actions: [
+                        CupertinoActionSheetAction(
+                          child: Text("Exercise",
+                              style: TextStyle(
+                                  color: primaryColor, fontFamily: 'Nunito')),
+                          onPressed: () {
+                            alreadyPopulatedChat = false;
+                            currentChatName = "Exercise";
+                            Navigator.pop(context);
+                            populateChatListView(currentChatName);
+                          },
+                        ),
+                        CupertinoActionSheetAction(
+                          child: Text("Mental Health",
+                              style: TextStyle(
+                                  color: primaryColor, fontFamily: 'Nunito')),
+                          onPressed: () {
+                            alreadyPopulatedChat = false;
+                            currentChatName = "Mental Health";
+                            Navigator.pop(context);
+                            populateChatListView(currentChatName);
+                          },
+                        ),
+                        CupertinoActionSheetAction(
+                          child: Text("Other",
+                              style: TextStyle(
+                                  color: primaryColor, fontFamily: 'Nunito')),
+                          onPressed: () {
+                            alreadyPopulatedChat = false;
+                            currentChatName = "Other";
+                            Navigator.pop(context);
+                            populateChatListView(currentChatName);
+                          },
+                        )
+                      ],
+                    );
+                  });
+            },
+            child: Icon(
+              Icons.mark_chat_unread_outlined,
+              color: CupertinoColors.white,
+              size: 30,
             ),
-            messages: _messageList,
-            onSendPressed: _handleSendPressed,
-            user: _user,
-          ),
-        );
+          )),
+      body: Chat(
+        theme: const DarkChatTheme(
+            emptyChatPlaceholderTextStyle: TextStyle(color: Colors.white),
+            backgroundColor: const Color(0xFF75A2EA),
+            inputBackgroundColor: const Color(0xFF395075),
+            inputTextColor: Colors.white,
+            primaryColor: const Color(0xFF395075),
+            secondaryColor: const Color(0xFF395075)),
+        messages: _messageList,
+        onSendPressed: _handleSendPressed,
+        user: _user,
+      ),
+    );
   }
 
   void _handleSendPressed(types.PartialText message) {
@@ -126,7 +117,6 @@ class _ChatPageState extends State<ChatPage> {
     );
     _addMessage(textMessage);
     sendChatMessage(message.text, currentChatName);
-
   }
 
   void _addMessage(types.Message message) {
@@ -135,12 +125,11 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-
   bool alreadyPopulatedChat = false;
   var chatChangeListener;
 
   populateChatListView(String chatRoom) {
-    if(alreadyPopulatedChat) {
+    if (alreadyPopulatedChat) {
       return;
     }
     alreadyPopulatedChat = true;
@@ -153,11 +142,14 @@ class _ChatPageState extends State<ChatPage> {
         .snapshots()
         .listen((data) {
       data.docChanges.forEach((element) {
-        if(element.type == DocumentChangeType.added) {
+        if (element.type == DocumentChangeType.added) {
           DateTime dateCreated = element.doc.get("created").toDate();
           setState(() {
             _addMessage(types.TextMessage(
-              author: element.doc.get("sentBy").toString().contains(user.displayName.toString())
+              author: element.doc
+                      .get("sentBy")
+                      .toString()
+                      .contains(user.displayName.toString())
                   ? _user
                   : _others,
               createdAt: dateCreated.millisecondsSinceEpoch,
@@ -188,7 +180,10 @@ class _ChatPageState extends State<ChatPage> {
 
     final filter = ProfanityFilter();
 
-    if (filter.hasProfanity(message.toLowerCase()) || message.toLowerCase().contains("stupid") || message.toLowerCase().contains("dumb") || message.toLowerCase().contains("idiot")) {
+    if (filter.hasProfanity(message.toLowerCase()) ||
+        message.toLowerCase().contains("stupid") ||
+        message.toLowerCase().contains("dumb") ||
+        message.toLowerCase().contains("idiot")) {
       FirebaseFirestore.instance.collection("Chat").add({
         "profane_message": message,
         "sentBy": user.email,
