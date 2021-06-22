@@ -103,6 +103,7 @@ class _ChatPageState extends State<ChatPage> {
             )),
         body: Chat(
             theme: const DarkChatTheme(
+                emptyChatPlaceholderTextStyle: TextStyle(color: Colors.white),
               backgroundColor: const Color(0xFF75A2EA),
               inputBackgroundColor: const Color(0xFF395075),
               inputTextColor: Colors.white,
@@ -153,14 +154,13 @@ class _ChatPageState extends State<ChatPage> {
         .listen((data) {
       data.docChanges.forEach((element) {
         if(element.type == DocumentChangeType.added) {
+          DateTime dateCreated = element.doc.get("created").toDate();
           setState(() {
             _addMessage(types.TextMessage(
               author: element.doc.get("sentBy").toString().contains(user.displayName.toString())
                   ? _user
                   : _others,
-              createdAt: DateTime
-                  .now()
-                  .millisecondsSinceEpoch,
+              createdAt: dateCreated.millisecondsSinceEpoch,
               id: randomString(),
               text: element.doc.get("message").toString(),
             ));
