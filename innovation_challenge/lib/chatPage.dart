@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
                     color: Colors.white, fontFamily: 'Nunito')),
             backgroundColor: secondaryColor,
             leading: GestureDetector(
-              onTap: () async {
+              onTap: () {
                 showCupertinoModalPopup(
                     context: context,
                     builder: (context) {
@@ -57,10 +57,11 @@ class _ChatPageState extends State<ChatPage> {
                                 style: TextStyle(
                                     color: primaryColor,
                                     fontFamily: 'Nunito')),
-                            onPressed: () async {
+                            onPressed: () {
+                              alreadyPopulatedChat = false;
                               currentChatName = "Exercise";
                               Navigator.pop(context);
-                              await populateChatListView(
+                              populateChatListView(
                                   currentChatName);
                             },
                           ),
@@ -69,10 +70,11 @@ class _ChatPageState extends State<ChatPage> {
                                 style: TextStyle(
                                     color: primaryColor,
                                     fontFamily: 'Nunito')),
-                            onPressed: () async {
+                            onPressed: () {
+                              alreadyPopulatedChat = false;
                               currentChatName = "Mental Health";
                               Navigator.pop(context);
-                              await populateChatListView(
+                              populateChatListView(
                                   currentChatName);
                             },
                           ),
@@ -81,10 +83,11 @@ class _ChatPageState extends State<ChatPage> {
                                 style: TextStyle(
                                     color: primaryColor,
                                     fontFamily: 'Nunito')),
-                            onPressed: () async {
+                            onPressed: () {
+                              alreadyPopulatedChat = false;
                               currentChatName = "Other";
                               Navigator.pop(context);
-                              await populateChatListView(
+                              populateChatListView(
                                   currentChatName);
                             },
                           )
@@ -99,7 +102,13 @@ class _ChatPageState extends State<ChatPage> {
               ),
             )),
         body: Chat(
-            theme: const DarkChatTheme(),
+            theme: const DarkChatTheme(
+              backgroundColor: const Color(0xFF75A2EA),
+              inputBackgroundColor: const Color(0xFF395075),
+              inputTextColor: Colors.white,
+              primaryColor: const Color(0xFF395075),
+              secondaryColor: const Color(0xFF395075)
+            ),
             messages: _messageList,
             onSendPressed: _handleSendPressed,
             user: _user,
@@ -114,9 +123,9 @@ class _ChatPageState extends State<ChatPage> {
       id: randomString(),
       text: message.text,
     );
-
-    sendChatMessage(message.text, currentChatName);
     _addMessage(textMessage);
+    sendChatMessage(message.text, currentChatName);
+
   }
 
   void _addMessage(types.Message message) {
@@ -126,48 +135,45 @@ class _ChatPageState extends State<ChatPage> {
   }
 
 
+  bool alreadyPopulatedChat = false;
+  var chatChangeListener;
 
-  populateChatListView(String chatRoom) async {
-    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    String message;
-
-    final databaseReference = FirebaseFirestore.instance;
-    await databaseReference
+  populateChatListView(String chatRoom) {
+    if(alreadyPopulatedChat) {
+      return;
+    }
+    alreadyPopulatedChat = true;
+    User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    chatChangeListener = FirebaseFirestore.instance
         .collection("Chat")
         .doc("Chat Rooms")
         .collection(chatRoom)
         .orderBy('created', descending: false)
         .snapshots()
         .listen((data) {
-      for (int i = 0; i < data.docs.length; i++) {
-        data.docs
-            .elementAt(i)
-            .data()
-            .forEach((key, value) {
-          if (key.toString().contains("message")) {
-            message = value.toString();
-          } else if (key.toString().contains("sentBy")) {
-            setState(() {
-              _addMessage(types.TextMessage(
-                author: value.toString().endsWith(user.displayName.toString())
-                    ? _user
-                    : _others,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
-                id: randomString(),
-                text: message,
-              ));
-            });
-          }
-        });
-      }
+      data.docChanges.forEach((element) {
+        if(element.type == DocumentChangeType.added) {
+          setState(() {
+            _addMessage(types.TextMessage(
+              author: element.doc.get("sentBy").toString().contains(user.displayName.toString())
+                  ? _user
+                  : _others,
+              createdAt: DateTime
+                  .now()
+                  .millisecondsSinceEpoch,
+              id: randomString(),
+              text: element.doc.get("message").toString(),
+            ));
+          });
+        }
+      });
     }).asFuture();
   }
 
-  sendChatMessage(String message, String chatRoom) async {
+  sendChatMessage(String message, String chatRoom) {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    final databaseReference = FirebaseFirestore.instance;
     if (message.contains("!#clear#!")) {
-      databaseReference
+      FirebaseFirestore.instance
           .collection("Chat")
           .doc("Chat Rooms")
           .collection(chatRoom)
@@ -182,16 +188,16 @@ class _ChatPageState extends State<ChatPage> {
 
     final filter = ProfanityFilter();
 
-    if (filter.hasProfanity(message) || message.contains("stupid") || message.contains("dumb") || message.contains("idiot")) {
-      await databaseReference.collection("Chat").add({
+    if (filter.hasProfanity(message.toLowerCase()) || message.toLowerCase().contains("stupid") || message.toLowerCase().contains("dumb") || message.toLowerCase().contains("idiot")) {
+      FirebaseFirestore.instance.collection("Chat").add({
         "profane_message": message,
         "sentBy": user.email,
         "created": Timestamp.now()
-      }).then((value) async {});
+      });
       return;
     }
 
-    await databaseReference
+    FirebaseFirestore.instance
         .collection("Chat")
         .doc("Chat Rooms")
         .collection(chatRoom)
