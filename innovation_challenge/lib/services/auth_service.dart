@@ -69,7 +69,7 @@ class NameValidator {
       return "Name must be at least 2 characters long";
     }
     if (value.length > 10) {
-      return "Name must be less than 20 characters long";
+      return "Name must be less than 10 characters long";
     }
     return null;
   }

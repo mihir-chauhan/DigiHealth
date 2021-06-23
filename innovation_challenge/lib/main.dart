@@ -1,8 +1,5 @@
 import 'package:DigiHealth/digidietPage.dart';
 import 'package:DigiHealth/digifitPage.dart';
-import 'package:DigiHealth/groupChat.dart';
-import 'package:DigiHealth/groupLeaderboard.dart';
-import 'package:DigiHealth/groupSettings.dart';
 import 'package:DigiHealth/introScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';

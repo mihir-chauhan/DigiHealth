@@ -129,6 +129,9 @@ class _ChatPageState extends State<ChatPage> {
     if (alreadyPopulatedChat) {
       return;
     }
+    setState(() {
+      _messageList.clear();
+    });
     alreadyPopulatedChat = true;
     User user = Provider.of(context).auth.firebaseAuth.currentUser;
     chatChangeListener = FirebaseFirestore.instance

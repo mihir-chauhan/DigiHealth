@@ -159,7 +159,6 @@ class _HomePageState extends State<HomePage> {
 
     WidgetsFlutterBinding.ensureInitialized();
 
-    showAlertController();
 
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -245,6 +244,8 @@ class _HomePageState extends State<HomePage> {
         print(snapshot["Questionnaire"].toString());
         if (snapshot["Questionnaire"] == false) {
           launchQuestionnaire();
+        } else {
+          showAlertController();
         }
       });
       alreadyCalledOpenQuestionnaire = true;

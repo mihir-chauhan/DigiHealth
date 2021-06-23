@@ -1,4 +1,5 @@
 import 'package:DigiHealth/chatPage.dart';
+import 'package:DigiHealth/groupsPage.dart';
 import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';
 import 'package:DigiHealth/profilePage.dart';
@@ -43,9 +44,7 @@ class _MainPageControllerState extends State<MainPageController> {
           } else if (i == 2) {
             return LeaderboardPage();
           } else if (i == 3) {
-            return Scaffold(
-              body: Text("HI"),
-            );
+            return GroupsPage();
           } else {
             return ProfilePage();
           }
