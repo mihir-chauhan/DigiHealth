@@ -22,9 +22,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               child: Icon(
-                Icons.check,
+                Icons.clear,
                 color: Colors.white,
               ),
+              onTap: () {
+                Navigator.pop(context);
+              },
             )),
         child: Scaffold(
           backgroundColor: primaryColor,
@@ -35,67 +38,30 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 }
 
 class AllFieldsFormBloc extends FormBloc<String, String> {
-  final text1 = TextFieldBloc();
+  final groupName = TextFieldBloc();
 
-  final boolean1 = BooleanFieldBloc();
-
-  final boolean2 = BooleanFieldBloc();
-
-  final select1 = SelectFieldBloc(
-    items: ['Option 1', 'Option 2'],
+  final groupVisibility = SelectFieldBloc(
+    items: ['Public', 'Private'],
   );
-
-  final select2 = SelectFieldBloc(
-    items: ['Option 1', 'Option 2'],
-  );
-
-  final multiSelect1 = MultiSelectFieldBloc<String, dynamic>(
-    items: [
-      'Option 1',
-      'Option 2',
-    ],
-  );
-
-  final date1 = InputFieldBloc<DateTime, Object>();
-
-  final dateAndTime1 = InputFieldBloc<DateTime, Object>();
-
-  final time1 = InputFieldBloc<TimeOfDay, Object>();
 
   AllFieldsFormBloc() {
     addFieldBlocs(fieldBlocs: [
-      text1,
-      boolean1,
-      boolean2,
-      select1,
-      select2,
-      multiSelect1,
-      date1,
-      dateAndTime1,
-      time1,
+      groupName,
+      groupVisibility,
     ]);
-  }
-
-  void addErrors() {
-    text1.addFieldError('Awesome Error!');
-    boolean1.addFieldError('Awesome Error!');
-    boolean2.addFieldError('Awesome Error!');
-    select1.addFieldError('Awesome Error!');
-    select2.addFieldError('Awesome Error!');
-    multiSelect1.addFieldError('Awesome Error!');
-    date1.addFieldError('Awesome Error!');
-    dateAndTime1.addFieldError('Awesome Error!');
-    time1.addFieldError('Awesome Error!');
   }
 
   @override
   void onSubmitting() async {
-    try {
-      await Future<void>.delayed(Duration(milliseconds: 500));
-
-      emitSuccess(canSubmitAgain: true);
-    } catch (e) {
-      emitFailure();
+    if(groupName.value.length < 2 || groupName.value.length > 15 ) {
+      groupName.addFieldError('Must be between 2 and 15 characters');
+    }
+    if(groupVisibility.value == null) {
+      groupVisibility.addFieldError('Please select an option');
+    }
+    if(groupName.value.length > 2 && groupName.value.length < 15 && groupVisibility.value != null) {
+      //Create group in Firebase DB
+      emitSuccess();
     }
   }
 }
@@ -108,49 +74,32 @@ class AllFieldsForm extends StatelessWidget {
       child: Builder(
         builder: (context) {
           final formBloc = BlocProvider.of<AllFieldsFormBloc>(context);
-
           return Theme(
             data: Theme.of(context).copyWith(
               inputDecorationTheme: InputDecorationTheme(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.white, width: 1.0),
                 ),
               ),
             ),
             child: Scaffold(
-              appBar: AppBar(title: Text('Built-in Widgets')),
+              backgroundColor: primaryColor,
               floatingActionButton: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   FloatingActionButton.extended(
-                    heroTag: null,
-                    onPressed: formBloc.addErrors,
-                    icon: Icon(Icons.error_outline),
-                    label: Text('ADD ERRORS'),
-                  ),
-                  SizedBox(height: 12),
-                  FloatingActionButton.extended(
-                    heroTag: null,
+                    backgroundColor: tertiaryColor,
+                    heroTag: "CreateGroupButton",
                     onPressed: formBloc.submit,
-                    icon: Icon(Icons.send),
-                    label: Text('SUBMIT'),
+                    icon: Icon(Icons.add_rounded),
+                    label: Text('Create Group', style: TextStyle(fontFamily: 'Nunito'),),
                   ),
                 ],
               ),
               body: FormBlocListener<AllFieldsFormBloc, String, String>(
-                onSubmitting: (context, state) {
-                  LoadingDialog.show(context);
-                },
                 onSuccess: (context, state) {
-                  LoadingDialog.hide(context);
-
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => SuccessScreen()));
-                },
-                onFailure: (context, state) {
-                  LoadingDialog.hide(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.failureResponse)));
+                  Navigator.of(context).pop();
                 },
                 child: SingleChildScrollView(
                   physics: ClampingScrollPhysics(),
@@ -159,83 +108,40 @@ class AllFieldsForm extends StatelessWidget {
                     child: Column(
                       children: <Widget>[
                         TextFieldBlocBuilder(
-                          textFieldBloc: formBloc.text1,
+                          textFieldBloc: formBloc.groupName,
                           decoration: InputDecoration(
-                            labelText: 'TextFieldBlocBuilder',
-                            prefixIcon: Icon(Icons.text_fields),
+                            labelText: 'Group Name',
+                            prefixIcon: Icon(Icons.drive_file_rename_outline, color: tertiaryColor,),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide:
+                                  BorderSide(color: secondaryColor, width: 1.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 1.0),
+                            ),
+                            labelStyle: TextStyle(fontFamily: 'Nunito', color: tertiaryColor),
+                            errorStyle: TextStyle(fontFamily: 'Nunito'),
                           ),
-                        ),
-                        DropdownFieldBlocBuilder<String>(
-                          selectFieldBloc: formBloc.select1,
-                          decoration: InputDecoration(
-                            labelText: 'DropdownFieldBlocBuilder',
-                            prefixIcon: Icon(Icons.sentiment_satisfied),
-                          ),
-                          itemBuilder: (context, value) => value,
+                          style: TextStyle(fontFamily: 'Nunito', color: Colors.white),
+                          cursorColor: Colors.white,
                         ),
                         RadioButtonGroupFieldBlocBuilder<String>(
-                          selectFieldBloc: formBloc.select2,
+                          selectFieldBloc: formBloc.groupVisibility,
                           decoration: InputDecoration(
-                            labelText: 'RadioButtonGroupFieldBlocBuilder',
+                            labelText: 'Group Visibility',
                             prefixIcon: SizedBox(),
+                            labelStyle: TextStyle(fontFamily: 'Nunito'),
+                            errorStyle: TextStyle(fontFamily: 'Nunito'),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide:
+                              BorderSide(color: secondaryColor, width: 1.0),
+                            ),
                           ),
                           itemBuilder: (context, item) => item,
-                        ),
-                        CheckboxGroupFieldBlocBuilder<String>(
-                          multiSelectFieldBloc: formBloc.multiSelect1,
-                          itemBuilder: (context, item) => item,
-                          decoration: InputDecoration(
-                            labelText: 'CheckboxGroupFieldBlocBuilder',
-                            prefixIcon: SizedBox(),
-                          ),
-                        ),
-                        DateTimeFieldBlocBuilder(
-                          dateTimeFieldBloc: formBloc.date1,
-                          format: DateFormat('dd-MM-yyyy'),
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                          decoration: InputDecoration(
-                            labelText: 'DateTimeFieldBlocBuilder',
-                            prefixIcon: Icon(Icons.calendar_today),
-                            helperText: 'Date',
-                          ),
-                        ),
-                        DateTimeFieldBlocBuilder(
-                          dateTimeFieldBloc: formBloc.dateAndTime1,
-                          canSelectTime: true,
-                          format: DateFormat('dd-MM-yyyy  hh:mm'),
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                          decoration: InputDecoration(
-                            labelText: 'DateTimeFieldBlocBuilder',
-                            prefixIcon: Icon(Icons.date_range),
-                            helperText: 'Date and Time',
-                          ),
-                        ),
-                        TimeFieldBlocBuilder(
-                          timeFieldBloc: formBloc.time1,
-                          format: DateFormat('hh:mm a'),
-                          initialTime: TimeOfDay.now(),
-                          decoration: InputDecoration(
-                            labelText: 'TimeFieldBlocBuilder',
-                            prefixIcon: Icon(Icons.access_time),
-                          ),
-                        ),
-                        SwitchFieldBlocBuilder(
-                          booleanFieldBloc: formBloc.boolean2,
-                          body: Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text('CheckboxFieldBlocBuilder'),
-                          ),
-                        ),
-                        CheckboxFieldBlocBuilder(
-                          booleanFieldBloc: formBloc.boolean1,
-                          body: Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text('CheckboxFieldBlocBuilder'),
-                          ),
                         ),
                       ],
                     ),
