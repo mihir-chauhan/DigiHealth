@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,12 +39,27 @@ class _GroupChatState extends State<GroupChat> {
       appBar: CupertinoNavigationBar(
         transitionBetweenRoutes: false,
         heroTag: "groupChat",
-        middle: Text("Group Name Channel",
+        middle: Text(widget.groupName,
             style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
         backgroundColor: secondaryColor,
       ),
       body: Chat(
-        theme: const DarkChatTheme(),
+        theme: const DarkChatTheme(
+            inputTextStyle:
+                TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            dateDividerTextStyle:
+                TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            receivedMessageBodyTextStyle:
+                TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            sentMessageBodyTextStyle:
+                TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            emptyChatPlaceholderTextStyle:
+                TextStyle(color: Colors.white, fontFamily: 'Nunito'),
+            backgroundColor: const Color(0xFF75A2EA),
+            inputBackgroundColor: const Color(0xFF395075),
+            inputTextColor: Colors.white,
+            primaryColor: const Color(0xFF395075),
+            secondaryColor: const Color(0xFF395075)),
         messages: _messageList,
         onSendPressed: _handleSendPressed,
         user: _user,
@@ -52,65 +68,58 @@ class _GroupChatState extends State<GroupChat> {
   }
 
   void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: randomString(),
-      text: message.text,
-    );
-
     sendChatMessage(message.text);
-    _addMessage(textMessage);
   }
 
   void _addMessage(types.Message message) {
-    // setState(() {
-    _messageList.insert(0, message);
-    // });
+    setState(() {
+      _messageList.insert(0, message);
+    });
   }
 
-  populateChatListView() async {
-    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    String message;
+  bool alreadyPopulatedChat = false;
+  var chatChangeListener;
 
-    final databaseReference = FirebaseFirestore.instance;
-    await databaseReference
-        //TODO: Change to database stuff
+  populateChatListView() {
+    if (alreadyPopulatedChat) {
+      return;
+    }
+    alreadyPopulatedChat = true;
+    User user = Provider.of(context).auth.firebaseAuth.currentUser;
+    chatChangeListener = FirebaseFirestore.instance
         .collection("DigiGroup")
-        .doc("Group Name")
+        .doc(widget.groupName)
         .collection("Chat")
         .orderBy('created', descending: false)
         .snapshots()
         .listen((data) {
-      for (int i = 0; i < data.docs.length; i++) {
-        data.docs.elementAt(i).data().forEach((key, value) {
-          if (key.toString().contains("message")) {
-            message = value.toString();
-          } else if (key.toString().contains("sentBy")) {
-            // setState(() {
+      data.docChanges.forEach((element) {
+        if (element.type == DocumentChangeType.added) {
+          DateTime dateCreated = element.doc.get("created").toDate();
+          setState(() {
             _addMessage(types.TextMessage(
-              author: value.toString().endsWith(user.displayName.toString())
+              author: element.doc
+                      .get("sentBy")
+                      .toString()
+                      .contains(user.displayName.toString())
                   ? _user
                   : _others,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
+              createdAt: dateCreated.millisecondsSinceEpoch,
               id: randomString(),
-              text: message,
+              text: element.doc.get("message").toString(),
             ));
-            // });
-          }
-        });
-      }
+          });
+        }
+      });
     }).asFuture();
   }
 
-  sendChatMessage(String message) async {
+  sendChatMessage(String message) {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    final databaseReference = FirebaseFirestore.instance;
     if (message.contains("!#clear#!")) {
-      databaseReference
-          // TODO: Change database stuff
+      FirebaseFirestore.instance
           .collection("DigiGroup")
-          .doc('Group Name')
+          .doc(widget.groupName)
           .collection("Chat")
           .get()
           .then((snapshot) {
@@ -123,22 +132,21 @@ class _GroupChatState extends State<GroupChat> {
 
     final filter = ProfanityFilter();
 
-    if (filter.hasProfanity(message) ||
-        message.contains("stupid") ||
-        message.contains("dumb") ||
-        message.contains("idiot")) {
-      await databaseReference.collection("DigiGroup").add({
+    if (filter.hasProfanity(message.toLowerCase()) ||
+        message.toLowerCase().contains("stupid") ||
+        message.toLowerCase().contains("dumb") ||
+        message.toLowerCase().contains("idiot")) {
+      FirebaseFirestore.instance.collection("DigiGroup").add({
         "profane_message": message,
         "sentBy": user.email,
         "created": Timestamp.now()
-      }).then((value) async {});
+      });
       return;
     }
 
-    await databaseReference
-        // TODO: Change database stuff
+    FirebaseFirestore.instance
         .collection("DigiGroup")
-        .doc("Group Name")
+        .doc(widget.groupName)
         .collection("Chat")
         .add({
       "message": message,
