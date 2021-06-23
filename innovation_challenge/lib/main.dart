@@ -1,5 +1,7 @@
 import 'package:DigiHealth/digidietPage.dart';
 import 'package:DigiHealth/digifitPage.dart';
+import 'package:DigiHealth/groupChat.dart';
+import 'package:DigiHealth/groupLeaderboard.dart';
 import 'package:DigiHealth/groupSettings.dart';
 import 'package:DigiHealth/introScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -55,8 +57,7 @@ class MyApp extends StatelessWidget {
               color: const Color(0x242424),
             )),
           ),
-          home: GroupSettings("Group Name"),
-          // HomeController(),
+          home: HomeController(),
           routes: <String, WidgetBuilder>{
             '/signUp': (BuildContext context) =>
                 SignUpPage(authFormType: AuthFormType.signUp),

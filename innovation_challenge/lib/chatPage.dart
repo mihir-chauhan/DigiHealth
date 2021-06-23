@@ -48,7 +48,7 @@ class _ChatPageState extends State<ChatPage> {
                     return CupertinoActionSheet(
                       title: Text("Channels",
                           style: TextStyle(
-                              color: Colors.black87, fontFamily: 'Nunito')),
+                              color: Colors.white, fontFamily: 'Nunito')),
                       actions: [
                         CupertinoActionSheetAction(
                           child: Text("Exercise",
@@ -95,7 +95,11 @@ class _ChatPageState extends State<ChatPage> {
           )),
       body: Chat(
         theme: const DarkChatTheme(
-            emptyChatPlaceholderTextStyle: TextStyle(color: Colors.white),
+            inputTextStyle: TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            dateDividerTextStyle: TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            receivedMessageBodyTextStyle: TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            sentMessageBodyTextStyle: TextStyle(fontFamily: 'Nunito', color: Colors.white),
+            emptyChatPlaceholderTextStyle: TextStyle(color: Colors.white, fontFamily: 'Nunito'),
             backgroundColor: const Color(0xFF75A2EA),
             inputBackgroundColor: const Color(0xFF395075),
             inputTextColor: Colors.white,

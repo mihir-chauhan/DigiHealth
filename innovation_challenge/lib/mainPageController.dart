@@ -17,7 +17,8 @@ class _MainPageControllerState extends State<MainPageController> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
-  Icon profileIcon = Icon(Icons.person_outline_rounded, color: Colors.white);
+  Icon groupsIcon = Icon(Icons.groups_outlined, color: Colors.white);
+  Icon profileIcon = Icon(Icons.settings_outlined, color: Colors.white);
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class _MainPageControllerState extends State<MainPageController> {
               BottomNavigationBarItem(icon: homeIcon),
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
+              BottomNavigationBarItem(icon: groupsIcon),
               BottomNavigationBarItem(icon: profileIcon),
             ],
             onTap: (i) async {
@@ -40,6 +42,10 @@ class _MainPageControllerState extends State<MainPageController> {
             return ChatPage();
           } else if (i == 2) {
             return LeaderboardPage();
+          } else if (i == 3) {
+            return Scaffold(
+              body: Text("HI"),
+            );
           } else {
             return ProfilePage();
           }
@@ -66,9 +72,12 @@ class _MainPageControllerState extends State<MainPageController> {
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);
-      profileIcon = (i == 3)
-          ? Icon(Icons.person, color: Colors.white)
-          : Icon(Icons.person_outlined, color: Colors.white);
+      groupsIcon = (i == 3)
+          ? Icon(Icons.groups, color: Colors.white)
+          : Icon(Icons.groups_outlined, color: Colors.white);
+      profileIcon = (i == 4)
+          ? Icon(Icons.settings, color: Colors.white)
+          : Icon(Icons.settings_outlined, color: Colors.white);
     });
   }
 }
