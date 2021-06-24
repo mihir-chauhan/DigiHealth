@@ -16,15 +16,12 @@ class GroupSettings extends StatefulWidget {
 }
 
 class _GroupSettingsState extends State<GroupSettings> {
-  String username = "Loading";
-  String email = "Loading";
   List<Widget> membersList = [];
 
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
-    setEmailNameText();
     populateMembers();
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -85,26 +82,7 @@ class _GroupSettingsState extends State<GroupSettings> {
                   SizedBox(
                     height: 10,
                   ),
-                  //TODO: Add code
-                  Text("Code: ASDFGHJKL",
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w200)),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text("Email: " + email,
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w200)),
                   SizedBox(height: 30),
-                  SizedBox(
-                    height: _height * 0.01,
-                  ),
                   AutoSizeText("Members",
                       maxLines: 1,
                       style: TextStyle(
@@ -141,7 +119,6 @@ class _GroupSettingsState extends State<GroupSettings> {
                     onPressed: () async {
                       final User user =
                           Provider.of(context).auth.firebaseAuth.currentUser;
-                      //TODO: Change database stuff
                       FirebaseFirestore.instance
                           .collection("DigiGroup")
                           .doc(widget.groupName)
@@ -159,9 +136,8 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 
   populateMembers() async {
+    membersList.clear();
     FirebaseFirestore.instance
-        //setsup arraylist
-        //TODO: Update Database Stuff
         .collection('DigiGroup')
         .doc(widget.groupName)
         .collection('Members')
@@ -169,37 +145,20 @@ class _GroupSettingsState extends State<GroupSettings> {
         .then((QuerySnapshot snapshot) {
       if (snapshot.docs.length > 0) {
         snapshot.docs.forEach((doc) {
-          membersList.add(
-            AutoSizeText(
-              doc["Name"],
-              style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontFamily: 'Nunito',
-                  fontWeight: FontWeight.w200),
-            ),
-          );
+          setState(() {
+            membersList.add(
+              AutoSizeText(
+                doc["Name"],
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w200),
+              ),
+            );
+          });
         });
-      } else {
-        membersList.add(
-          AutoSizeText(
-            "No Members",
-            style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-                fontFamily: 'Nunito',
-                fontWeight: FontWeight.w200),
-          ),
-        );
       }
-    });
-  }
-
-  void setEmailNameText() async {
-    final User user = Provider.of(context).auth.firebaseAuth.currentUser;
-    setState(() {
-      username = user.displayName;
-      email = user.email;
     });
   }
 }

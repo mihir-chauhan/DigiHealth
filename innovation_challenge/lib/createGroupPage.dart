@@ -85,15 +85,16 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
 
   @override
   void onSubmitting() async {
+    bool error = false;
     if (groupName.value.length < 2 || groupName.value.length > 15) {
       groupName.addFieldError('Must be between 2 and 15 characters');
+      error = true;
     }
     if (groupVisibility.value == null) {
       groupVisibility.addFieldError('Please select an option');
+      error = true;
     }
-    if (groupName.value.length > 2 &&
-        groupName.value.length < 15 &&
-        groupVisibility.value != null) {
+    if (!error) {
       //Create group in Firebase DB
       FirebaseFirestore.instance
           .collection("DigiGroup")
@@ -103,14 +104,14 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
         "image": groupImageChoiceLinks.elementAt(selectedImageIndex)
       }, SetOptions(merge: true));
 
-      String text =  groupVisibility.value == "Public" ? " to all users." : ".";
+      String text =  groupVisibility.value == "Public" ? " to all users." : " from other users.";
       FirebaseFirestore.instance
           .collection("DigiGroup")
           .doc(groupName.value)
           .collection("Chat")
           .add({
         "created": DateTime.now(),
-        "message": "Welcome to your personal group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" + text + " Have fun! - DigiHealth Team",
+        "message": "Welcome to the '${groupName.value}' group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" + text + " Have fun!",
         "sentBy": "DigiHealth",
       });
       FirebaseFirestore.instance
@@ -119,7 +120,7 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
           .collection("Members")
           .doc(user.email)
           .set({
-        "Name": user.email,
+        "Name": user.displayName,
         "Points": 0,
         "isAdmin": true,
       });

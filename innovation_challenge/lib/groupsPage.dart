@@ -1,4 +1,5 @@
 import 'package:DigiHealth/createGroupPage.dart';
+import 'package:DigiHealth/groupPageController.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -116,39 +117,62 @@ class _GroupsPageState extends State<GroupsPage> {
                           : GroupVisibility.PUBLIC,
                       cardTypes: CardTypes.MY_GROUP,
                       callback: (groupName) {
-                        Alert(
-                          context: context,
-                          type: AlertType.none,
-                          style: AlertStyle(
-                              animationDuration:
+                        bool userIsInGroup = false;
+                        FirebaseFirestore.instance
+                            .collection("DigiGroup")
+                            .doc(groupName)
+                            .collection("Members")
+                            .get()
+                            .then((QuerySnapshot memberDocs) {
+                              memberDocs.docs.forEach((member) {
+                                if(member.id.contains(user.email)) {
+                                  userIsInGroup = true;
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => GroupPageController(groupName, member.get("isAdmin"))),
+                                  );
+                                }
+                              });
+                        }).then((value) {
+                          if(!userIsInGroup) {
+                            Alert(
+                              context: context,
+                              type: AlertType.none,
+                              style: AlertStyle(
+                                  animationDuration:
                                   const Duration(milliseconds: 300),
-                              animationType: AnimationType.grow,
-                              backgroundColor: secondaryColor,
-                          descStyle: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Nunito'),
-                          titleStyle: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Nunito')),
-                          title: "Not a Member of '$groupName'",
-                          desc:
-                              "You are not a member of this group. Would you like to join?",
-                          image: SizedBox(),
-                          closeIcon: Icon(Icons.clear, color: Colors.white,),
-                          buttons: [
-                            DialogButton(
-                              child: Text(
-                                "Join",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Nunito'),
-                              ),
-                              onPressed: () => Navigator.pop(context),
-                              color: tertiaryColor,
-                            ),
-                          ],
-                        ).show();
+                                  animationType: AnimationType.grow,
+                                  backgroundColor: secondaryColor,
+                                  descStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Nunito'),
+                                  titleStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Nunito')),
+                              title: "You are not a member of '$groupName'",
+                              desc:
+                              "Would you like to join?",
+                              image: SizedBox(),
+                              closeIcon: Icon(Icons.clear, color: Colors.white),
+                              buttons: [
+                                DialogButton(
+                                  child: Text(
+                                    "Join",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontFamily: 'Nunito'),
+                                  ),
+                                  onPressed: () {
+                                    // TODO:
+                                    Navigator.pop(context);
+                                  },
+                                  color: tertiaryColor,
+                                ),
+                              ],
+                            ).show();
+                          }
+                        });
                       }));
                 });
               }

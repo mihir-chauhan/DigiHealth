@@ -10,18 +10,18 @@ import 'package:DigiHealth/appPrefs.dart';
 
 class GroupPageController extends StatefulWidget {
   final String groupName;
+  final bool isAdmin;
 
-  const GroupPageController(this.groupName);
+  const GroupPageController(this.groupName, this.isAdmin);
 
   @override
   _GroupPageControllerState createState() => _GroupPageControllerState();
 }
 
 class _GroupPageControllerState extends State<GroupPageController> {
-  Icon homeIcon = Icon(Icons.home, color: Colors.white);
+  Icon challengesIcon = Icon(Icons.emoji_events, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
-  Icon groupsIcon = Icon(Icons.groups_outlined, color: Colors.white);
   Icon profileIcon = Icon(Icons.settings_outlined, color: Colors.white);
 
   @override
@@ -30,10 +30,9 @@ class _GroupPageControllerState extends State<GroupPageController> {
         tabBar: CupertinoTabBar(
             backgroundColor: secondaryColor,
             items: [
-              BottomNavigationBarItem(icon: homeIcon),
+              BottomNavigationBarItem(icon: challengesIcon),
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
-              BottomNavigationBarItem(icon: groupsIcon),
               BottomNavigationBarItem(icon: profileIcon),
             ],
             onTap: (i) async {
@@ -63,18 +62,15 @@ class _GroupPageControllerState extends State<GroupPageController> {
 
   void updateTabBarController(int i) {
     setState(() {
-      homeIcon = (i == 0)
-          ? Icon(Icons.home, color: Colors.white)
-          : Icon(Icons.home_outlined, color: Colors.white);
+      challengesIcon = (i == 0)
+          ? Icon(Icons.emoji_events, color: Colors.white)
+          : Icon(Icons.emoji_events_outlined, color: Colors.white);
       chatIcon = (i == 1)
           ? Icon(Icons.chat, color: Colors.white)
           : Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);
-      groupsIcon = (i == 3)
-          ? Icon(Icons.groups, color: Colors.white)
-          : Icon(Icons.groups_outlined, color: Colors.white);
       profileIcon = (i == 4)
           ? Icon(Icons.settings, color: Colors.white)
           : Icon(Icons.settings_outlined, color: Colors.white);
