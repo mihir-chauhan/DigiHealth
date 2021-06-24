@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:DigiHealth/provider_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class GroupSearchPage extends StatefulWidget {
   final String groupName;
@@ -17,6 +20,7 @@ class GroupSearchPage extends StatefulWidget {
 
 class _GroupSearchPageState extends State<GroupSearchPage> {
   List<String> allUserNames = [];
+  List<String> allUserEmails = [];
   List<String> queriedUserNames = [];
   bool readAllUserNames = false;
   @override
@@ -24,6 +28,7 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
     if(!readAllUserNames) {
       readAllUserNames = true;
       allUserNames.clear();
+      allUserEmails.clear();
       FirebaseFirestore.instance
           .collection("User Data")
           .get()
@@ -31,6 +36,7 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
         allUsers.docs.forEach((user) {
           setState(() {
             allUserNames.add(user.get("Name"));
+            allUserEmails.add(user.id);
           });
         });
         print("ALL USER NAMES: " + allUserNames.toString());
@@ -92,7 +98,7 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
           queriedUserNames.clear();
         });
         for(int i = 0; i < allUserNames.length; i++) {
-          if(allUserNames.elementAt(i).contains(query)) {
+          if(allUserNames.elementAt(i).toLowerCase().contains(query.toLowerCase())) {
             setState(() {
               queriedUserNames.add(allUserNames.elementAt(i));
             });
@@ -123,16 +129,71 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: queriedUserNames.map((username) {
-                return Container(
-                    height: 52,
-                    width: MediaQuery.of(context).size.width,
-                    color: tertiaryColor,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(username, style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white))),
-                ));
+                return GestureDetector(
+                  onTap: () {
+                    Alert(
+                      context: context,
+                      type: AlertType.none,
+                      style: AlertStyle(
+                          animationDuration:
+                          const Duration(milliseconds: 300),
+                          animationType: AnimationType.grow,
+                          backgroundColor: secondaryColor,
+                          descStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito'),
+                          titleStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito')),
+                      title: "Invite to '${widget.groupName}'",
+                      desc:
+                      "Would you like to invite '$username'?",
+                      image: SizedBox(),
+                      closeIcon: Icon(Icons.clear, color: Colors.white),
+                      buttons: [
+                        DialogButton(
+                          child: Text(
+                            "Invite",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito'),
+                          ),
+                          onPressed: () {
+                            String email = "";
+                            for(int i = 0; i < allUserNames.length; i++) {
+                              if(allUserNames.elementAt(i).contains(username)) {
+                                email = allUserEmails.elementAt(i);
+                                print("EMAIL: " + email);
+                              }
+                            }
+                            User user = Provider.of(context).auth.firebaseAuth.currentUser;
+                            FirebaseFirestore.instance
+                                .collection("User Data")
+                                .doc(email)
+                                .collection("Invites")
+                                .doc(widget.groupName)
+                                .set({
+                              "Inviter": user.displayName,
+                            });
+                            Navigator.pop(context);
+                          },
+                          color: tertiaryColor,
+                        ),
+                      ],
+                    ).show();
+                  },
+                  child: Container(
+                      height: 52,
+                      width: MediaQuery.of(context).size.width,
+                      color: tertiaryColor,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(username, style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white))),
+                  )),
+                );
               }).toList(),
             ),
           ),
