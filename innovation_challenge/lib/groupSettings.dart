@@ -78,6 +78,16 @@ class _GroupSettingsState extends State<GroupSettings> {
                       onPressed: () {
                         final User user =
                             Provider.of(context).auth.firebaseAuth.currentUser;
+
+                        FirebaseFirestore.instance
+                            .collection("DigiGroup")
+                            .doc(widget.groupName)
+                            .collection("Chat")
+                            .add({
+                          "created": DateTime.now(),
+                          "message": "${user.displayName.toString()} has left.",
+                          "sentBy": user.displayName,
+                        });
                         FirebaseFirestore.instance
                             .collection("DigiGroup")
                             .doc(widget.groupName)

@@ -176,7 +176,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                         .collection("Chat")
                                         .add({
                                       "created": DateTime.now(),
-                                      "message": "${user.displayName.toString()} just joined.",
+                                      "message": "${user.displayName.toString()} has joined.",
                                       "sentBy": user.displayName,
                                     });
                                     FirebaseFirestore.instance
