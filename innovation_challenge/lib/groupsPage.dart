@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class GroupsPage extends StatefulWidget {
   @override
@@ -115,7 +116,39 @@ class _GroupsPageState extends State<GroupsPage> {
                           : GroupVisibility.PUBLIC,
                       cardTypes: CardTypes.MY_GROUP,
                       callback: (groupName) {
-
+                        Alert(
+                          context: context,
+                          type: AlertType.none,
+                          style: AlertStyle(
+                              animationDuration:
+                                  const Duration(milliseconds: 300),
+                              animationType: AnimationType.grow,
+                              backgroundColor: secondaryColor,
+                          descStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito'),
+                          titleStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito')),
+                          title: "Not a Member of '$groupName'",
+                          desc:
+                              "You are not a member of this group. Would you like to join?",
+                          image: SizedBox(),
+                          closeIcon: Icon(Icons.clear, color: Colors.white,),
+                          buttons: [
+                            DialogButton(
+                              child: Text(
+                                "Join",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'Nunito'),
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              color: tertiaryColor,
+                            ),
+                          ],
+                        ).show();
                       }));
                 });
               }

@@ -7,6 +7,7 @@ import 'package:DigiHealth/appPrefs.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:keyboard_actions/keyboard_actions_config.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class QuestionnairePage extends StatefulWidget {
   @override
@@ -175,22 +176,37 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   "Questionnaire": true,
                 });
                 print('updating answers');
-                showCupertinoDialog(
-                    context: context,
-                    builder: (BuildContext context) => CupertinoAlertDialog(
-                          title: new Text("Your Diet Is..."),
-                          content: new Text(dietName + "!"),
-                          actions: <Widget>[
-                            CupertinoDialogAction(
-                              isDefaultAction: true,
-                              child: Text("Continue"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                Navigator.of(_context).pop();
-                              },
-                            )
-                          ],
-                        ));
+                Alert(
+                  context: context,
+                  type: AlertType.none,
+                  style: AlertStyle(
+                      isOverlayTapDismiss: false,
+                      animationDuration:
+                      const Duration(milliseconds: 300),
+                      animationType: AnimationType.grow,
+                      backgroundColor: secondaryColor,
+                      descStyle: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito'),
+                      titleStyle: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito')),
+                  title: "Your Diet Is...",
+                  desc: dietName + "!",
+                  image: SizedBox(),
+                  closeIcon: Icon(Icons.clear, color: Colors.white),
+                  closeFunction: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(_context).pop();
+                  },
+                  buttons: [
+                    DialogButton(
+                      child: SizedBox(),
+                      color: secondaryColor,
+                      height: 1,
+                    ),
+                  ],
+                ).show();
               }
             },
             child: Icon(
