@@ -1,7 +1,9 @@
 import 'package:DigiHealth/createGroupPage.dart';
+import 'package:DigiHealth/provider_widget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -11,20 +13,11 @@ class GroupsPage extends StatefulWidget {
   _GroupsPageState createState() => _GroupsPageState();
 }
 
-enum GroupVisibility {
-  PUBLIC,
-  PRIVATE
-}
+enum GroupVisibility { PUBLIC, PRIVATE }
 
-enum CardTypes {
-  MY_GROUP,
-  PUBLIC_GROUP,
-  GROUP_INVITES
-}
+enum CardTypes { MY_GROUP, PUBLIC_GROUP, GROUP_INVITES }
 
 class _GroupsPageState extends State<GroupsPage> {
-
-
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -47,7 +40,13 @@ class _GroupsPageState extends State<GroupsPage> {
                 Navigator.push(
                   context,
                   CupertinoPageRoute(builder: (context) => CreateGroupPage()),
-                );
+                ).then((value) {
+                  //Called when Create Groups Page pops
+                  populatedYourGroupPageCards = false;
+                  yourGroups();
+                  populatedPublicGroupPageCards = false;
+                  publicGroups();
+                });
               },
               child: Icon(
                 Icons.create_rounded,
@@ -70,38 +69,118 @@ class _GroupsPageState extends State<GroupsPage> {
               labelColor: tertiaryColor,
               unselectedLabelColor: Colors.white,
             ),
-            views: [yourGroupsPage(), publicGroups(), groupInvites()],
+            views: [yourGroups(), publicGroups(), groupInvites()],
+            onChange: (index) {
+              if (index == 0) {
+                populatedYourGroupPageCards = false;
+                yourGroups();
+              } else if (index == 1) {
+                populatedPublicGroupPageCards = false;
+                publicGroups();
+              } else if (index == 2) {}
+            },
           ),
         ));
   }
 
-  Widget yourGroupsPage() {
-    List<Widget> cards = [];
+  List<Widget> yourGroupsPageCards = [];
+  bool populatedYourGroupPageCards = false;
 
-    // FirebaseFirestore.instance
+  Widget yourGroups() {
+    if (!populatedYourGroupPageCards) {
+      populatedYourGroupPageCards = true;
+      User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      yourGroupsPageCards.clear();
+      FirebaseFirestore.instance
+          .collection("DigiGroup")
+          .get()
+          .then((QuerySnapshot allGroupsSnapshot) {
+        allGroupsSnapshot.docs.forEach((groupDoc) {
+          FirebaseFirestore.instance
+              .collection("DigiGroup")
+              .doc(groupDoc.id)
+              .collection("Members")
+              .get()
+              .then((QuerySnapshot membersDocuments) {
+            membersDocuments.docs.forEach((member) {
+              if (member.id.contains(user.email)) {
+                setState(() {
+                  yourGroupsPageCards.add(groupCardBuilder(
+                      groupName: groupDoc.id,
+                      imageSrc: groupDoc.get("image"),
+                      members: 10,
+                      activeChallenges: 2,
+                      groupVisibility: groupDoc.get("visibility") == "Private"
+                          ? GroupVisibility.PRIVATE
+                          : GroupVisibility.PUBLIC,
+                      cardTypes: CardTypes.MY_GROUP,
+                      callback: (groupName) {
+
+                      }));
+                });
+              }
+            });
+          });
+        });
+      });
+    }
 
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          children: [
-            groupCardBuilder(groupName: "2x Healthier", imageSrc: "https://img.icons8.com/color-glass/250/000000/like.png", members: 10, activeChallenges: 2, groupVisibility: GroupVisibility.PRIVATE, cardTypes: CardTypes.MY_GROUP),
-            groupCardBuilder(groupName: "Mile a Day", imageSrc: "https://img.icons8.com/clouds/250/000000/walking.png", members: 10, activeChallenges: 2, groupVisibility: GroupVisibility.PUBLIC, cardTypes: CardTypes.MY_GROUP),
-          ],
+          children: yourGroupsPageCards,
         ),
       ),
     );
   }
 
+  List<Widget> publicGroupsPageCards = [];
+  bool populatedPublicGroupPageCards = false;
+
   Widget publicGroups() {
+    if (!populatedPublicGroupPageCards) {
+      populatedPublicGroupPageCards = true;
+      User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      publicGroupsPageCards.clear();
+      FirebaseFirestore.instance
+          .collection("DigiGroup")
+          .get()
+          .then((QuerySnapshot allGroupsSnapshot) {
+        allGroupsSnapshot.docs.forEach((groupDoc) {
+          FirebaseFirestore.instance
+              .collection("DigiGroup")
+              .doc(groupDoc.id)
+              .collection("Members")
+              .get()
+              .then((QuerySnapshot membersDocuments) {
+            bool containsMyselfAsAUser = false;
+            membersDocuments.docs.forEach((member) {
+              if (member.id.contains(user.email)) {
+                containsMyselfAsAUser = true;
+              }
+            });
+            if (!containsMyselfAsAUser &&
+                groupDoc.get("visibility").toString().contains("Public")) {
+              setState(() {
+                publicGroupsPageCards.add(groupCardBuilder(
+                    groupName: groupDoc.id,
+                    imageSrc: groupDoc.get("image"),
+                    members: 10,
+                    activeChallenges: 2,
+                    cardTypes: CardTypes.PUBLIC_GROUP));
+              });
+            }
+          });
+        });
+      });
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          children: [
-            groupCardBuilder(groupName: "Elite Swimmers", imageSrc: "https://img.icons8.com/emoji/250/000000/person-swimming.png", members: 10, activeChallenges: 2, cardTypes: CardTypes.PUBLIC_GROUP),
-            groupCardBuilder(groupName: "Adventurers", imageSrc: "https://img.icons8.com/emoji/250/000000/national-park-emoji.png", members: 10, activeChallenges: 2, cardTypes: CardTypes.PUBLIC_GROUP),
-          ],
+          children: publicGroupsPageCards,
         ),
       ),
     );
@@ -113,319 +192,341 @@ class _GroupsPageState extends State<GroupsPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            groupCardBuilder(groupName: "Weight... What?", imageSrc: "https://img.icons8.com/cotton/250/000000/weight-1--v2.png", inviter: "Supergamer", cardTypes: CardTypes.GROUP_INVITES),
+            groupCardBuilder(
+                groupName: "Weight... What?",
+                imageSrc:
+                    "https://img.icons8.com/cotton/250/000000/weight-1--v2.png",
+                inviter: "Suporgamer",
+                cardTypes: CardTypes.GROUP_INVITES),
           ],
         ),
       ),
     );
   }
 
-  Card groupCardBuilder(
+  GestureDetector groupCardBuilder(
       {String groupName,
       String imageSrc,
       int members,
       int activeChallenges,
       String inviter,
       GroupVisibility groupVisibility,
-      CardTypes cardTypes}) {
+      CardTypes cardTypes,
+      Function(String) callback}) {
     if (cardTypes == CardTypes.MY_GROUP) {
-      return Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        color: secondaryColor,
-        shadowColor: Colors.black54,
-        child: Container(
-            height: MediaQuery.of(context).size.width * 0.2,
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.network(
-                          imageSrc,
-                          height: MediaQuery.of(context).size.width * 0.3,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: AutoSizeText(groupName,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                          fontFamily: 'Nunito',
-                                          fontSize: 35,
-                                          color: Colors.white))),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.people_alt_rounded,
-                                              color: Colors.white),
-                                          Text(members.toString(),
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.emoji_events,
-                                              color: Colors.white),
-                                          Text(activeChallenges.toString(),
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(
-                                              groupVisibility ==
-                                                      GroupVisibility.PRIVATE
-                                                  ? Icons.visibility_off
-                                                  : Icons.visibility,
-                                              color: Colors.white),
-                                          Text(
-                                              groupVisibility ==
-                                                      GroupVisibility.PRIVATE
-                                                  ? "Private"
-                                                  : "Public",
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
+      return GestureDetector(
+        onTap: () {
+          callback(groupName);
+        },
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          color: secondaryColor,
+          shadowColor: Colors.black54,
+          child: Container(
+              height: MediaQuery.of(context).size.width * 0.2,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Image.network(
+                            imageSrc,
+                            height: MediaQuery.of(context).size.width * 0.3,
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: AutoSizeText(groupName,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 35,
+                                            color: Colors.white))),
+                                Row(
+                                  children: [
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(Icons.people_alt_rounded,
+                                                color: Colors.white),
+                                            Text(members.toString(),
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(Icons.emoji_events,
+                                                color: Colors.white),
+                                            Text(activeChallenges.toString(),
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                                groupVisibility ==
+                                                        GroupVisibility.PRIVATE
+                                                    ? Icons.visibility_off
+                                                    : Icons.visibility,
+                                                color: Colors.white),
+                                            Text(
+                                                groupVisibility ==
+                                                        GroupVisibility.PRIVATE
+                                                    ? "Private"
+                                                    : "Public",
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.white,
-                  )
-                ],
-              ),
-            )),
+                    Icon(
+                      Icons.keyboard_arrow_right,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              )),
+        ),
       );
     } else if (cardTypes == CardTypes.PUBLIC_GROUP) {
-      return Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        color: secondaryColor,
-        shadowColor: Colors.black54,
-        child: Container(
-            height: MediaQuery.of(context).size.width * 0.2,
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.network(
-                          imageSrc,
-                          height: MediaQuery.of(context).size.width * 0.3,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: AutoSizeText(groupName,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                          fontFamily: 'Nunito',
-                                          fontSize: 35,
-                                          color: Colors.white))),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.people_alt_rounded,
-                                              color: Colors.white),
-                                          Text(members.toString(),
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.emoji_events,
-                                              color: Colors.white),
-                                          Text(activeChallenges.toString(),
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
+      return GestureDetector(
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          color: secondaryColor,
+          shadowColor: Colors.black54,
+          child: Container(
+              height: MediaQuery.of(context).size.width * 0.2,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Image.network(
+                            imageSrc,
+                            height: MediaQuery.of(context).size.width * 0.3,
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: AutoSizeText(groupName,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 35,
+                                            color: Colors.white))),
+                                Row(
+                                  children: [
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(Icons.people_alt_rounded,
+                                                color: Colors.white),
+                                            Text(members.toString(),
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(Icons.emoji_events,
+                                                color: Colors.white),
+                                            Text(activeChallenges.toString(),
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.white,
-                  )
-                ],
-              ),
-            )),
+                    Icon(
+                      Icons.keyboard_arrow_right,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              )),
+        ),
       );
     } else if (cardTypes == CardTypes.GROUP_INVITES) {
-      return Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        color: secondaryColor,
-        shadowColor: Colors.black54,
-        child: Container(
-            height: MediaQuery.of(context).size.width * 0.2,
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.network(
-                          imageSrc,
-                          height: MediaQuery.of(context).size.width * 0.3,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: AutoSizeText(groupName,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                          fontFamily: 'Nunito',
-                                          fontSize: 35,
-                                          color: Colors.white))),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    color: tertiaryColor,
-                                    shadowColor: Colors.black54,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0, vertical: 2.0),
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.mark_email_unread_rounded,
-                                              color: Colors.white),
-                                          AutoSizeText(inviter,
-                                              style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontSize: 15,
-                                                  color: Colors.white))
-                                        ],
+      return GestureDetector(
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          color: secondaryColor,
+          shadowColor: Colors.black54,
+          child: Container(
+              height: MediaQuery.of(context).size.width * 0.2,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Image.network(
+                            imageSrc,
+                            height: MediaQuery.of(context).size.width * 0.3,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: AutoSizeText(groupName,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 35,
+                                            color: Colors.white))),
+                                Row(
+                                  children: [
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      color: tertiaryColor,
+                                      shadowColor: Colors.black54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 2.0),
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                                Icons.mark_email_unread_rounded,
+                                                color: Colors.white),
+                                            AutoSizeText(inviter,
+                                                style: TextStyle(
+                                                    fontFamily: 'Nunito',
+                                                    fontSize: 15,
+                                                    color: Colors.white))
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              )
-                            ],
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.white,
-                  )
-                ],
-              ),
-            )),
+                    Icon(
+                      Icons.keyboard_arrow_right,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              )),
+        ),
       );
     }
   }
