@@ -1,5 +1,4 @@
 import 'package:DigiHealth/provider_widget.dart';
-import 'package:DigiHealth/services/auth_service.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

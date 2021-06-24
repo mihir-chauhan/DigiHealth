@@ -1,5 +1,3 @@
-import 'package:DigiHealth/provider_widget.dart';
-import 'package:DigiHealth/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
@@ -13,7 +11,6 @@ class _GroupChallengesPageState extends State<GroupChallengesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,

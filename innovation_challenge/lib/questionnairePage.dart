@@ -204,6 +204,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       child: SizedBox(),
                       color: secondaryColor,
                       height: 1,
+                      onPressed: null,
                     ),
                   ],
                 ).show();
