@@ -19,7 +19,7 @@ List<CardItem> groupImageChoices = [
           "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/DigiGroup_1.png?alt=media&token=d7dbb7ef-ac75-4eeb-a732-cf3bf9c207e7"))
 ];
 List<String> groupImageChoiceLinks = [];
-int selectedImageIndex = -1;
+int selectedImageIndex = 0;
 User user;
 BuildContext buildContext;
 
@@ -209,6 +209,7 @@ class _AllFieldsFormState extends State<AllFieldsForm> {
                             ),
                             RadioButtonGroupFieldBlocBuilder<String>(
                               selectFieldBloc: formBloc.groupVisibility,
+                              canDeselect: false,
                               decoration: InputDecoration(
                                 labelText: 'Group Visibility',
                                 prefixIcon: SizedBox(),

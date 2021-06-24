@@ -130,7 +130,13 @@ class _GroupsPageState extends State<GroupsPage> {
                                   Navigator.push(
                                     context,
                                     CupertinoPageRoute(builder: (context) => GroupPageController(groupName, member.get("isAdmin"))),
-                                  );
+                                  ).then((value) {
+                                    //Called when Create Groups Page pops
+                                    populatedYourGroupPageCards = false;
+                                    yourGroups();
+                                    populatedPublicGroupPageCards = false;
+                                    publicGroups();
+                                  });
                                 }
                               });
                         }).then((value) {
@@ -164,8 +170,36 @@ class _GroupsPageState extends State<GroupsPage> {
                                         fontFamily: 'Nunito'),
                                   ),
                                   onPressed: () {
-                                    // TODO: Add User to group and open group
+                                    FirebaseFirestore.instance
+                                        .collection("DigiGroup")
+                                        .doc(groupName)
+                                        .collection("Chat")
+                                        .add({
+                                      "created": DateTime.now(),
+                                      "message": "${user.displayName.toString()} just joined.",
+                                      "sentBy": user.displayName,
+                                    });
+                                    FirebaseFirestore.instance
+                                        .collection("DigiGroup")
+                                        .doc(groupName)
+                                        .collection("Members")
+                                        .doc(user.email)
+                                        .set({
+                                      "Name": user.displayName,
+                                      "Points": 0,
+                                      "isAdmin": false,
+                                    });
                                     Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(builder: (context) => GroupPageController(groupName, false)),
+                                    ).then((value) {
+                                      //Called when Create Groups Page pops
+                                      populatedYourGroupPageCards = false;
+                                      yourGroups();
+                                      populatedPublicGroupPageCards = false;
+                                      publicGroups();
+                                    });
                                   },
                                   color: tertiaryColor,
                                 ),
@@ -225,7 +259,100 @@ class _GroupsPageState extends State<GroupsPage> {
                     imageSrc: groupDoc.get("image"),
                     members: 10,
                     activeChallenges: 2,
-                    cardTypes: CardTypes.PUBLIC_GROUP));
+                    cardTypes: CardTypes.PUBLIC_GROUP,
+                    callback: (groupName) {
+                      bool userIsInGroup = false;
+                      FirebaseFirestore.instance
+                          .collection("DigiGroup")
+                          .doc(groupName)
+                          .collection("Members")
+                          .get()
+                          .then((QuerySnapshot memberDocs) {
+                        memberDocs.docs.forEach((member) {
+                          if(member.id.contains(user.email)) {
+                            userIsInGroup = true;
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(builder: (context) => GroupPageController(groupName, member.get("isAdmin"))),
+                            ).then((value) {
+                              //Called when Create Groups Page pops
+                              populatedYourGroupPageCards = false;
+                              yourGroups();
+                              populatedPublicGroupPageCards = false;
+                              publicGroups();
+                            });
+                          }
+                        });
+                      }).then((value) {
+                        if(!userIsInGroup) {
+                          Alert(
+                            context: context,
+                            type: AlertType.none,
+                            style: AlertStyle(
+                                animationDuration:
+                                const Duration(milliseconds: 300),
+                                animationType: AnimationType.grow,
+                                backgroundColor: secondaryColor,
+                                descStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito'),
+                                titleStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito')),
+                            title: "You are not a member of '$groupName'",
+                            desc:
+                            "Would you like to join?",
+                            image: SizedBox(),
+                            closeIcon: Icon(Icons.clear, color: Colors.white),
+                            buttons: [
+                              DialogButton(
+                                child: Text(
+                                  "Join",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontFamily: 'Nunito'),
+                                ),
+                                onPressed: () {
+                                  FirebaseFirestore.instance
+                                      .collection("DigiGroup")
+                                      .doc(groupName)
+                                      .collection("Chat")
+                                      .add({
+                                    "created": DateTime.now(),
+                                    "message": "${user.displayName.toString()} just joined.",
+                                    "sentBy": user.displayName,
+                                  });
+                                  FirebaseFirestore.instance
+                                      .collection("DigiGroup")
+                                      .doc(groupName)
+                                      .collection("Members")
+                                      .doc(user.email)
+                                      .set({
+                                    "Name": user.displayName,
+                                    "Points": 0,
+                                    "isAdmin": false,
+                                  });
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => GroupPageController(groupName, false)),
+                                  ).then((value) {
+                                    //Called when Create Groups Page pops
+                                    populatedYourGroupPageCards = false;
+                                    yourGroups();
+                                    populatedPublicGroupPageCards = false;
+                                    publicGroups();
+                                  });
+                                },
+                                color: tertiaryColor,
+                              ),
+                            ],
+                          ).show();
+                        }
+                      });
+                    }
+                ));
               });
             }
           });
@@ -408,6 +535,9 @@ class _GroupsPageState extends State<GroupsPage> {
       );
     } else if (cardTypes == CardTypes.PUBLIC_GROUP) {
       return GestureDetector(
+        onTap: () {
+          callback(groupName);
+        },
         child: Card(
           elevation: 5,
           shape: RoundedRectangleBorder(
@@ -509,6 +639,9 @@ class _GroupsPageState extends State<GroupsPage> {
       );
     } else if (cardTypes == CardTypes.GROUP_INVITES) {
       return GestureDetector(
+        onTap: () {
+          callback(groupName);
+        },
         child: Card(
           elevation: 5,
           shape: RoundedRectangleBorder(

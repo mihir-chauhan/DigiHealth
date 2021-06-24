@@ -85,6 +85,7 @@ class _GroupSettingsState extends State<GroupSettings> {
                             .doc(user.email)
                             .delete();
                         Navigator.pop(context);
+                        Navigator.pop(context);
                       },
                       color: badColor,
                     ),
