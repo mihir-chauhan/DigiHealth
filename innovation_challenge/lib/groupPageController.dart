@@ -1,8 +1,8 @@
 import 'package:DigiHealth/groupChallenges.dart';
 import 'package:DigiHealth/groupChat.dart';
 import 'package:DigiHealth/groupLeaderboard.dart';
+import 'package:DigiHealth/groupSearch.dart';
 import 'package:DigiHealth/groupSettings.dart';
-import 'package:DigiHealth/profilePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,14 +23,22 @@ class _GroupPageControllerState extends State<GroupPageController> {
   Icon challengesIcon = Icon(Icons.emoji_events, color: Colors.white);
   Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
+  Icon searchIcon = Icon(Icons.person_search_outlined, color: Colors.white);
   Icon profileIcon = Icon(Icons.settings_outlined, color: Colors.white);
+
 
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
             backgroundColor: secondaryColor,
-            items: [
+            items: widget.isAdmin ? [
+              BottomNavigationBarItem(icon: challengesIcon),
+              BottomNavigationBarItem(icon: chatIcon),
+              BottomNavigationBarItem(icon: leaderboardIcon),
+              BottomNavigationBarItem(icon: searchIcon),
+              BottomNavigationBarItem(icon: profileIcon),
+            ] : [
               BottomNavigationBarItem(icon: challengesIcon),
               BottomNavigationBarItem(icon: chatIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
@@ -46,6 +54,8 @@ class _GroupPageControllerState extends State<GroupPageController> {
             return GroupChat(widget.groupName);
           } else if (i == 2) {
             return GroupLeaderboard(widget.groupName);
+          } else if (i == 3){
+            return widget.isAdmin ? GroupSearchPage(widget.groupName) : GroupSettings(widget.groupName);
           } else {
             return GroupSettings(widget.groupName);
           }
@@ -72,9 +82,18 @@ class _GroupPageControllerState extends State<GroupPageController> {
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);
-      profileIcon = (i == 3)
-          ? Icon(Icons.settings, color: Colors.white)
-          : Icon(Icons.settings_outlined, color: Colors.white);
+      if(widget.isAdmin) {
+        searchIcon = (i == 3)
+            ? Icon(Icons.person_search, color: Colors.white)
+            : Icon(Icons.person_search_outlined, color: Colors.white);
+        profileIcon = (i == 4)
+            ? Icon(Icons.settings, color: Colors.white)
+            : Icon(Icons.settings_outlined, color: Colors.white);
+      } else {
+        profileIcon = (i == 3)
+            ? Icon(Icons.settings, color: Colors.white)
+            : Icon(Icons.settings_outlined, color: Colors.white);
+      }
     });
   }
 }
