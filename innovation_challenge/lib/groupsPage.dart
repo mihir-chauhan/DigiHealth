@@ -164,7 +164,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                         fontFamily: 'Nunito'),
                                   ),
                                   onPressed: () {
-                                    // TODO:
+                                    // TODO: Add User to group and open group
                                     Navigator.pop(context);
                                   },
                                   color: tertiaryColor,

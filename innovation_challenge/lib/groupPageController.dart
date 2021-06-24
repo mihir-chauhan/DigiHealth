@@ -1,3 +1,4 @@
+import 'package:DigiHealth/groupChallenges.dart';
 import 'package:DigiHealth/groupChat.dart';
 import 'package:DigiHealth/groupLeaderboard.dart';
 import 'package:DigiHealth/groupSettings.dart';
@@ -40,7 +41,7 @@ class _GroupPageControllerState extends State<GroupPageController> {
             }),
         tabBuilder: (context, i) {
           if (i == 0) {
-            return ProfilePage();
+            return GroupChallengesPage();
           } else if (i == 1) {
             return GroupChat(widget.groupName);
           } else if (i == 2) {
@@ -71,7 +72,7 @@ class _GroupPageControllerState extends State<GroupPageController> {
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);
-      profileIcon = (i == 4)
+      profileIcon = (i == 3)
           ? Icon(Icons.settings, color: Colors.white)
           : Icon(Icons.settings_outlined, color: Colors.white);
     });

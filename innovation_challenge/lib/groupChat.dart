@@ -39,9 +39,18 @@ class _GroupChatState extends State<GroupChat> {
       appBar: CupertinoNavigationBar(
         transitionBetweenRoutes: false,
         heroTag: "groupChat",
-        middle: Text(widget.groupName,
+        middle: Text("Group Chat",
             style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
         backgroundColor: secondaryColor,
+        leading: GestureDetector(
+          child: Icon(
+            Icons.home_rounded,
+            color: Colors.white,
+          ),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Chat(
         theme: const DarkChatTheme(

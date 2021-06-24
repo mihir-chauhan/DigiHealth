@@ -11,6 +11,7 @@ class GroupLeaderboard extends StatefulWidget {
   final String groupName;
 
   const GroupLeaderboard(this.groupName);
+
   @override
   _GroupLeaderboardState createState() => _GroupLeaderboardState();
 }
@@ -136,19 +137,21 @@ class _GroupLeaderboardState extends State<GroupLeaderboard> {
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
-            transitionBetweenRoutes: false,
-            heroTag: "groupLeaderboard",
-            middle: Text("Leaderboard",
-                style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
-            backgroundColor: secondaryColor,
-            leading: GestureDetector(
-              onTap: () async {},
-              child: Icon(
-                Icons.center_focus_strong_rounded,
-                color: secondaryColor,
-                size: 30,
-              ),
-            )),
+          transitionBetweenRoutes: false,
+          heroTag: "groupLeaderboard",
+          middle: Text("Group Leaderboard",
+              style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
+          backgroundColor: secondaryColor,
+          leading: GestureDetector(
+            child: Icon(
+              Icons.home_rounded,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
         child: ValueListenableBuilder2<List<String>, List<int>>(
           leaderboardName,
           leaderboardPoints,

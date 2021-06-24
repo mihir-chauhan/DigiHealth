@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class GroupSettings extends StatefulWidget {
   final String groupName;
@@ -17,35 +18,79 @@ class GroupSettings extends StatefulWidget {
 
 class _GroupSettingsState extends State<GroupSettings> {
   List<Widget> membersList = [];
-
+  bool populatedMembers = false;
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
-    populateMembers();
+    if(!populatedMembers) {
+      populatedMembers = true;
+      populateMembers();
+    }
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
         navigationBar: CupertinoNavigationBar(
             transitionBetweenRoutes: false,
             heroTag: "groupSettings",
-            middle: Text("Settings",
+            middle: Text("Group Settings",
                 style: TextStyle(color: Colors.white, fontFamily: 'Nunito')),
             backgroundColor: secondaryColor,
             leading: GestureDetector(
               child: Icon(
-                Icons.circle,
-                color: secondaryColor,
+                Icons.home_rounded,
+                color: Colors.white,
               ),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
             trailing: GestureDetector(
               onTap: () async {
-                try {
-                  AuthService auth = Provider.of(context).auth;
-                  await auth.signOut();
-                } catch (e) {
-                  print(e);
-                }
+                Alert(
+                  context: context,
+                  type: AlertType.none,
+                  style: AlertStyle(
+                      animationDuration:
+                      const Duration(milliseconds: 300),
+                      animationType: AnimationType.grow,
+                      backgroundColor: secondaryColor,
+                      descStyle: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito'),
+                      titleStyle: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Nunito')),
+                  title: "Are you sure you want to leave?",
+                  desc:
+                  "This action cannot be undone.",
+                  image: SizedBox(),
+                  closeIcon: Icon(Icons.clear, color: Colors.white),
+                  buttons: [
+                    DialogButton(
+                      child: Text(
+                        "Leave",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontFamily: 'Nunito'),
+                      ),
+                      onPressed: () {
+                        final User user =
+                            Provider.of(context).auth.firebaseAuth.currentUser;
+                        FirebaseFirestore.instance
+                            .collection("DigiGroup")
+                            .doc(widget.groupName)
+                            .collection("Members")
+                            .doc(user.email)
+                            .delete();
+                        Navigator.pop(context);
+                      },
+                      color: badColor,
+                    ),
+                  ],
+                ).show();
+
               },
               child: Icon(
                 Icons.exit_to_app_rounded,
@@ -64,7 +109,6 @@ class _GroupSettingsState extends State<GroupSettings> {
                   SizedBox(
                     height: _height * 0.01,
                   ),
-                  //TODO: Change name
                   Text(widget.groupName,
                       style: TextStyle(
                           fontSize: 48,
@@ -82,7 +126,6 @@ class _GroupSettingsState extends State<GroupSettings> {
                   SizedBox(
                     height: 10,
                   ),
-                  SizedBox(height: 30),
                   AutoSizeText("Members",
                       maxLines: 1,
                       style: TextStyle(
@@ -103,30 +146,6 @@ class _GroupSettingsState extends State<GroupSettings> {
                   ),
                   Column(
                     children: membersList,
-                  ),
-                  SizedBox(
-                    height: _height * 0.05,
-                  ),
-                  CupertinoButton(
-                    padding: EdgeInsets.all(8.0),
-                    color: Colors.red,
-                    child: Text('Leave Group',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontSize: 17.0,
-                            fontWeight: FontWeight.bold)),
-                    onPressed: () async {
-                      final User user =
-                          Provider.of(context).auth.firebaseAuth.currentUser;
-                      FirebaseFirestore.instance
-                          .collection("DigiGroup")
-                          .doc(widget.groupName)
-                          .collection("Members")
-                          .doc(user.email)
-                          .delete();
-                      Navigator.pushNamed(context, "/home");
-                    },
                   ),
                 ],
               ),

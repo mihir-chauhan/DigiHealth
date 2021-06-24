@@ -21,11 +21,13 @@ List<CardItem> groupImageChoices = [
 List<String> groupImageChoiceLinks = [];
 int selectedImageIndex = -1;
 User user;
+BuildContext buildContext;
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
   bool hasUpdatedGroupImageChoices = false;
   @override
   Widget build(BuildContext context) {
+    buildContext = context;
     user = Provider.of(context).auth.firebaseAuth.currentUser;
     if (!hasUpdatedGroupImageChoices) {
       hasUpdatedGroupImageChoices = true;
@@ -95,6 +97,7 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
       error = true;
     }
     if (!error) {
+      print("CREATING GROUP");
       //Create group in Firebase DB
       FirebaseFirestore.instance
           .collection("DigiGroup")
@@ -111,7 +114,7 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
           .collection("Chat")
           .add({
         "created": DateTime.now(),
-        "message": "Welcome to the '${groupName.value}' group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" + text + " Have fun!",
+        "message": "Welcome to the '${groupName.value}' group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" + text + " Have fun! - DigiHealth Team",
         "sentBy": "DigiHealth",
       });
       FirebaseFirestore.instance
@@ -124,7 +127,7 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
         "Points": 0,
         "isAdmin": true,
       });
-      emitSuccess();
+      Navigator.of(buildContext).pop();
     }
   }
 }
