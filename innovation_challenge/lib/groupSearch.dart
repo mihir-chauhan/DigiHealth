@@ -130,58 +130,107 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
               mainAxisSize: MainAxisSize.min,
               children: queriedUserNames.map((username) {
                 return GestureDetector(
-                  onTap: () {
-                    Alert(
-                      context: context,
-                      type: AlertType.none,
-                      style: AlertStyle(
-                          animationDuration:
-                          const Duration(milliseconds: 300),
-                          animationType: AnimationType.grow,
-                          backgroundColor: secondaryColor,
-                          descStyle: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Nunito'),
-                          titleStyle: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Nunito')),
-                      title: "Invite to '${widget.groupName}'",
-                      desc:
-                      "Would you like to invite '$username'?",
-                      image: SizedBox(),
-                      closeIcon: Icon(Icons.clear, color: Colors.white),
-                      buttons: [
-                        DialogButton(
-                          child: Text(
-                            "Invite",
-                            style: TextStyle(
+                  onTap: () async {
+                    String email = "";
+                    for(int i = 0; i < allUserNames.length; i++) {
+                      if(allUserNames.elementAt(i).contains(username)) {
+                        email = allUserEmails.elementAt(i);
+                        print("EMAIL: " + email);
+                      }
+                    }
+
+                    final snapShot = await FirebaseFirestore.instance
+                        .collection("DigiGroup")
+                        .doc(widget.groupName)
+                        .collection("Members")
+                        .doc(email)
+                        .get();
+
+                    if (snapShot == null || !snapShot.exists) {
+                      Alert(
+                        context: context,
+                        type: AlertType.none,
+                        style: AlertStyle(
+                            animationDuration:
+                            const Duration(milliseconds: 300),
+                            animationType: AnimationType.grow,
+                            backgroundColor: secondaryColor,
+                            descStyle: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
                                 fontFamily: 'Nunito'),
-                          ),
-                          onPressed: () {
-                            String email = "";
-                            for(int i = 0; i < allUserNames.length; i++) {
-                              if(allUserNames.elementAt(i).contains(username)) {
-                                email = allUserEmails.elementAt(i);
-                                print("EMAIL: " + email);
+                            titleStyle: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Nunito')),
+                        title: "Invite to '${widget.groupName}'",
+                        desc:
+                        "Would you like to invite '$username'?",
+                        image: SizedBox(),
+                        closeIcon: Icon(Icons.clear, color: Colors.white),
+                        buttons: [
+                          DialogButton(
+                            child: Text(
+                              "Invite",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontFamily: 'Nunito'),
+                            ),
+                            onPressed: () {
+                              String email = "";
+                              for(int i = 0; i < allUserNames.length; i++) {
+                                if(allUserNames.elementAt(i).contains(username)) {
+                                  email = allUserEmails.elementAt(i);
+                                  print("EMAIL: " + email);
+                                }
                               }
-                            }
-                            User user = Provider.of(context).auth.firebaseAuth.currentUser;
-                            FirebaseFirestore.instance
-                                .collection("User Data")
-                                .doc(email)
-                                .collection("Invites")
-                                .doc(widget.groupName)
-                                .set({
-                              "Inviter": user.displayName,
-                            });
-                            Navigator.pop(context);
-                          },
-                          color: tertiaryColor,
-                        ),
-                      ],
-                    ).show();
+                              User user = Provider.of(context).auth.firebaseAuth.currentUser;
+                              FirebaseFirestore.instance
+                                  .collection("User Data")
+                                  .doc(email)
+                                  .collection("Invites")
+                                  .doc(widget.groupName)
+                                  .set({
+                                "Inviter": user.displayName,
+                              });
+                              Navigator.pop(context);
+                            },
+                            color: tertiaryColor,
+                          ),
+                        ],
+                      ).show();
+                    } else {
+                      Alert(
+                        context: context,
+                        type: AlertType.none,
+                        style: AlertStyle(
+                            isOverlayTapDismiss: false,
+                            animationDuration:
+                            const Duration(milliseconds: 300),
+                            animationType: AnimationType.grow,
+                            backgroundColor: secondaryColor,
+                            descStyle: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Nunito'),
+                            titleStyle: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Nunito')),
+                        title: "Already a Member",
+                        desc: "$username already is a member of this group!",
+                        image: SizedBox(),
+                        closeIcon: Icon(Icons.clear, color: Colors.white),
+                        closeFunction: () {
+                          Navigator.of(context).pop();
+                        },
+                        buttons: [
+                          DialogButton(
+                            child: SizedBox(),
+                            color: secondaryColor,
+                            height: 1,
+                            onPressed: null,
+                          ),
+                        ],
+                      ).show();
+                    }
                   },
                   child: Container(
                       height: 52,
