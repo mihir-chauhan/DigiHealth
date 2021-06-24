@@ -19,6 +19,10 @@ enum GroupVisibility { PUBLIC, PRIVATE }
 
 enum CardTypes { MY_GROUP, PUBLIC_GROUP, GROUP_INVITES }
 
+int myTotalGroups = 0;
+int totalPublicGroups = 0;
+int totalInvites = 0;
+
 class _GroupsPageState extends State<GroupsPage> {
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,8 @@ class _GroupsPageState extends State<GroupsPage> {
                   yourGroups();
                   populatedPublicGroupPageCards = false;
                   publicGroups();
+                  populatedInvitedGroupPageCards = false;
+                  groupInvites();
                 });
               },
               child: Icon(
@@ -60,9 +66,12 @@ class _GroupsPageState extends State<GroupsPage> {
           backgroundColor: primaryColor,
           body: ContainedTabBarView(
             tabs: [
-              Text("Your Groups", style: TextStyle(fontFamily: 'Nunito')),
-              Text("Public Groups", style: TextStyle(fontFamily: 'Nunito')),
-              Text("Invites", style: TextStyle(fontFamily: 'Nunito')),
+              Text("Your Groups ($myTotalGroups)",
+                  style: TextStyle(fontFamily: 'Nunito')),
+              Text("Public Groups ($totalPublicGroups)",
+                  style: TextStyle(fontFamily: 'Nunito')),
+              Text("Invites ($totalInvites)",
+                  style: TextStyle(fontFamily: 'Nunito')),
             ],
             tabBarProperties: TabBarProperties(
               height: 52.0,
@@ -79,7 +88,10 @@ class _GroupsPageState extends State<GroupsPage> {
               } else if (index == 1) {
                 populatedPublicGroupPageCards = false;
                 publicGroups();
-              } else if (index == 2) {}
+              } else if (index == 2) {
+                populatedInvitedGroupPageCards = false;
+                groupInvites();
+              }
             },
           ),
         ));
@@ -91,8 +103,13 @@ class _GroupsPageState extends State<GroupsPage> {
   Widget yourGroups() {
     if (!populatedYourGroupPageCards) {
       populatedYourGroupPageCards = true;
-      User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      User user = Provider
+          .of(context)
+          .auth
+          .firebaseAuth
+          .currentUser;
       yourGroupsPageCards.clear();
+      myTotalGroups = 0;
       FirebaseFirestore.instance
           .collection("DigiGroup")
           .get()
@@ -107,6 +124,8 @@ class _GroupsPageState extends State<GroupsPage> {
             membersDocuments.docs.forEach((member) {
               if (member.id.contains(user.email)) {
                 setState(() {
+                  myTotalGroups += 1;
+
                   yourGroupsPageCards.add(groupCardBuilder(
                       groupName: groupDoc.id,
                       imageSrc: groupDoc.get("image"),
@@ -124,23 +143,27 @@ class _GroupsPageState extends State<GroupsPage> {
                             .collection("Members")
                             .get()
                             .then((QuerySnapshot memberDocs) {
-                              memberDocs.docs.forEach((member) {
-                                if(member.id.contains(user.email)) {
-                                  userIsInGroup = true;
-                                  Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(builder: (context) => GroupPageController(groupName, member.get("isAdmin"))),
-                                  ).then((value) {
-                                    //Called when Create Groups Page pops
-                                    populatedYourGroupPageCards = false;
-                                    yourGroups();
-                                    populatedPublicGroupPageCards = false;
-                                    publicGroups();
-                                  });
-                                }
+                          memberDocs.docs.forEach((member) {
+                            if (member.id.contains(user.email)) {
+                              userIsInGroup = true;
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(builder: (context) =>
+                                    GroupPageController(
+                                        groupName, member.get("isAdmin"))),
+                              ).then((value) {
+                                //Called when Create Groups Page pops
+                                populatedYourGroupPageCards = false;
+                                yourGroups();
+                                populatedPublicGroupPageCards = false;
+                                publicGroups();
+                                populatedInvitedGroupPageCards = false;
+                                groupInvites();
                               });
+                            }
+                          });
                         }).then((value) {
-                          if(!userIsInGroup) {
+                          if (!userIsInGroup) {
                             Alert(
                               context: context,
                               type: AlertType.none,
@@ -176,7 +199,8 @@ class _GroupsPageState extends State<GroupsPage> {
                                         .collection("Chat")
                                         .add({
                                       "created": DateTime.now(),
-                                      "message": "${user.displayName.toString()} has joined.",
+                                      "message": "${user.displayName
+                                          .toString()} has joined.",
                                       "sentBy": user.displayName,
                                     });
                                     FirebaseFirestore.instance
@@ -192,13 +216,17 @@ class _GroupsPageState extends State<GroupsPage> {
                                     Navigator.pop(context);
                                     Navigator.push(
                                       context,
-                                      CupertinoPageRoute(builder: (context) => GroupPageController(groupName, false)),
+                                      CupertinoPageRoute(builder: (context) =>
+                                          GroupPageController(
+                                              groupName, false)),
                                     ).then((value) {
                                       //Called when Create Groups Page pops
                                       populatedYourGroupPageCards = false;
                                       yourGroups();
                                       populatedPublicGroupPageCards = false;
                                       publicGroups();
+                                      populatedInvitedGroupPageCards = false;
+                                      groupInvites();
                                     });
                                   },
                                   color: tertiaryColor,
@@ -232,7 +260,12 @@ class _GroupsPageState extends State<GroupsPage> {
   Widget publicGroups() {
     if (!populatedPublicGroupPageCards) {
       populatedPublicGroupPageCards = true;
-      User user = Provider.of(context).auth.firebaseAuth.currentUser;
+      User user = Provider
+          .of(context)
+          .auth
+          .firebaseAuth
+          .currentUser;
+      totalPublicGroups = 0;
       publicGroupsPageCards.clear();
       FirebaseFirestore.instance
           .collection("DigiGroup")
@@ -254,6 +287,7 @@ class _GroupsPageState extends State<GroupsPage> {
             if (!containsMyselfAsAUser &&
                 groupDoc.get("visibility").toString().contains("Public")) {
               setState(() {
+                totalPublicGroups += 1;
                 publicGroupsPageCards.add(groupCardBuilder(
                     groupName: groupDoc.id,
                     imageSrc: groupDoc.get("image"),
@@ -269,22 +303,26 @@ class _GroupsPageState extends State<GroupsPage> {
                           .get()
                           .then((QuerySnapshot memberDocs) {
                         memberDocs.docs.forEach((member) {
-                          if(member.id.contains(user.email)) {
+                          if (member.id.contains(user.email)) {
                             userIsInGroup = true;
                             Navigator.push(
                               context,
-                              CupertinoPageRoute(builder: (context) => GroupPageController(groupName, member.get("isAdmin"))),
+                              CupertinoPageRoute(builder: (context) =>
+                                  GroupPageController(
+                                      groupName, member.get("isAdmin"))),
                             ).then((value) {
                               //Called when Create Groups Page pops
                               populatedYourGroupPageCards = false;
                               yourGroups();
                               populatedPublicGroupPageCards = false;
                               publicGroups();
+                              populatedInvitedGroupPageCards = false;
+                              groupInvites();
                             });
                           }
                         });
                       }).then((value) {
-                        if(!userIsInGroup) {
+                        if (!userIsInGroup) {
                           Alert(
                             context: context,
                             type: AlertType.none,
@@ -320,7 +358,8 @@ class _GroupsPageState extends State<GroupsPage> {
                                       .collection("Chat")
                                       .add({
                                     "created": DateTime.now(),
-                                    "message": "${user.displayName.toString()} just joined.",
+                                    "message": "${user.displayName
+                                        .toString()} just joined.",
                                     "sentBy": user.displayName,
                                   });
                                   FirebaseFirestore.instance
@@ -336,13 +375,16 @@ class _GroupsPageState extends State<GroupsPage> {
                                   Navigator.pop(context);
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => GroupPageController(groupName, false)),
+                                    CupertinoPageRoute(builder: (context) =>
+                                        GroupPageController(groupName, false)),
                                   ).then((value) {
                                     //Called when Create Groups Page pops
                                     populatedYourGroupPageCards = false;
                                     yourGroups();
                                     populatedPublicGroupPageCards = false;
                                     publicGroups();
+                                    populatedInvitedGroupPageCards = false;
+                                    groupInvites();
                                   });
                                 },
                                 color: tertiaryColor,
@@ -370,33 +412,140 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
+  List<Widget> invitedGroupsPageCards = [];
+  bool populatedInvitedGroupPageCards = false;
+
   Widget groupInvites() {
+    if (!populatedInvitedGroupPageCards) {
+      invitedGroupsPageCards.clear();
+      totalInvites = 0;
+      populatedInvitedGroupPageCards = true;
+      User user = Provider
+          .of(context)
+          .auth
+          .firebaseAuth
+          .currentUser;
+      FirebaseFirestore.instance
+          .collection("User Data")
+          .doc(user.email)
+          .collection("Invites")
+          .get()
+          .then((QuerySnapshot invites) {
+        invites.docs.forEach((invite) {
+          FirebaseFirestore.instance
+              .collection("DigiGroup")
+              .doc(invite.id)
+              .get()
+              .then((DocumentSnapshot groupData) {
+            setState(() {
+              totalInvites += 1;
+              invitedGroupsPageCards.add(groupCardBuilder(
+                  groupName: groupData.id,
+                  imageSrc: groupData.get("image"),
+                  inviter: invite.get("Inviter"),
+                  cardTypes: CardTypes.GROUP_INVITES,
+                  callback: (groupName) {
+                    Alert(
+                      context: context,
+                      type: AlertType.none,
+                      style: AlertStyle(
+                          animationDuration:
+                          const Duration(milliseconds: 300),
+                          animationType: AnimationType.grow,
+                          backgroundColor: secondaryColor,
+                          descStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito'),
+                          titleStyle: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito')),
+                      title: "You are not a member of '$groupName'",
+                      desc:
+                      "Would you like to join?",
+                      image: SizedBox(),
+                      closeIcon: Icon(Icons.clear, color: Colors.white),
+                      buttons: [
+                        DialogButton(
+                          child: Text(
+                            "Join",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontFamily: 'Nunito'),
+                          ),
+                          onPressed: () {
+                            FirebaseFirestore.instance
+                                .collection("DigiGroup")
+                                .doc(groupName)
+                                .collection("Chat")
+                                .add({
+                              "created": DateTime.now(),
+                              "message": "${user.displayName
+                                  .toString()} just joined.",
+                              "sentBy": user.displayName,
+                            });
+                            FirebaseFirestore.instance
+                                .collection("DigiGroup")
+                                .doc(groupName)
+                                .collection("Members")
+                                .doc(user.email)
+                                .set({
+                              "Name": user.displayName,
+                              "Points": 0,
+                              "isAdmin": false,
+                            });
+                            FirebaseFirestore.instance
+                                .collection("User Data")
+                                .doc(user.email)
+                                .collection("Invites")
+                                .doc(groupName)
+                                .delete();
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(builder: (context) =>
+                                  GroupPageController(groupName, false)),
+                            ).then((value) {
+                              //Called when Create Groups Page pops
+                              populatedYourGroupPageCards = false;
+                              yourGroups();
+                              populatedPublicGroupPageCards = false;
+                              publicGroups();
+                              populatedInvitedGroupPageCards = false;
+                              groupInvites();
+                            });
+                          },
+                          color: tertiaryColor,
+                        ),
+                      ],
+                    ).show();
+                  }
+              ));
+            });
+          });
+        });
+      });
+    }
+
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          children: [
-            groupCardBuilder(
-                groupName: "Weight... What?",
-                imageSrc:
-                    "https://img.icons8.com/cotton/250/000000/weight-1--v2.png",
-                inviter: "Suporgamer",
-                cardTypes: CardTypes.GROUP_INVITES),
-          ],
+          children: invitedGroupsPageCards,
         ),
       ),
     );
   }
 
-  GestureDetector groupCardBuilder(
-      {String groupName,
-      String imageSrc,
-      int members,
-      int activeChallenges,
-      String inviter,
-      GroupVisibility groupVisibility,
-      CardTypes cardTypes,
-      Function(String) callback}) {
+  GestureDetector groupCardBuilder({String groupName,
+    String imageSrc,
+    int members,
+    int activeChallenges,
+    String inviter,
+    GroupVisibility groupVisibility,
+    CardTypes cardTypes,
+    Function(String) callback}) {
     if (cardTypes == CardTypes.MY_GROUP) {
       return GestureDetector(
         onTap: () {
@@ -410,7 +559,10 @@ class _GroupsPageState extends State<GroupsPage> {
           color: secondaryColor,
           shadowColor: Colors.black54,
           child: Container(
-              height: MediaQuery.of(context).size.width * 0.2,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.2,
               child: Padding(
                 padding: EdgeInsets.all(15),
                 child: Row(
@@ -420,7 +572,10 @@ class _GroupsPageState extends State<GroupsPage> {
                         children: [
                           Image.network(
                             imageSrc,
-                            height: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.3,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
@@ -440,7 +595,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
@@ -464,7 +619,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
@@ -488,7 +643,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
@@ -499,13 +654,13 @@ class _GroupsPageState extends State<GroupsPage> {
                                           children: [
                                             Icon(
                                                 groupVisibility ==
-                                                        GroupVisibility.PRIVATE
+                                                    GroupVisibility.PRIVATE
                                                     ? Icons.visibility_off
                                                     : Icons.visibility,
                                                 color: Colors.white),
                                             Text(
                                                 groupVisibility ==
-                                                        GroupVisibility.PRIVATE
+                                                    GroupVisibility.PRIVATE
                                                     ? "Private"
                                                     : "Public",
                                                 style: TextStyle(
@@ -546,7 +701,10 @@ class _GroupsPageState extends State<GroupsPage> {
           color: secondaryColor,
           shadowColor: Colors.black54,
           child: Container(
-              height: MediaQuery.of(context).size.width * 0.2,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.2,
               child: Padding(
                 padding: EdgeInsets.all(15),
                 child: Row(
@@ -556,7 +714,10 @@ class _GroupsPageState extends State<GroupsPage> {
                         children: [
                           Image.network(
                             imageSrc,
-                            height: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.3,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
@@ -576,7 +737,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
@@ -600,7 +761,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
@@ -650,7 +811,10 @@ class _GroupsPageState extends State<GroupsPage> {
           color: secondaryColor,
           shadowColor: Colors.black54,
           child: Container(
-              height: MediaQuery.of(context).size.width * 0.2,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.2,
               child: Padding(
                 padding: EdgeInsets.all(15),
                 child: Row(
@@ -660,7 +824,10 @@ class _GroupsPageState extends State<GroupsPage> {
                         children: [
                           Image.network(
                             imageSrc,
-                            height: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.3,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
@@ -680,7 +847,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                       elevation: 5,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        BorderRadius.circular(10.0),
                                       ),
                                       color: tertiaryColor,
                                       shadowColor: Colors.black54,
