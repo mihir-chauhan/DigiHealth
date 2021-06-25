@@ -2,7 +2,6 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'appPrefs.dart';
 import 'mentalHealthAudioBuilder.dart';
@@ -50,24 +49,28 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
       ),
     ),
     AudioSource.uri(
-      Uri.parse("asset:///audio/nature.mp3"),
+      Uri.parse("https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
       tag: AudioMetadata(
-        album: "Public Domain",
-        title: "Nature Sounds",
+        album: "Science Friday",
+        title: "From Cat Rheology To Operatic Incompetence",
         artwork:
-            "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
+        "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
+      ),
+    ),AudioSource.uri(
+      Uri.parse("https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
+      tag: AudioMetadata(
+        album: "Science Friday",
+        title: "From Cat Rheology To Operatic Incompetence",
+        artwork:
+        "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
       ),
     ),
   ]);
-  int _addedCount = 0;
 
   @override
   void initState() {
     super.initState();
     _player = AudioPlayer();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
-    ));
     _init();
   }
 
@@ -129,7 +132,6 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
             children: [
               Expanded(
                 child: StreamBuilder<SequenceState>(
-                  stream: _player.sequenceStateStream,
                   builder: (context, snapshot) {
                     final state = snapshot.data;
                     if (state.sequence.isEmpty ?? true) return SizedBox();
@@ -177,8 +179,8 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                       final loopMode = snapshot.data ?? LoopMode.off;
                       const icons = [
                         Icon(Icons.repeat, color: Colors.white),
-                        Icon(Icons.repeat, color: Colors.white),
-                        Icon(Icons.repeat_one, color: Colors.white),
+                        Icon(Icons.repeat_on_outlined, color: Colors.white),
+                        Icon(Icons.repeat_one_on_outlined, color: Colors.white),
                       ];
                       const cycleModes = [
                         LoopMode.off,
@@ -199,7 +201,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                   Expanded(
                     child: Text(
                       "Playlist",
-                      style: Theme.of(context).textTheme.headline6,
+                      style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize, fontFamily: 'Nunito', color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -209,7 +211,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                       final shuffleModeEnabled = snapshot.data ?? false;
                       return IconButton(
                         icon: shuffleModeEnabled
-                            ? Icon(Icons.shuffle, color: Colors.white)
+                            ? Icon(Icons.shuffle_on_outlined, color: Colors.white)
                             : Icon(Icons.shuffle, color: Colors.white),
                         onPressed: () async {
                           final enable = !shuffleModeEnabled;
@@ -230,38 +232,10 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                   builder: (context, snapshot) {
                     final state = snapshot.data;
                     final sequence = state?.sequence ?? [];
-                    return ReorderableListView(
-                      onReorder: (int oldIndex, int newIndex) {
-                        if (oldIndex < newIndex) newIndex--;
-                        _playlist.move(oldIndex, newIndex);
-                      },
-                      children: [
-                        for (var i = 0; i < sequence.length; i++)
-                          Dismissible(
-                            key: ValueKey(sequence[i]),
-                            background: Container(
-                              color: Colors.white,
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Icon(Icons.delete, color: Colors.white),
-                              ),
-                            ),
-                            onDismissed: (dismissDirection) {
-                              _playlist.removeAt(i);
-                            },
-                            child: Material(
-                              color:
-                                  i == state.currentIndex ? Colors.white : null,
-                              child: ListTile(
-                                title: Text(sequence[i].tag.title as String),
-                                onTap: () {
-                                  _player.seek(Duration.zero, index: i);
-                                },
-                              ),
-                            ),
-                          ),
-                      ],
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: elements(sequence, state),
+                      ),
                     );
                   },
                 ),
@@ -269,22 +243,24 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            _playlist.add(AudioSource.uri(
-              Uri.parse("asset:///audio/nature.mp3"),
-              tag: AudioMetadata(
-                album: "Public Domain",
-                title: "Nature Sounds ${++_addedCount}",
-                artwork:
-                    "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
-              ),
-            ));
-          },
-        ),
       ),
     );
+  }
+
+  List<Widget> elements(var sequence, var state) {
+    List<Widget> list = [];
+    for (var i = 0; i < sequence.length; i++) {
+      list.add(Material(
+        color: i == state.currentIndex ? secondaryColor : tertiaryColor,
+        child: ListTile(
+          title: Text(sequence[i].tag.title as String, style: TextStyle(fontFamily: 'Nunito', color: Colors.white),),
+          onTap: () {
+            _player.seek(Duration.zero, index: i);
+          },
+        ),
+      ));
+    }
+    return list;
   }
 }
 
@@ -299,7 +275,7 @@ class ControlButtons extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: Icon(Icons.volume_up),
+          icon: Icon(Icons.volume_up, color: Colors.white),
           onPressed: () {
             showSliderDialog(
               context: context,
@@ -315,7 +291,7 @@ class ControlButtons extends StatelessWidget {
         StreamBuilder<SequenceState>(
           stream: player.sequenceStateStream,
           builder: (context, snapshot) => IconButton(
-            icon: Icon(Icons.skip_previous),
+            icon: Icon(Icons.skip_previous_rounded, color: Colors.white),
             onPressed: player.hasPrevious ? player.seekToPrevious : null,
           ),
         ),
@@ -331,24 +307,27 @@ class ControlButtons extends StatelessWidget {
                 margin: EdgeInsets.all(8.0),
                 width: 64.0,
                 height: 64.0,
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.white),
               );
             } else if (playing != true) {
               return IconButton(
-                icon: Icon(Icons.play_arrow),
+                icon: Icon(Icons.play_arrow_rounded),
                 iconSize: 64.0,
+                color: Colors.white,
                 onPressed: player.play,
               );
             } else if (processingState != ProcessingState.completed) {
               return IconButton(
-                icon: Icon(Icons.pause),
+                icon: Icon(Icons.pause_rounded),
                 iconSize: 64.0,
+                color: Colors.white,
                 onPressed: player.pause,
               );
             } else {
               return IconButton(
-                icon: Icon(Icons.replay),
+                icon: Icon(Icons.replay_rounded),
                 iconSize: 64.0,
+                color: Colors.white,
                 onPressed: () => player.seek(Duration.zero,
                     index: player.effectiveIndices.first),
               );
@@ -358,7 +337,7 @@ class ControlButtons extends StatelessWidget {
         StreamBuilder<SequenceState>(
           stream: player.sequenceStateStream,
           builder: (context, snapshot) => IconButton(
-            icon: Icon(Icons.skip_next),
+            icon: Icon(Icons.skip_next_rounded, color: Colors.white),
             onPressed: player.hasNext ? player.seekToNext : null,
           ),
         ),
@@ -366,7 +345,7 @@ class ControlButtons extends StatelessWidget {
           stream: player.speedStream,
           builder: (context, snapshot) => IconButton(
             icon: Text("${snapshot.data?.toStringAsFixed(1)}x",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+                style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
             onPressed: () {
               showSliderDialog(
                 context: context,

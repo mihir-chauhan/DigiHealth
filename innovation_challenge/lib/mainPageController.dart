@@ -17,7 +17,7 @@ class MainPageController extends StatefulWidget {
 
 class _MainPageControllerState extends State<MainPageController> {
   Icon homeIcon = Icon(Icons.home, color: Colors.white);
-  Icon chatIcon = Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
+  Icon podcastsIcon = Icon(Icons.radio_outlined, color: Colors.white);
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
   Icon groupsIcon = Icon(Icons.groups_outlined, color: Colors.white);
   Icon profileIcon = Icon(Icons.settings_outlined, color: Colors.white);
@@ -29,7 +29,7 @@ class _MainPageControllerState extends State<MainPageController> {
             backgroundColor: secondaryColor,
             items: [
               BottomNavigationBarItem(icon: homeIcon),
-              BottomNavigationBarItem(icon: chatIcon),
+              BottomNavigationBarItem(icon: podcastsIcon),
               BottomNavigationBarItem(icon: leaderboardIcon),
               BottomNavigationBarItem(icon: groupsIcon),
               BottomNavigationBarItem(icon: profileIcon),
@@ -66,9 +66,9 @@ class _MainPageControllerState extends State<MainPageController> {
       homeIcon = (i == 0)
           ? Icon(Icons.home, color: Colors.white)
           : Icon(Icons.home_outlined, color: Colors.white);
-      chatIcon = (i == 1)
-          ? Icon(Icons.chat, color: Colors.white)
-          : Icon(Icons.chat_bubble_outline_rounded, color: Colors.white);
+      podcastsIcon = (i == 1)
+          ? Icon(Icons.radio, color: Colors.white)
+          : Icon(Icons.radio_outlined, color: Colors.white);
       leaderboardIcon = (i == 2)
           ? Icon(Icons.leaderboard, color: Colors.white)
           : Icon(Icons.leaderboard_outlined, color: Colors.white);

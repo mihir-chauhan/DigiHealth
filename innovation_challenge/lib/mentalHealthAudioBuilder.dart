@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'appPrefs.dart';
+
 class SeekBar extends StatefulWidget {
   final Duration duration;
   final Duration position;
@@ -43,6 +45,7 @@ class _SeekBarState extends State<SeekBar> {
             thumbShape: HiddenThumbComponentShape(),
             activeTrackColor: Colors.blue.shade100,
             inactiveTrackColor: Colors.grey.shade300,
+            thumbColor: tertiaryColor
           ),
           child: ExcludeSemantics(
             child: Slider(
@@ -151,7 +154,7 @@ void showSliderDialog({
   showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(title, textAlign: TextAlign.center),
+      title: Text(title, textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nunito'),),
       content: StreamBuilder<double>(
         stream: stream,
         builder: (context, snapshot) => Container(
@@ -160,7 +163,7 @@ void showSliderDialog({
             children: [
               Text('${snapshot.data?.toStringAsFixed(1)}$valueSuffix',
                   style: TextStyle(
-                      fontFamily: 'Fixed',
+                      fontFamily: 'Nunito',
                       fontWeight: FontWeight.bold,
                       fontSize: 24.0)),
               Slider(
