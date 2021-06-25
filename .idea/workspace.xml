@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/createGroupPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/createGroupPage.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +163,14 @@
       <option name="project" value="LOCAL" />
       <updated>1624602750203</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added dummy data for DigiDiet">
+      <created>1624603970950</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1624603970950</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -182,7 +189,8 @@
     <MESSAGE value="Added group leaderboard, group settings, and group chat" />
     <MESSAGE value="Changed group chat to reflect chat" />
     <MESSAGE value="Added podcasts" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added podcasts" />
+    <MESSAGE value="Added dummy data for DigiDiet" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added dummy data for DigiDiet" />
   </component>
   <component name="WindowStateProjectService">
     <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1624600040809">
@@ -199,10 +207,10 @@
       <screen x="0" y="25" width="1440" height="804" />
     </state>
     <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806233854" />
-    <state x="74" y="25" key="CommitChangelistDialog2" timestamp="1624602749375">
+    <state x="74" y="25" key="CommitChangelistDialog2" timestamp="1624603970422">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1624602749375" />
+    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1624603970422" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.804@0.25.1440.804" timestamp="1622966848611" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.805@0.25.1440.805" timestamp="1622692598843" />
     <state width="985" height="232" key="GridCell.Tab.0.bottom" timestamp="1624602729667">

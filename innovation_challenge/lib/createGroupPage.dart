@@ -78,11 +78,12 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
     items: ['Public', 'Private'],
   );
 
+  final groupType = SelectFieldBloc(
+    items: ['Physical Health', 'Mental Health'],
+  );
+
   AllFieldsFormBloc() {
-    addFieldBlocs(fieldBlocs: [
-      groupName,
-      groupVisibility,
-    ]);
+    addFieldBlocs(fieldBlocs: [groupName, groupVisibility, groupType]);
   }
 
   @override
@@ -96,6 +97,10 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
       groupVisibility.addFieldError('Please select an option');
       error = true;
     }
+    if (groupType.value == null) {
+      groupType.addFieldError('Please select an option');
+      error = true;
+    }
     if (!error) {
       print("CREATING GROUP");
       //Create group in Firebase DB
@@ -104,17 +109,23 @@ class AllFieldsFormBloc extends FormBloc<String, String> {
           .doc(groupName.value)
           .set({
         "visibility": groupVisibility.value.toString(),
-        "image": groupImageChoiceLinks.elementAt(selectedImageIndex)
+        "image": groupImageChoiceLinks.elementAt(selectedImageIndex),
+        "type": groupType.value.toString(),
       }, SetOptions(merge: true));
 
-      String text =  groupVisibility.value == "Public" ? " to all users." : " from other users.";
+      String text = groupVisibility.value == "Public"
+          ? " to all users."
+          : " from other users.";
       FirebaseFirestore.instance
           .collection("DigiGroup")
           .doc(groupName.value)
           .collection("Chat")
           .add({
         "created": DateTime.now(),
-        "message": "Welcome to the '${groupName.value}' group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" + text + " Have fun! - DigiHealth Team",
+        "message":
+            "Welcome to the '${groupName.value}' group! Feel free to chat and encourage other group members. Your group is ${groupVisibility.value.toString().toLowerCase()}" +
+                text +
+                " Have fun! - DigiHealth Team",
         "sentBy": "DigiHealth",
       });
       FirebaseFirestore.instance
@@ -223,8 +234,28 @@ class _AllFieldsFormState extends State<AllFieldsForm> {
                               ),
                               itemBuilder: (context, item) => item,
                             ),
+                            RadioButtonGroupFieldBlocBuilder<String>(
+                              selectFieldBloc: formBloc.groupType,
+                              canDeselect: false,
+                              decoration: InputDecoration(
+                                labelText: 'Group Type',
+                                prefixIcon: SizedBox(),
+                                labelStyle: TextStyle(fontFamily: 'Nunito'),
+                                errorStyle: TextStyle(fontFamily: 'Nunito'),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: BorderSide(
+                                      color: secondaryColor, width: 1.0),
+                                ),
+                              ),
+                              itemBuilder: (context, item) => item,
+                            ),
                             SizedBox(height: 10),
-                            Text("Select a group icon:", style: TextStyle(fontFamily: 'Nunito', fontSize: 15, color: tertiaryColor)),
+                            Text("Select a group icon:",
+                                style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 15,
+                                    color: tertiaryColor)),
                             SizedBox(height: 10),
                             HorizontalCardPager(
                               initialPage: 0, // default value is 2
