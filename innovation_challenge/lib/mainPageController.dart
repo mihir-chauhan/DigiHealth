@@ -8,6 +8,7 @@ import 'package:DigiHealth/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiHealth/appPrefs.dart';
+import 'package:just_audio/just_audio.dart';
 
 class MainPageController extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _MainPageControllerState extends State<MainPageController> {
   Icon leaderboardIcon = Icon(Icons.leaderboard_outlined, color: Colors.white);
   Icon groupsIcon = Icon(Icons.groups_outlined, color: Colors.white);
   Icon profileIcon = Icon(Icons.settings_outlined, color: Colors.white);
-
+  AudioPlayer player = AudioPlayer();
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
@@ -38,14 +39,18 @@ class _MainPageControllerState extends State<MainPageController> {
             }),
         tabBuilder: (context, i) {
           if (i == 0) {
+            player.pause();
             return HomePage();
           } else if (i == 1) {
-            return MentalHealthAudio();
+            return MentalHealthAudio(player);
           } else if (i == 2) {
+            player.pause();
             return LeaderboardPage();
           } else if (i == 3) {
+            player.pause();
             return GroupsPage();
           } else {
+            player.pause();
             return ProfilePage();
           }
         });

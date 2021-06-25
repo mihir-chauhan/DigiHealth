@@ -1,4 +1,5 @@
 import 'package:audio_session/audio_session.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,70 +8,56 @@ import 'appPrefs.dart';
 import 'mentalHealthAudioBuilder.dart';
 import 'package:rxdart/rxdart.dart';
 
-void main() => runApp(MentalHealthAudio());
-
 class MentalHealthAudio extends StatefulWidget {
+  final AudioPlayer _player;
+
+  const MentalHealthAudio(this._player);
+
   @override
   _MentalHealthAudioState createState() => _MentalHealthAudioState();
 }
 
+
 class _MentalHealthAudioState extends State<MentalHealthAudio> {
-  AudioPlayer _player;
   final _playlist = ConcatenatingAudioSource(children: [
-    ClippingAudioSource(
-      start: Duration(seconds: 60),
-      end: Duration(seconds: 90),
-      child: AudioSource.uri(Uri.parse(
-          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")),
-      tag: AudioMetadata(
-        album: "Science Friday",
-        title: "A Salute To Head-Scratching Science (30 seconds)",
-        artwork:
-            "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
-      ),
-    ),
     AudioSource.uri(
       Uri.parse(
-          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
+          "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/Stress%20and%20the%20Mind%20-%20Quick%20Fix%20Relaxation%20Exercise.mp3?alt=media&token=0466efc4-94d6-40ed-99cd-8b94f156ea88"),
       tag: AudioMetadata(
-        album: "Science Friday",
-        title: "A Salute To Head-Scratching Science",
+        album: "Stress Relief",
+        title: "Stress & Mind: Quick Relaxation",
         artwork:
-            "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
+        "https://firebasestorage.googleapis.com/v0/b/innov8rz-innovation-challenge.appspot.com/o/Podcast%20Icon%20(7).png?alt=media&token=81baffdc-638b-4532-bb7c-4414e4844b8f",
       ),
-    ),
-    AudioSource.uri(
-      Uri.parse("https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
-      tag: AudioMetadata(
-        album: "Science Friday",
-        title: "From Cat Rheology To Operatic Incompetence",
-        artwork:
-            "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
-      ),
-    ),
-    AudioSource.uri(
-      Uri.parse("https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
-      tag: AudioMetadata(
-        album: "Science Friday",
-        title: "From Cat Rheology To Operatic Incompetence",
-        artwork:
-        "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
-      ),
-    ),AudioSource.uri(
-      Uri.parse("https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
-      tag: AudioMetadata(
-        album: "Science Friday",
-        title: "From Cat Rheology To Operatic Incompetence",
-        artwork:
-        "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
-      ),
-    ),
+    )
   ]);
 
   @override
   void initState() {
     super.initState();
-    _player = AudioPlayer();
+
+    FirebaseFirestore.instance
+        .collection("Global Data")
+        .doc("Mental Health Podcasts")
+        .get()
+        .then((DocumentSnapshot doc) {
+      Map<String, dynamic> map = doc.data();
+      map.forEach((key, value) {
+        setState(() {
+          Map<String, dynamic> map = value;
+          print(map.toString());
+          _playlist.add(AudioSource.uri(
+            Uri.parse(map["mp3"]),
+            tag: AudioMetadata(
+              album: map["album"],
+              title: map["title"],
+              artwork: map["image"],
+            ),
+          ));
+        });
+      });
+    });
+
     _init();
   }
 
@@ -78,12 +65,12 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     // Listen to errors during playback.
-    _player.playbackEventStream.listen((event) {},
+    widget._player.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
       print('A stream error occurred: $e');
     });
     try {
-      await _player.setAudioSource(_playlist);
+      await widget._player.setAudioSource(_playlist);
     } catch (e) {
       // Catch load errors: 404, invalid url...
       print("Error loading audio source: $e");
@@ -92,15 +79,17 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
 
   @override
   void dispose() {
-    _player.dispose();
+    print("aksjdfnjalfnasdnfsdajfsanldfkj");
+    widget._player.pause();
+    widget._player.dispose();
     super.dispose();
   }
 
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration, PositionData>(
-          _player.positionStream,
-          _player.bufferedPositionStream,
-          _player.durationStream,
+          widget._player.positionStream,
+          widget._player.bufferedPositionStream,
+          widget._player.durationStream,
           (position, bufferedPosition, duration) => PositionData(
               position, bufferedPosition, duration ?? Duration.zero));
 
@@ -132,7 +121,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
             children: [
               Expanded(
                 child: StreamBuilder<SequenceState>(
-                  stream: _player.sequenceStateStream,
+                  stream: widget._player.sequenceStateStream,
                   builder: (context, snapshot) {
                     final state = snapshot.data;
                     if (state == null) return SizedBox();
@@ -156,7 +145,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                   },
                 ),
               ),
-              ControlButtons(_player),
+              ControlButtons(widget._player),
               StreamBuilder<PositionData>(
                 stream: _positionDataStream,
                 builder: (context, snapshot) {
@@ -167,7 +156,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                     bufferedPosition:
                         positionData?.bufferedPosition ?? Duration.zero,
                     onChangeEnd: (newPosition) {
-                      _player.seek(newPosition);
+                      widget._player.seek(newPosition);
                     },
                   );
                 },
@@ -176,7 +165,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
               Row(
                 children: [
                   StreamBuilder<LoopMode>(
-                    stream: _player.loopModeStream,
+                    stream: widget._player.loopModeStream,
                     builder: (context, snapshot) {
                       final loopMode = snapshot.data ?? LoopMode.off;
                       const icons = [
@@ -193,7 +182,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                       return IconButton(
                         icon: icons[index],
                         onPressed: () {
-                          _player.setLoopMode(cycleModes[
+                          widget._player.setLoopMode(cycleModes[
                               (cycleModes.indexOf(loopMode) + 1) %
                                   cycleModes.length]);
                         },
@@ -208,7 +197,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                     ),
                   ),
                   StreamBuilder<bool>(
-                    stream: _player.shuffleModeEnabledStream,
+                    stream: widget._player.shuffleModeEnabledStream,
                     builder: (context, snapshot) {
                       final shuffleModeEnabled = snapshot.data ?? false;
                       return IconButton(
@@ -218,9 +207,9 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                         onPressed: () async {
                           final enable = !shuffleModeEnabled;
                           if (enable) {
-                            await _player.shuffle();
+                            await widget._player.shuffle();
                           }
-                          await _player.setShuffleModeEnabled(enable);
+                          await widget._player.setShuffleModeEnabled(enable);
                         },
                       );
                     },
@@ -230,7 +219,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
               Container(
                 height: 240.0,
                 child: StreamBuilder<SequenceState>(
-                  stream: _player.sequenceStateStream,
+                  stream: widget._player.sequenceStateStream,
                   builder: (context, snapshot) {
                     final state = snapshot.data;
                     final sequence = state?.sequence ?? [];
@@ -257,7 +246,7 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
         child: ListTile(
           title: Text(sequence[i].tag.title as String, style: TextStyle(fontFamily: 'Nunito', color: Colors.white),),
           onTap: () {
-            _player.seek(Duration.zero, index: i);
+            widget._player.seek(Duration.zero, index: i);
           },
         ),
       ));
