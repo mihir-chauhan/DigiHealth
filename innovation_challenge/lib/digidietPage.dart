@@ -195,7 +195,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
-              .collection('Health Logs')
+              .collection('DigiDiet Data')
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
@@ -205,7 +205,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
-              .collection('Health Logs')
+              .collection('DigiDiet Data')
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
@@ -223,7 +223,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
-              .collection('Health Logs')
+              .collection('DigiDiet Data')
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
@@ -233,7 +233,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
           FirebaseFirestore.instance
               .collection('User Data')
               .doc(user.email)
-              .collection('Health Logs')
+              .collection('DigiDiet Data')
               .doc(DateTime(DateTime.now().year, DateTime.now().month,
                       DateTime.now().day)
                   .toString())
@@ -270,7 +270,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
             FirebaseFirestore.instance
                 .collection('User Data')
                 .doc(user.email)
-                .collection('Health Logs')
+                .collection('DigiDiet Data')
                 .doc(DateTime(newDate.year, newDate.month, newDate.day)
                     .toString())
                 .set({"height": height, "timeStamp": newDate},
@@ -280,7 +280,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
               FirebaseFirestore.instance
                   .collection('User Data')
                   .doc(user.email)
-                  .collection('Health Logs')
+                  .collection('DigiDiet Data')
                   .doc(DateTime(newDate.year, newDate.month, newDate.day)
                       .toString())
                   .set({"weight": 0, "height": 0}, SetOptions(merge: true));
@@ -302,7 +302,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
             FirebaseFirestore.instance
                 .collection('User Data')
                 .doc(user.email)
-                .collection('Health Logs')
+                .collection('DigiDiet Data')
                 .doc(DateTime(newDate.year, newDate.month, newDate.day)
                     .toString())
                 .set({"weight": weight, "timeStamp": newDate},
@@ -311,7 +311,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
               FirebaseFirestore.instance
                   .collection('User Data')
                   .doc(user.email)
-                  .collection('Health Logs')
+                  .collection('DigiDiet Data')
                   .doc(DateTime(newDate.year, newDate.month, newDate.day)
                       .toString())
                   .set({"height": 0}, SetOptions(merge: true));
@@ -348,7 +348,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .collection('Health Logs')
+            .collection('DigiDiet Data')
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
@@ -358,7 +358,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .collection('Health Logs')
+            .collection('DigiDiet Data')
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
@@ -376,7 +376,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .collection('Health Logs')
+            .collection('DigiDiet Data')
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
@@ -386,7 +386,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .collection('Health Logs')
+            .collection('DigiDiet Data')
             .doc(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)
                 .toString())
@@ -406,7 +406,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
         FirebaseFirestore.instance
             .collection('User Data')
             .doc(user.email)
-            .collection('Health Logs')
+            .collection('DigiDiet Data')
             .orderBy("timeStamp", descending: false)
             .get()
             .then((QuerySnapshot querySnapshot) {
