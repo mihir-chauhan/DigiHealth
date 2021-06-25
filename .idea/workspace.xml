@@ -2,8 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7696d3e8-e18b-42f7-bf1a-ffb24f35b7fd" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/innovation_challenge/lib/mentalHealthAudio.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/innovation_challenge/lib/mentalHealthAudioBuilder.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/InnovationChallenge.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/InnovationChallenge.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/groupChat.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/groupChat.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/android/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/android/key.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/chatPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/chatPage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/digidietPage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/groupChallenges.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/groupChallenges.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/lib/mainPageController.dart" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/lib/mainPageController.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/innovation_challenge/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/innovation_challenge/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +159,14 @@
       <option name="project" value="LOCAL" />
       <updated>1624405805612</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Changed group chat to reflect chat">
+      <created>1624406961852</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1624406961852</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -166,58 +183,59 @@
     <MESSAGE value="Notifications are working" />
     <MESSAGE value="In-app notifications are working" />
     <MESSAGE value="Added group leaderboard, group settings, and group chat" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added group leaderboard, group settings, and group chat" />
+    <MESSAGE value="Changed group chat to reflect chat" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed group chat to reflect chat" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1624330647873">
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1624600040809">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.802@0.25.1440.802" timestamp="1624330647873" />
-    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806252402" />
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.802@0.25.1440.802" timestamp="1624600040809" />
+    <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.804@0.25.1440.804" timestamp="1624572267596" />
     <state x="0" y="85" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.805@0.25.1440.805" timestamp="1623970724979" />
-    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1623532831275">
+    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1624571887357">
       <screen x="0" y="25" width="1440" height="804" />
     </state>
-    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser/0.25.1440.804@0.25.1440.804" timestamp="1623532831275" />
+    <state x="227" y="233" key="#com.intellij.fileTypes.FileTypeChooser/0.25.1440.804@0.25.1440.804" timestamp="1624571887357" />
     <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1621806233854">
       <screen x="0" y="25" width="1440" height="804" />
     </state>
     <state x="273" y="220" key="#com.intellij.ide.util.TreeFileChooserDialog/0.25.1440.804@0.25.1440.804" timestamp="1621806233854" />
-    <state x="74" y="25" key="CommitChangelistDialog2" timestamp="1624405805109">
+    <state x="74" y="25" key="CommitChangelistDialog2" timestamp="1624602673528">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1624405805109" />
+    <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.802@0.25.1440.802" timestamp="1624602673528" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.804@0.25.1440.804" timestamp="1622966848611" />
     <state x="74" y="25" key="CommitChangelistDialog2/0.25.1440.805@0.25.1440.805" timestamp="1622692598843" />
-    <state width="985" height="232" key="GridCell.Tab.0.bottom" timestamp="1624406337722">
+    <state width="985" height="232" key="GridCell.Tab.0.bottom" timestamp="1624602729667">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="232" key="GridCell.Tab.0.bottom/0.25.1440.802@0.25.1440.802" timestamp="1624406337722" />
-    <state width="985" height="232" key="GridCell.Tab.0.bottom/0.25.1440.804@0.25.1440.804" timestamp="1624404986603" />
+    <state width="985" height="232" key="GridCell.Tab.0.bottom/0.25.1440.802@0.25.1440.802" timestamp="1624602729667" />
+    <state width="985" height="232" key="GridCell.Tab.0.bottom/0.25.1440.804@0.25.1440.804" timestamp="1624572270731" />
     <state width="985" height="253" key="GridCell.Tab.0.bottom/0.25.1440.805@0.25.1440.805" timestamp="1623996832272" />
     <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.807@0.25.1440.807" timestamp="1622490132728" />
     <state width="985" height="203" key="GridCell.Tab.0.bottom/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
-    <state width="985" height="232" key="GridCell.Tab.0.center" timestamp="1624406337721">
+    <state width="985" height="232" key="GridCell.Tab.0.center" timestamp="1624602729666">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="232" key="GridCell.Tab.0.center/0.25.1440.802@0.25.1440.802" timestamp="1624406337721" />
-    <state width="985" height="232" key="GridCell.Tab.0.center/0.25.1440.804@0.25.1440.804" timestamp="1624404986602" />
+    <state width="985" height="232" key="GridCell.Tab.0.center/0.25.1440.802@0.25.1440.802" timestamp="1624602729666" />
+    <state width="985" height="232" key="GridCell.Tab.0.center/0.25.1440.804@0.25.1440.804" timestamp="1624572270731" />
     <state width="985" height="253" key="GridCell.Tab.0.center/0.25.1440.805@0.25.1440.805" timestamp="1623996832269" />
     <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.807@0.25.1440.807" timestamp="1622490132725" />
     <state width="985" height="203" key="GridCell.Tab.0.center/0.25.1440.809@0.25.1440.809" timestamp="1622835370980" />
-    <state width="985" height="232" key="GridCell.Tab.0.left" timestamp="1624406337720">
+    <state width="985" height="232" key="GridCell.Tab.0.left" timestamp="1624602729664">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="232" key="GridCell.Tab.0.left/0.25.1440.802@0.25.1440.802" timestamp="1624406337720" />
-    <state width="985" height="232" key="GridCell.Tab.0.left/0.25.1440.804@0.25.1440.804" timestamp="1624404986600" />
+    <state width="985" height="232" key="GridCell.Tab.0.left/0.25.1440.802@0.25.1440.802" timestamp="1624602729664" />
+    <state width="985" height="232" key="GridCell.Tab.0.left/0.25.1440.804@0.25.1440.804" timestamp="1624572270729" />
     <state width="985" height="253" key="GridCell.Tab.0.left/0.25.1440.805@0.25.1440.805" timestamp="1623996832268" />
     <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.807@0.25.1440.807" timestamp="1622490132724" />
     <state width="985" height="203" key="GridCell.Tab.0.left/0.25.1440.809@0.25.1440.809" timestamp="1622835370978" />
-    <state width="985" height="232" key="GridCell.Tab.0.right" timestamp="1624406337721">
+    <state width="985" height="232" key="GridCell.Tab.0.right" timestamp="1624602729666">
       <screen x="0" y="25" width="1440" height="802" />
     </state>
-    <state width="985" height="232" key="GridCell.Tab.0.right/0.25.1440.802@0.25.1440.802" timestamp="1624406337721" />
-    <state width="985" height="232" key="GridCell.Tab.0.right/0.25.1440.804@0.25.1440.804" timestamp="1624404986602" />
+    <state width="985" height="232" key="GridCell.Tab.0.right/0.25.1440.802@0.25.1440.802" timestamp="1624602729666" />
+    <state width="985" height="232" key="GridCell.Tab.0.right/0.25.1440.804@0.25.1440.804" timestamp="1624572270731" />
     <state width="985" height="253" key="GridCell.Tab.0.right/0.25.1440.805@0.25.1440.805" timestamp="1623996832270" />
     <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.807@0.25.1440.807" timestamp="1622490132726" />
     <state width="985" height="203" key="GridCell.Tab.0.right/0.25.1440.809@0.25.1440.809" timestamp="1622835370981" />
@@ -231,11 +249,11 @@
     <state x="21" y="62" key="SettingsEditor/0.25.1440.802@0.25.1440.802" timestamp="1622848513135" />
     <state x="21" y="62" key="SettingsEditor/0.25.1440.804@0.25.1440.804" timestamp="1622041679616" />
     <state x="21" y="62" key="SettingsEditor/0.25.1440.805@0.25.1440.805" timestamp="1622304368196" />
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1624404853232">
-      <screen x="0" y="25" width="1440" height="802" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1624572066328">
+      <screen x="0" y="25" width="1440" height="804" />
     </state>
     <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.802@0.25.1440.802" timestamp="1624404853232" />
-    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.804@0.25.1440.804" timestamp="1623999786812" />
+    <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.804@0.25.1440.804" timestamp="1624572066328" />
     <state x="100" y="125" width="827" height="602" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1440.805@0.25.1440.805" timestamp="1623970664446" />
     <state x="298" y="346" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1623801700255">
       <screen x="0" y="25" width="1440" height="802" />

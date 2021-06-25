@@ -2,6 +2,7 @@ import 'package:DigiHealth/chatPage.dart';
 import 'package:DigiHealth/groupsPage.dart';
 import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';
+import 'package:DigiHealth/mentalHealthAudio.dart';
 import 'package:DigiHealth/profilePage.dart';
 import 'package:DigiHealth/provider_widget.dart';
 import 'package:DigiHealth/services/auth_service.dart';
@@ -40,7 +41,7 @@ class _MainPageControllerState extends State<MainPageController> {
           if (i == 0) {
             return HomePage();
           } else if (i == 1) {
-            return ChatPage();
+            return MentalHealthAudio();
           } else if (i == 2) {
             return LeaderboardPage();
           } else if (i == 3) {
