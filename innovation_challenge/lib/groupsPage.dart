@@ -136,7 +136,6 @@ class _GroupsPageState extends State<GroupsPage> {
                           : GroupVisibility.PUBLIC,
                       cardTypes: CardTypes.MY_GROUP,
                       callback: (groupName) {
-                        bool userIsInGroup = false;
                         FirebaseFirestore.instance
                             .collection("DigiGroup")
                             .doc(groupName)
@@ -145,95 +144,28 @@ class _GroupsPageState extends State<GroupsPage> {
                             .then((QuerySnapshot memberDocs) {
                           memberDocs.docs.forEach((member) {
                             if (member.id.contains(user.email)) {
-                              userIsInGroup = true;
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(builder: (context) =>
-                                    GroupPageController(
-                                        groupName, member.get("isAdmin"))),
-                              ).then((value) {
-                                //Called when Create Groups Page pops
-                                populatedYourGroupPageCards = false;
-                                yourGroups();
-                                populatedPublicGroupPageCards = false;
-                                publicGroups();
-                                populatedInvitedGroupPageCards = false;
-                                groupInvites();
+                              FirebaseFirestore.instance
+                                  .collection("DigiGroup")
+                                  .doc(groupName)
+                                  .get()
+                                  .then((DocumentSnapshot doc) {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(builder: (context) =>
+                                      GroupPageController(
+                                          groupName, member.get("isAdmin"), doc["type"])),
+                                ).then((value) {
+                                  //Called when Create Groups Page pops
+                                  populatedYourGroupPageCards = false;
+                                  yourGroups();
+                                  populatedPublicGroupPageCards = false;
+                                  publicGroups();
+                                  populatedInvitedGroupPageCards = false;
+                                  groupInvites();
+                                });
                               });
                             }
                           });
-                        }).then((value) {
-                          if (!userIsInGroup) {
-                            Alert(
-                              context: context,
-                              type: AlertType.none,
-                              style: AlertStyle(
-                                  animationDuration:
-                                  const Duration(milliseconds: 300),
-                                  animationType: AnimationType.grow,
-                                  backgroundColor: secondaryColor,
-                                  descStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'Nunito'),
-                                  titleStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'Nunito')),
-                              title: "You are not a member of '$groupName'",
-                              desc:
-                              "Would you like to join?",
-                              image: SizedBox(),
-                              closeIcon: Icon(Icons.clear, color: Colors.white),
-                              buttons: [
-                                DialogButton(
-                                  child: Text(
-                                    "Join",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontFamily: 'Nunito'),
-                                  ),
-                                  onPressed: () {
-                                    FirebaseFirestore.instance
-                                        .collection("DigiGroup")
-                                        .doc(groupName)
-                                        .collection("Chat")
-                                        .add({
-                                      "created": DateTime.now(),
-                                      "message": "${user.displayName
-                                          .toString()} has joined.",
-                                      "sentBy": user.displayName,
-                                    });
-                                    FirebaseFirestore.instance
-                                        .collection("DigiGroup")
-                                        .doc(groupName)
-                                        .collection("Members")
-                                        .doc(user.email)
-                                        .set({
-                                      "Name": user.displayName,
-                                      "Points": 0,
-                                      "isAdmin": false,
-                                    });
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(builder: (context) =>
-                                          GroupPageController(
-                                              groupName, false)),
-                                    ).then((value) {
-                                      //Called when Create Groups Page pops
-                                      populatedYourGroupPageCards = false;
-                                      yourGroups();
-                                      populatedPublicGroupPageCards = false;
-                                      publicGroups();
-                                      populatedInvitedGroupPageCards = false;
-                                      groupInvites();
-                                    });
-                                  },
-                                  color: tertiaryColor,
-                                ),
-                              ],
-                            ).show();
-                          }
                         });
                       }));
                 });
@@ -305,19 +237,25 @@ class _GroupsPageState extends State<GroupsPage> {
                         memberDocs.docs.forEach((member) {
                           if (member.id.contains(user.email)) {
                             userIsInGroup = true;
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(builder: (context) =>
-                                  GroupPageController(
-                                      groupName, member.get("isAdmin"))),
-                            ).then((value) {
-                              //Called when Create Groups Page pops
-                              populatedYourGroupPageCards = false;
-                              yourGroups();
-                              populatedPublicGroupPageCards = false;
-                              publicGroups();
-                              populatedInvitedGroupPageCards = false;
-                              groupInvites();
+                            FirebaseFirestore.instance
+                                .collection("DigiGroup")
+                                .doc(groupName)
+                                .get()
+                                .then((DocumentSnapshot doc) {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(builder: (context) =>
+                                    GroupPageController(
+                                        groupName, member.get("isAdmin"), doc["type"])),
+                              ).then((value) {
+                                //Called when Create Groups Page pops
+                                populatedYourGroupPageCards = false;
+                                yourGroups();
+                                populatedPublicGroupPageCards = false;
+                                publicGroups();
+                                populatedInvitedGroupPageCards = false;
+                                groupInvites();
+                              });
                             });
                           }
                         });
@@ -372,19 +310,26 @@ class _GroupsPageState extends State<GroupsPage> {
                                     "Points": 0,
                                     "isAdmin": false,
                                   });
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(builder: (context) =>
-                                        GroupPageController(groupName, false)),
-                                  ).then((value) {
-                                    //Called when Create Groups Page pops
-                                    populatedYourGroupPageCards = false;
-                                    yourGroups();
-                                    populatedPublicGroupPageCards = false;
-                                    publicGroups();
-                                    populatedInvitedGroupPageCards = false;
-                                    groupInvites();
+
+                                  FirebaseFirestore.instance
+                                      .collection("DigiGroup")
+                                      .doc(groupName)
+                                      .get()
+                                      .then((DocumentSnapshot doc) {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(builder: (context) =>
+                                          GroupPageController(groupName, false, doc["type"])),
+                                    ).then((value) {
+                                      //Called when Create Groups Page pops
+                                      populatedYourGroupPageCards = false;
+                                      yourGroups();
+                                      populatedPublicGroupPageCards = false;
+                                      publicGroups();
+                                      populatedInvitedGroupPageCards = false;
+                                      groupInvites();
+                                    });
                                   });
                                 },
                                 color: tertiaryColor,
@@ -500,19 +445,25 @@ class _GroupsPageState extends State<GroupsPage> {
                                 .collection("Invites")
                                 .doc(groupName)
                                 .delete();
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(builder: (context) =>
-                                  GroupPageController(groupName, false)),
-                            ).then((value) {
-                              //Called when Create Groups Page pops
-                              populatedYourGroupPageCards = false;
-                              yourGroups();
-                              populatedPublicGroupPageCards = false;
-                              publicGroups();
-                              populatedInvitedGroupPageCards = false;
-                              groupInvites();
+                            FirebaseFirestore.instance
+                                .collection("DigiGroup")
+                                .doc(groupName)
+                                .get()
+                                .then((DocumentSnapshot doc) {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(builder: (context) =>
+                                    GroupPageController(groupName, false, doc["type"])),
+                              ).then((value) {
+                                //Called when Create Groups Page pops
+                                populatedYourGroupPageCards = false;
+                                yourGroups();
+                                populatedPublicGroupPageCards = false;
+                                publicGroups();
+                                populatedInvitedGroupPageCards = false;
+                                groupInvites();
+                              });
                             });
                           },
                           color: tertiaryColor,
