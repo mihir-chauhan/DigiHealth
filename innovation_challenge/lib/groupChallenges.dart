@@ -18,7 +18,7 @@ class _GroupChallengesPageState extends State<GroupChallengesPage> {
   Widget build(BuildContext context) {
     _height = MediaQuery.of(context).size.height;
     _width = MediaQuery.of(context).size.width;
-    PopulateChallenges();
+    populateChallenges();
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: secondaryColor,
@@ -136,7 +136,7 @@ class _GroupChallengesPageState extends State<GroupChallengesPage> {
         ));
   }
 
-  PopulateChallenges() {
+  populateChallenges() {
     challengeCards.add(buildChallengeCard(
         challengeName: "Step Up Your Health",
         imageSource:

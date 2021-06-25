@@ -1,4 +1,3 @@
-import 'package:DigiHealth/chatPage.dart';
 import 'package:DigiHealth/groupsPage.dart';
 import 'package:DigiHealth/homePage.dart';
 import 'package:DigiHealth/leaderboardPage.dart';

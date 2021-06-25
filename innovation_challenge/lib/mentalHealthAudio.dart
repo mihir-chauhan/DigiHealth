@@ -132,9 +132,10 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
             children: [
               Expanded(
                 child: StreamBuilder<SequenceState>(
+                  stream: _player.sequenceStateStream,
                   builder: (context, snapshot) {
                     final state = snapshot.data;
-                    if (state.sequence.isEmpty ?? true) return SizedBox();
+                    if (state == null) return SizedBox();
                     final metadata = state.currentSource.tag as AudioMetadata;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -147,8 +148,9 @@ class _MentalHealthAudioState extends State<MentalHealthAudio> {
                           ),
                         ),
                         Text(metadata.album,
-                            style: Theme.of(context).textTheme.headline6),
-                        Text(metadata.title),
+                            style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize, fontFamily: 'Nunito', color: Colors.white)),
+                        Text(metadata.title,
+                            style: TextStyle(fontFamily: 'Nunito', color: Colors.white)),
                       ],
                     );
                   },
