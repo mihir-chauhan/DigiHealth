@@ -541,10 +541,30 @@ class _DigiDietPageState extends State<DigiDietPage> {
         });
   }
 
-  List<FlSpot> bmiMonth = [];
-  List<FlSpot> weightMonth = [];
-  List<FlSpot> lbmMonth = [];
-  List<FlSpot> fatMonth = [];
+  List<FlSpot> bmiMonth = [
+    new FlSpot(0, 3),
+    new FlSpot(10, 2.7),
+    new FlSpot(20, 2.4),
+    new FlSpot(28, 2.2)
+  ];
+  List<FlSpot> weightMonth = [
+    new FlSpot(0, 3),
+    new FlSpot(10, 2.9),
+    new FlSpot(20, 2.7),
+    new FlSpot(28, 2.3)
+  ];
+  List<FlSpot> lbmMonth = [
+    new FlSpot(0, 4.5),
+    new FlSpot(10, 4.7),
+    new FlSpot(20, 5.0),
+    new FlSpot(28, 5.3)
+  ];
+  List<FlSpot> fatMonth = [
+    new FlSpot(0, 3.5),
+    new FlSpot(10, 3.3),
+    new FlSpot(20, 3.1),
+    new FlSpot(28, 2.8)
+  ];
 
   void updateMealPlanBasedOnDiet() async {
     final User user = Provider.of(context).auth.firebaseAuth.currentUser;
@@ -658,7 +678,7 @@ class _DigiDietPageState extends State<DigiDietPage> {
 
   Widget updateViewBasedOnTab(int i, context) {
     if (!hasWrittenLatestFitnessData) {
-      writeLatestHealthData();
+      // writeLatestHealthData();
       hasWrittenLatestFitnessData = true;
     }
     if (breakfastList[0] == "Loading") {
@@ -1628,13 +1648,13 @@ LineChartData fatMonthData(List<FlSpot> spots) {
         getTitles: (value) {
           switch (value.toInt()) {
             case 1:
-              return '50';
+              return '15';
             case 3:
-              return '150';
+              return '20';
             case 5:
-              return '250';
+              return '25';
             case 7:
-              return '350';
+              return '30';
           }
           return '';
         },
